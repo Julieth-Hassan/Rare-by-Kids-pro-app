@@ -1,0 +1,6 @@
+{
+  "name": "Rare by KidsPro | Kids Fashion & E-Commerce",
+  "description": "Official online boutique for @rare.bykidspro featuring premium kids clothing catalog, regional delivery calculation, integrated multi-method payment checkout, customer product reviews, and live real-time order tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
