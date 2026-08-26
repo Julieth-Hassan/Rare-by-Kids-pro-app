@@ -22,6 +22,7 @@ import {
   INITIAL_COLLECTIONS
 } from './data/products';
 import { BrandCollection, CartItem, DeliveryRegion, Order, OrderStatus, Product, ProductColor, PromoCode, Review } from './types';
+import { fetchLiveSanityProducts, SANITY_CONFIG } from './services/sanity';
 
 export default function App() {
   // State: View Navigation ('shop' | 'collections' | 'bundles' | 'accessories' | 'tracking')
@@ -38,7 +39,42 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
+  // State: Live Sanity Database Connection
+  const [sanityStatus, setSanityStatus] = useState<'loading' | 'connected' | 'error'>('loading');
+  const [sanityCount, setSanityCount] = useState<number>(0);
+  const [isSanitySyncing, setIsSanitySyncing] = useState<boolean>(false);
+  const [lastSanitySyncTime, setLastSanitySyncTime] = useState<Date | null>(null);
+
   const [collections] = useState<BrandCollection[]>(INITIAL_COLLECTIONS);
+
+  // Live Sanity Data Fetcher
+  const loadSanityCatalog = async (silent = false) => {
+    if (!silent) setIsSanitySyncing(true);
+    try {
+      const res = await fetchLiveSanityProducts();
+      setLastSanitySyncTime(res.fetchedAt);
+      if (res.isLive) {
+        setSanityStatus('connected');
+        setSanityCount(res.totalFromSanity);
+        if (res.products.length > 0) {
+          setProducts(res.products);
+          localStorage.setItem('rbk_products', JSON.stringify(res.products));
+        }
+      } else {
+        setSanityStatus('error');
+      }
+    } catch (err) {
+      console.error('Sanity load error:', err);
+      setSanityStatus('error');
+    } finally {
+      setIsSanitySyncing(false);
+    }
+  };
+
+  // Initial Load from Sanity on Mount
+  useEffect(() => {
+    loadSanityCatalog();
+  }, []);
 
   const [reviews, setReviews] = useState<Review[]>(() => {
     const saved = localStorage.getItem('rbk_reviews');
@@ -302,6 +338,11 @@ export default function App() {
               wishlistIds={wishlistIds}
               onToggleWishlist={handleToggleWishlist}
               currentCurrency={currentCurrency}
+              sanityStatus={sanityStatus}
+              sanityCount={sanityCount}
+              isSanitySyncing={isSanitySyncing}
+              lastSanitySyncTime={lastSanitySyncTime}
+              onRefreshSanity={() => loadSanityCatalog(false)}
             />
 
             {/* Shoppable Instagram Feed Section */}
@@ -450,6 +491,11 @@ export default function App() {
         deliveryRegions={deliveryRegions}
         onUpdateDeliveryRegionRate={handleUpdateDeliveryRegionRate}
         products={products}
+        sanityStatus={sanityStatus}
+        sanityCount={sanityCount}
+        isSanitySyncing={isSanitySyncing}
+        lastSanitySyncTime={lastSanitySyncTime}
+        onRefreshSanity={() => loadSanityCatalog(false)}
       />
 
     </div>

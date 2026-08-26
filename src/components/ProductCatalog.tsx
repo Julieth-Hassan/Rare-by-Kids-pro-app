@@ -7,7 +7,9 @@ import {
   Instagram, 
   X,
   ArrowUpDown,
-  Search
+  Search,
+  RefreshCw,
+  Database
 } from 'lucide-react';
 import { Product, ProductColor } from '../types';
 import { ProductCard } from './ProductCard';
@@ -22,6 +24,11 @@ interface ProductCatalogProps {
   wishlistIds: string[];
   onToggleWishlist: (productId: string) => void;
   currentCurrency?: string;
+  sanityStatus?: 'loading' | 'connected' | 'error';
+  sanityCount?: number;
+  isSanitySyncing?: boolean;
+  lastSanitySyncTime?: Date | null;
+  onRefreshSanity?: () => void;
 }
 
 export const ProductCatalog: React.FC<ProductCatalogProps> = ({
@@ -34,6 +41,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   wishlistIds,
   onToggleWishlist,
   currentCurrency = 'USD',
+  sanityStatus = 'connected',
+  sanityCount = 0,
+  isSanitySyncing = false,
+  lastSanitySyncTime,
+  onRefreshSanity,
 }) => {
   const [selectedGender, setSelectedGender] = useState<string>('all');
   const [selectedAge, setSelectedAge] = useState<string>('all');
@@ -131,10 +143,39 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
       {/* Header Row: Title & Controls */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-neutral-200">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">
-            <span>Kids Catalog</span>
-            <span>•</span>
-            <span>{filteredProducts.length} Exclusive Pieces</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <span className="text-amber-700">Kids Catalog</span>
+            <span className="text-neutral-300">•</span>
+            <span className="text-neutral-600">{filteredProducts.length} Exclusive Pieces</span>
+            
+            {/* Sanity Live Database Status Badge */}
+            <span className="text-neutral-300">•</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 border border-neutral-200 text-neutral-700">
+              <Database className="w-3 h-3 text-red-500" />
+              <span>Sanity DB:</span>
+              {sanityStatus === 'connected' ? (
+                <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Live ({sanityCount > 0 ? `${sanityCount} Items` : 'q9d6pxzm'})
+                </span>
+              ) : sanityStatus === 'loading' || isSanitySyncing ? (
+                <span className="text-amber-700 font-bold">Syncing...</span>
+              ) : (
+                <span className="text-neutral-500">Offline Fallback</span>
+              )}
+            </div>
+
+            {onRefreshSanity && (
+              <button
+                onClick={onRefreshSanity}
+                disabled={isSanitySyncing}
+                title="Sync latest products from Sanity database"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition-colors cursor-pointer"
+              >
+                <RefreshCw className={`w-2.5 h-2.5 ${isSanitySyncing ? 'animate-spin' : ''}`} />
+                <span>{isSanitySyncing ? 'Syncing...' : 'Sync Sanity'}</span>
+              </button>
+            )}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 font-display">
             {activeCategory === 'all'
