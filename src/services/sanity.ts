@@ -6,7 +6,7 @@ export const SANITY_CONFIG = {
   projectId: 'q9d6pxzm',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: true,
+  useCdn: false,
 };
 
 // Initialize Sanity Client
