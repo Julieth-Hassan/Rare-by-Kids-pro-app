@@ -1,4 +1,9 @@
-export type AgeCategory = 'baby' | 'toddler' | 'girls' | 'boys' | 'occasion' | 'streetwear' | 'sets' | 'accessories' | 'bundles';
+export type MainCollectionType = 'home' | 'moyo' | 'kaya' | 'gift-bundles' | 'accessories';
+
+export type ProductCoreCategory = 'moyo' | 'kaya' | 'gift-bundles' | 'accessories';
+
+export type AgeCategory = 'moyo' | 'kaya' | 'gift-bundles' | 'bundles' | 'accessories' | 'baby' | 'toddler' | 'girls' | 'boys' | 'occasion' | 'streetwear' | 'sets';
+
 
 export interface ProductColor {
   name: string;
@@ -9,7 +14,7 @@ export interface ProductColor {
 export interface SizeOption {
   size: string;
   inStock: boolean;
-  stockCount: number;
+  stockCount?: number;
 }
 
 export interface Review {
@@ -43,18 +48,25 @@ export interface Product {
   description: string;
   category: AgeCategory;
   categoryLabel: string;
+  collectionType?: 'moyo' | 'kaya' | 'gift-bundles' | 'bundles' | 'accessories' | 'general';
   gender: 'unisex' | 'girl' | 'boy';
-  price: number; // in USD base
+  price: number; // Base in USD
+  priceTZS?: number; // Base in TZS (Tanzanian Shillings)
   originalPrice?: number;
+  originalPriceTZS?: number;
   rating: number;
   reviewCount: number;
-  images: string[];
+  images: string[]; // Multiple photos of this exact garment (first photo is thumbnail)
+  clothingImages?: string[]; // Multiple photos alias
+  videoUrl?: string; // Optional video or Instagram reel
+  videoFileUrl?: string; // Optional uploaded video asset
+  productVideoUrl?: string; // Sanity productVideo asset URL
   instagramPostUrl?: string;
   isInstagramBestseller?: boolean;
   isNewArrival?: boolean;
   isOrganic?: boolean;
   sizes: SizeOption[];
-  colors: ProductColor[];
+  colors?: ProductColor[]; // Optional backward compatibility
   materials: string[];
   careInstructions: string[];
   inStock: boolean;
@@ -77,7 +89,7 @@ export interface BrandCollection {
   moodTag: string;
   itemCount: number;
   season: string;
-  colorPalette: { name: string; hex: string }[];
+  colorPalette?: { name: string; hex: string }[];
   featuredProductIds: string[];
 }
 
@@ -85,7 +97,7 @@ export interface CartItem {
   id: string;
   product: Product;
   selectedSize: string;
-  selectedColor: ProductColor;
+  selectedColor?: ProductColor;
   quantity: number;
 }
 
@@ -149,7 +161,8 @@ export interface Order {
   promoCodeApplied?: string;
   totalAmount: number;
   currency: string;
-  paymentMethod: 'card' | 'apple_pay' | 'instant_bank_transfer' | 'paystack_flutterwave' | 'mobile_money_tz' | 'mobile_money_ke' | 'pay_on_delivery';
+  paymentMethod: 'mobile_money_tz' | 'card' | 'paypal' | 'pay_on_delivery';
+  mobileNetwork?: 'mpesa' | 'tigopesa' | 'airtel' | 'halopesa';
   paymentStatus: 'paid' | 'pending_verification' | 'completed';
   orderStatus: OrderStatus;
   estimatedDeliveryDate: string;

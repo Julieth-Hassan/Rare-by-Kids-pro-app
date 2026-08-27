@@ -112,9 +112,10 @@ export const Footer: React.FC<FooterProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-xl bg-neutral-900 hover:bg-emerald-950/60 border border-neutral-800 text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2 text-xs font-semibold"
+                title="Customer Support for website orders"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>WhatsApp Order</span>
+                <span>WhatsApp Support</span>
               </a>
             </div>
 

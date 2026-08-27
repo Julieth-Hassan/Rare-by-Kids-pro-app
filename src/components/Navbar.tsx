@@ -8,17 +8,19 @@ import {
   X, 
   SlidersHorizontal,
   PackageCheck,
-  Heart,
   Gift,
   Crown,
-  Layers
+  Layers,
+  Heart
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { CurrencySelector } from './CurrencySelector';
 
+export type AppView = 'home' | 'moyo' | 'kaya' | 'gift-bundles' | 'accessories' | 'shop' | 'bundles' | 'tracking';
+
 interface NavbarProps {
-  activeView: 'shop' | 'collections' | 'bundles' | 'accessories' | 'tracking';
-  onSelectView: (view: 'shop' | 'collections' | 'bundles' | 'accessories' | 'tracking') => void;
+  activeView: AppView;
+  onSelectView: (view: AppView) => void;
   activeCategory: string;
   onSelectCategory: (cat: string) => void;
   searchQuery: string;
@@ -45,22 +47,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenTracker,
   onOpenStylist,
   onOpenAdmin,
-  savedWishlistCount,
   currentCurrency,
   onCurrencyChange,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const isHome = activeView === 'home' || activeView === 'shop';
+  const isMoyo = activeView === 'moyo';
+  const isKaya = activeView === 'kaya';
+  const isBundles = activeView === 'gift-bundles' || activeView === 'bundles';
+  const isAccessories = activeView === 'accessories';
+
   const categories = [
     { id: 'all', label: 'All Catalog' },
-    { id: 'bundles', label: '🎁 Gift Bundles' },
-    { id: 'accessories', label: '👑 Headbands & Acc' },
-    { id: 'sets', label: 'Resort Sets' },
-    { id: 'occasion', label: 'Party & Occasion' },
-    { id: 'streetwear', label: 'Streetwear' },
-    { id: 'baby', label: 'Baby & Newborn' },
-    { id: 'girls', label: 'Girls' },
-    { id: 'boys', label: 'Boys' },
+    { id: 'moyo', label: 'Moyo Collection' },
+    { id: 'kaya', label: 'Kaya Collection' },
+    { id: 'gift-bundles', label: 'Gift Bundles' },
+    { id: 'accessories', label: 'Accessories' },
   ];
 
   return (
@@ -85,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                onSelectView('shop');
+                onSelectView('home');
                 onSelectCategory('all');
               }}
               className="group cursor-pointer py-1"
@@ -94,38 +97,58 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           </div>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links (The 5 Core Routes) */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            {/* 1. Home */}
             <button
+              id="nav-link-home"
               onClick={() => {
-                onSelectView('shop');
+                onSelectView('home');
                 onSelectCategory('all');
               }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                activeView === 'shop'
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                isHome
                   ? 'bg-neutral-900 text-white shadow-xs'
                   : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100'
               }`}
             >
-              Shop All
+              Home
             </button>
 
+            {/* 2. Moyo Collection (/moyo) */}
             <button
-              onClick={() => onSelectView('collections')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeView === 'collections'
+              id="nav-link-moyo"
+              onClick={() => onSelectView('moyo')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                isMoyo
                   ? 'bg-neutral-900 text-white shadow-xs'
-                  : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100'
+                  : 'text-neutral-700 hover:text-neutral-950 hover:bg-pink-50 hover:text-pink-900'
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-amber-500" />
-              <span>Collections</span>
+              <span className="text-pink-500 font-normal">🌺</span>
+              <span>Moyo</span>
             </button>
 
+            {/* 3. Kaya Collection (/kaya) */}
             <button
-              onClick={() => onSelectView('bundles')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeView === 'bundles'
+              id="nav-link-kaya"
+              onClick={() => onSelectView('kaya')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                isKaya
+                  ? 'bg-neutral-900 text-white shadow-xs'
+                  : 'text-neutral-700 hover:text-neutral-950 hover:bg-blue-50 hover:text-blue-900'
+              }`}
+            >
+              <span className="text-blue-500 font-normal">🦁</span>
+              <span>Kaya</span>
+            </button>
+
+            {/* 4. Gift Bundles (/gift-bundles) */}
+            <button
+              id="nav-link-gift-bundles"
+              onClick={() => onSelectView('gift-bundles')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                isBundles
                   ? 'bg-amber-500 text-neutral-950 font-extrabold shadow-sm'
                   : 'text-neutral-700 hover:text-neutral-950 hover:bg-amber-50 hover:text-amber-900'
               }`}
@@ -134,16 +157,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Gift Bundles</span>
             </button>
 
+            {/* 5. Accessories (/accessories) */}
             <button
+              id="nav-link-accessories"
               onClick={() => onSelectView('accessories')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeView === 'accessories'
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                isAccessories
                   ? 'bg-neutral-900 text-white shadow-xs'
                   : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100'
               }`}
             >
               <Crown className="w-3.5 h-3.5 text-amber-500" />
-              <span>Accessories & Headbands</span>
+              <span>Accessories</span>
             </button>
           </nav>
 
@@ -156,11 +181,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 value={searchQuery}
                 onChange={(e) => {
                   onSearchChange(e.target.value);
-                  if (activeView !== 'shop') {
-                    onSelectView('shop');
+                  if (!isHome) {
+                    onSelectView('home');
                   }
                 }}
-                placeholder="Search headbands, bundles, sets..."
+                placeholder="Search garments, headbands, bundles..."
                 className="w-full pl-9 pr-4 py-2 bg-neutral-100 hover:bg-neutral-50 focus:bg-white text-xs rounded-full border border-transparent focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all placeholder:text-neutral-400"
               />
               <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
@@ -213,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="header-store-manager-btn"
               onClick={onOpenAdmin}
               className="hidden xl:inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 p-1.5 rounded-lg hover:bg-neutral-100 cursor-pointer"
-              title="Merchant Dashboard & Dispatch Portal"
+              title="Sanity Database & Merchant Portal"
             >
               <SlidersHorizontal className="w-4 h-4" />
             </button>
@@ -247,7 +272,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               value={searchQuery}
               onChange={(e) => {
                 onSearchChange(e.target.value);
-                if (activeView !== 'shop') onSelectView('shop');
+                if (!isHome) onSelectView('home');
               }}
               placeholder="Search clothes, headbands, gift sets..."
               className="w-full pl-9 pr-4 py-2 bg-neutral-100 text-xs rounded-full border border-transparent focus:border-amber-400 outline-none"
@@ -257,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Sub Navigation Bar for Categories (When on Catalog View) */}
-        {activeView === 'shop' && (
+        {isHome && (
           <nav className="hidden lg:flex items-center gap-1.5 overflow-x-auto py-2.5 border-t border-neutral-100 no-scrollbar">
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id;
@@ -286,38 +311,49 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* Main Pages */}
           <div className="font-bold text-xs uppercase tracking-wider text-neutral-400 mb-2">
-            Main Pages
+            Store Pages
           </div>
           <div className="grid grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => {
-                onSelectView('shop');
+                onSelectView('home');
                 setMobileMenuOpen(false);
               }}
               className={`p-2.5 rounded-xl text-left text-xs font-bold ${
-                activeView === 'shop' ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-neutral-800'
+                isHome ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-neutral-800'
               }`}
             >
-              🛍️ Shop Catalog
+              🛍️ Home (All Products)
             </button>
             <button
               onClick={() => {
-                onSelectView('collections');
+                onSelectView('moyo');
                 setMobileMenuOpen(false);
               }}
               className={`p-2.5 rounded-xl text-left text-xs font-bold ${
-                activeView === 'collections' ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-neutral-800'
+                isMoyo ? 'bg-neutral-900 text-white' : 'bg-pink-50 text-pink-900'
               }`}
             >
-              ✨ Collections
+              🌺 Moyo Collection
             </button>
             <button
               onClick={() => {
-                onSelectView('bundles');
+                onSelectView('kaya');
                 setMobileMenuOpen(false);
               }}
               className={`p-2.5 rounded-xl text-left text-xs font-bold ${
-                activeView === 'bundles' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-900'
+                isKaya ? 'bg-neutral-900 text-white' : 'bg-blue-50 text-blue-900'
+              }`}
+            >
+              🦁 Kaya Collection
+            </button>
+            <button
+              onClick={() => {
+                onSelectView('gift-bundles');
+                setMobileMenuOpen(false);
+              }}
+              className={`p-2.5 rounded-xl text-left text-xs font-bold ${
+                isBundles ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-900'
               }`}
             >
               🎁 Gift Bundles
@@ -327,11 +363,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onSelectView('accessories');
                 setMobileMenuOpen(false);
               }}
-              className={`p-2.5 rounded-xl text-left text-xs font-bold ${
-                activeView === 'accessories' ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-neutral-800'
+              className={`p-2.5 rounded-xl text-left text-xs font-bold col-span-2 ${
+                isAccessories ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-neutral-800'
               }`}
             >
-              👑 Headbands & Acc
+              👑 Accessories & Headbands
             </button>
           </div>
 
@@ -383,7 +419,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4" />
-                Merchant Dashboard & Order Dispatcher
+                Sanity Database & Merchant Portal
               </span>
             </button>
 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TopBanner } from './components/TopBanner';
-import { Navbar } from './components/Navbar';
+import { Navbar, AppView } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { ProductCatalog } from './components/ProductCatalog';
+import { MoyoCollectionView } from './components/MoyoCollectionView';
+import { KayaCollectionView } from './components/KayaCollectionView';
 import { CollectionsView } from './components/CollectionsView';
 import { GiftBundlesView } from './components/GiftBundlesView';
 import { AccessoriesView } from './components/AccessoriesView';
@@ -13,6 +15,7 @@ import { OrderTracker } from './components/OrderTracker';
 import { InstagramFeed } from './components/InstagramFeed';
 import { AiStylistModal } from './components/AiStylistModal';
 import { MerchantDashboardModal } from './components/MerchantDashboardModal';
+import { WhatsAppFloatingButton } from './components/WhatsAppFloatingButton';
 import { Footer } from './components/Footer';
 import { 
   INITIAL_PRODUCTS, 
@@ -21,16 +24,62 @@ import {
   INITIAL_ORDERS,
   INITIAL_COLLECTIONS
 } from './data/products';
-import { BrandCollection, CartItem, DeliveryRegion, Order, OrderStatus, Product, ProductColor, PromoCode, Review } from './types';
-import { fetchLiveSanityProducts, SANITY_CONFIG } from './services/sanity';
+import { BrandCollection, CartItem, DeliveryRegion, Order, OrderStatus, Product, PromoCode, Review } from './types';
+import { fetchLiveSanityProducts } from './services/sanity';
 
 export default function App() {
-  // State: View Navigation ('shop' | 'collections' | 'bundles' | 'accessories' | 'tracking')
-  const [activeView, setActiveView] = useState<'shop' | 'collections' | 'bundles' | 'accessories' | 'tracking'>('shop');
+  // Parse initial route from URL path if loaded directly
+  const getInitialView = (): AppView => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('/moyo')) return 'moyo';
+    if (path.includes('/kaya')) return 'kaya';
+    if (path.includes('/gift-bundles') || path.includes('/bundles')) return 'gift-bundles';
+    if (path.includes('/accessories')) return 'accessories';
+    return 'home';
+  };
+
+  // State: View Navigation ('home' | 'moyo' | 'kaya' | 'gift-bundles' | 'accessories')
+  const [activeView, setActiveView] = useState<AppView>(getInitialView);
+
+  // Sync route changes with browser URL
+  const handleNavigateView = (view: AppView) => {
+    if (view === 'tracking') {
+      setIsTrackerOpen(true);
+      return;
+    }
+    setActiveView(view);
+    const targetPath = view === 'home' || view === 'shop' 
+      ? '/' 
+      : view === 'gift-bundles' || view === 'bundles'
+        ? '/gift-bundles'
+        : `/${view}`;
+    
+    try {
+      window.history.pushState({ view }, '', targetPath);
+    } catch {
+      // Ignore in sandbox environments if restricted
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Listen to browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('/moyo')) setActiveView('moyo');
+      else if (path.includes('/kaya')) setActiveView('kaya');
+      else if (path.includes('/gift-bundles') || path.includes('/bundles')) setActiveView('gift-bundles');
+      else if (path.includes('/accessories')) setActiveView('accessories');
+      else setActiveView('home');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // State: Global Currency
   const [currentCurrency, setCurrentCurrency] = useState<string>(() => {
-    return localStorage.getItem('rbk_currency') || 'USD';
+    return localStorage.getItem('rbk_currency') || 'TZS';
   });
 
   // State: Products & Reviews
@@ -142,12 +191,11 @@ export default function App() {
   }, [wishlistIds]);
 
   // Cart Operations
-  const handleAddToCart = (product: Product, size: string, color: ProductColor, quantity: number = 1) => {
+  const handleAddToCart = (product: Product, size: string, quantity: number = 1) => {
     const existingIndex = cartItems.findIndex(
       (item) =>
         item.product.id === product.id &&
-        item.selectedSize === size &&
-        item.selectedColor.name === color.name
+        item.selectedSize === size
     );
 
     if (existingIndex > -1) {
@@ -156,10 +204,9 @@ export default function App() {
       setCartItems(updated);
     } else {
       const newItem: CartItem = {
-        id: `${product.id}-${size}-${color.name}-${Date.now()}`,
+        id: `${product.id}-${size}-${Date.now()}`,
         product,
         selectedSize: size,
-        selectedColor: color,
         quantity,
       };
       setCartItems([...cartItems, newItem]);
@@ -206,7 +253,6 @@ export default function App() {
     const updatedReviews = [newReview, ...reviews];
     setReviews(updatedReviews);
 
-    // Recalculate product rating and count
     const productRevs = updatedReviews.filter((r) => r.productId === newReviewData.productId);
     const avg = productRevs.reduce((s, r) => s + r.rating, 0) / productRevs.length;
 
@@ -232,7 +278,6 @@ export default function App() {
   const handleUpdateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     const updated = orders.map((o) => {
       if (o.id === orderId) {
-        // Update tracking history steps
         const stages: OrderStatus[] = [
           'order_placed',
           'payment_confirmed',
@@ -281,17 +326,10 @@ export default function App() {
       {/* 2. Main Navigation Bar */}
       <Navbar
         activeView={activeView}
-        onSelectView={(view) => {
-          if (view === 'tracking') {
-            setIsTrackerOpen(true);
-          } else {
-            setActiveView(view);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }}
+        onSelectView={handleNavigateView}
         activeCategory={activeCategory}
         onSelectCategory={(cat) => {
-          setActiveView('shop');
+          handleNavigateView('home');
           setActiveCategory(cat);
           const catalogEl = document.getElementById('catalog-section');
           if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
@@ -313,15 +351,19 @@ export default function App() {
 
       {/* Main View Switcher */}
       <main className="flex-1">
-        {/* VIEW 1: Main Shop Catalog */}
-        {activeView === 'shop' && (
+        {/* VIEW 1: Home Storefront (All Products) */}
+        {(activeView === 'shop' || activeView === 'home') && (
           <>
             {/* Hero Showcase Section */}
             <HeroBanner
               onExploreCategory={(cat) => {
-                setActiveCategory(cat);
-                const catalogEl = document.getElementById('catalog-section');
-                if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+                if (cat === 'moyo' || cat === 'kaya' || cat === 'gift-bundles' || cat === 'accessories') {
+                  handleNavigateView(cat as AppView);
+                } else {
+                  setActiveCategory(cat);
+                  const catalogEl = document.getElementById('catalog-section');
+                  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+                }
               }}
               onOpenTracker={() => setIsTrackerOpen(true)}
               onOpenStylist={() => setIsStylistOpen(true)}
@@ -334,7 +376,7 @@ export default function App() {
               onSelectCategory={setActiveCategory}
               searchQuery={searchQuery}
               onSelectProduct={(product) => setSelectedProduct(product)}
-              onQuickAdd={(product, size, color) => handleAddToCart(product, size, color, 1)}
+              onQuickAdd={(product, size) => handleAddToCart(product, size, 1)}
               wishlistIds={wishlistIds}
               onToggleWishlist={handleToggleWishlist}
               currentCurrency={currentCurrency}
@@ -343,6 +385,7 @@ export default function App() {
               isSanitySyncing={isSanitySyncing}
               lastSanitySyncTime={lastSanitySyncTime}
               onRefreshSanity={() => loadSanityCatalog(false)}
+              onNavigateToView={(view) => handleNavigateView(view as AppView)}
             />
 
             {/* Shoppable Instagram Feed Section */}
@@ -353,42 +396,56 @@ export default function App() {
           </>
         )}
 
-        {/* VIEW 2: Brand Lookbook Collections Page */}
-        {activeView === 'collections' && (
-          <CollectionsView
-            collections={collections}
+        {/* VIEW 2: Moyo Collections Page */}
+        {activeView === 'moyo' && (
+          <MoyoCollectionView
             products={products}
             currentCurrency={currentCurrency}
             onSelectProduct={(product) => setSelectedProduct(product)}
-            onQuickAdd={(product, size, color) => handleAddToCart(product, size, color, 1)}
+            onQuickAdd={(product, size) => handleAddToCart(product, size, 1)}
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
-            onSwitchToBundles={() => setActiveView('bundles')}
+            onBackToHome={() => handleNavigateView('home')}
+            onNavigateTo={(view) => handleNavigateView(view as AppView)}
           />
         )}
 
-        {/* VIEW 3: Luxury Gift Bundles & Hampers Page */}
-        {activeView === 'bundles' && (
+        {/* VIEW 3: Kaya Collections Page */}
+        {activeView === 'kaya' && (
+          <KayaCollectionView
+            products={products}
+            currentCurrency={currentCurrency}
+            onSelectProduct={(product) => setSelectedProduct(product)}
+            onQuickAdd={(product, size) => handleAddToCart(product, size, 1)}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onBackToHome={() => handleNavigateView('home')}
+            onNavigateTo={(view) => handleNavigateView(view as AppView)}
+          />
+        )}
+
+        {/* VIEW 4: Luxury Gift Bundles & Hampers Page */}
+        {(activeView === 'gift-bundles' || activeView === 'bundles') && (
           <GiftBundlesView
             products={products}
             currentCurrency={currentCurrency}
             onSelectProduct={(product) => setSelectedProduct(product)}
-            onAddToCart={(product, size, color, qty) => handleAddToCart(product, size, color, qty)}
+            onAddToCart={(product, size, qty) => handleAddToCart(product, size, qty)}
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
           />
         )}
 
-        {/* VIEW 4: Headbands, Bonnets & Accessories Page */}
+        {/* VIEW 5: Headbands, Bonnets & Accessories Page */}
         {activeView === 'accessories' && (
           <AccessoriesView
             products={products}
             currentCurrency={currentCurrency}
             onSelectProduct={(product) => setSelectedProduct(product)}
-            onQuickAdd={(product, size, color) => handleAddToCart(product, size, color, 1)}
+            onQuickAdd={(product, size) => handleAddToCart(product, size, 1)}
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
-            onSwitchToBundles={() => setActiveView('bundles')}
+            onSwitchToBundles={() => handleNavigateView('gift-bundles')}
           />
         )}
       </main>
@@ -396,13 +453,19 @@ export default function App() {
       {/* Footer */}
       <Footer
         onSelectCategory={(cat) => {
-          setActiveView('shop');
-          setActiveCategory(cat);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (cat === 'moyo' || cat === 'kaya' || cat === 'gift-bundles' || cat === 'accessories') {
+            handleNavigateView(cat as AppView);
+          } else {
+            handleNavigateView('home');
+            setActiveCategory(cat);
+          }
         }}
         onOpenTracker={() => setIsTrackerOpen(true)}
         onOpenStylist={() => setIsStylistOpen(true)}
       />
+
+      {/* Floating WhatsApp Action Button */}
+      <WhatsAppFloatingButton />
 
       {/* MODAL 1: Product Detail View & Reviews */}
       {selectedProduct && (
@@ -451,7 +514,6 @@ export default function App() {
         appliedPromo={appliedPromo}
         onOrderCompleted={(order) => {
           handleOrderCompleted(order);
-          // Wait briefly then open tracker
           setTimeout(() => {
             setIsCheckoutOpen(false);
             setIsTrackerOpen(true);

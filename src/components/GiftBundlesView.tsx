@@ -5,23 +5,16 @@ import {
   Check, 
   ShoppingBag, 
   Heart, 
-  Star, 
   ArrowRight, 
-  PackageCheck, 
-  Feather, 
-  ShieldCheck,
-  Truck,
-  Plus,
-  MessageSquareHeart
 } from 'lucide-react';
-import { Product, ProductColor, CartItem } from '../types';
+import { Product } from '../types';
 import { formatPrice } from '../data/currencies';
 
 interface GiftBundlesViewProps {
   products: Product[];
   currentCurrency: string;
   onSelectProduct: (product: Product) => void;
-  onAddToCart: (product: Product, size: string, color: ProductColor, quantity: number) => void;
+  onAddToCart: (product: Product, size: string, quantity: number) => void;
   wishlistIds: string[];
   onToggleWishlist: (productId: string) => void;
 }
@@ -43,7 +36,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
 
   const [customOutfit, setCustomOutfit] = useState<Product>(clothesList[0] || products[0]);
   const [customOutfitSize, setCustomOutfitSize] = useState<string>(clothesList[0]?.sizes[0]?.size || '2-3Y');
-  const [customOutfitColor, setCustomOutfitColor] = useState<ProductColor>(clothesList[0]?.colors[0] || { name: 'Oatmeal', hex: '#D6C7B2' });
   const [customAccessories, setCustomAccessories] = useState<string[]>([accessoriesList[0]?.id || 'rbk-009']);
   
   const [boxStyle, setBoxStyle] = useState<'gold' | 'blush' | 'onyx'>('gold');
@@ -55,7 +47,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
 
   const selectedAccessoryProducts = accessoriesList.filter((a) => customAccessories.includes(a.id));
   const accessoriesTotal = selectedAccessoryProducts.reduce((sum, acc) => sum + acc.price, 0);
-  const giftBoxPackagingFee = 10.00; // includes magnetic box + ribbon + custom calligraphy card
+  const giftBoxPackagingFee = 10.00;
   const customBundleTotalUSD = customOutfit.price + accessoriesTotal + giftBoxPackagingFee;
 
   const toggleCustomAccessory = (accId: string) => {
@@ -67,23 +59,22 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
   };
 
   const handleAddCustomBundleToCart = () => {
-    // Construct a custom bundle product
     const safeBoxStyle = (boxStyle || 'luxury').toUpperCase();
     const safeRibbonColor = (ribbonColor || 'gold').toUpperCase();
     const customBundleProduct: Product = {
       id: `custom-bundle-${Date.now()}`,
       name: `Bespoke Gift Box: ${customOutfit.name} & Accessories`,
       tagline: `Curated luxury hamper with ${selectedAccessoryProducts.length} accessories in ${safeBoxStyle} box`,
-      description: `Custom curated gift hamper packed with ${customOutfit.name} (${customOutfitSize}, ${customOutfitColor.name}), plus ${selectedAccessoryProducts.map(a => a.name).join(', ')}. Presented in our ${boxStyle} magnetic chest with ${ribbonColor} ribbon. Note: "${giftNoteMessage}" - ${giftNoteFrom}`,
+      description: `Custom curated gift hamper packed with ${customOutfit.name} (${customOutfitSize}), plus ${selectedAccessoryProducts.map(a => a.name).join(', ')}. Presented in our ${boxStyle} magnetic chest with ${ribbonColor} ribbon. Note: "${giftNoteMessage}" - ${giftNoteFrom}`,
       category: 'bundles',
       categoryLabel: 'Custom Gift Hamper',
       gender: customOutfit.gender,
       price: customBundleTotalUSD,
+      priceTZS: Math.round(customBundleTotalUSD * 2600),
       rating: 5.0,
       reviewCount: 1,
       images: [customOutfit.images[0], ...(selectedAccessoryProducts[0]?.images || [])],
       sizes: [{ size: customOutfitSize, inStock: true, stockCount: 10 }],
-      colors: [customOutfitColor],
       materials: ['Custom Gift Box Packaged', 'Pure Silk Ribbon', 'Handwritten Card'],
       careInstructions: ['See individual garment tags inside'],
       inStock: true,
@@ -91,7 +82,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
       bundleItems: [
         `${customOutfit.name} (${customOutfitSize})`,
         ...selectedAccessoryProducts.map((a) => a.name),
-        `Signature ${safeBoxStyle} Magnetic Keepsake Box ($10 Value)`,
+        `Signature ${safeBoxStyle} Magnetic Keepsake Box`,
         `Handwritten Calligraphy Card to ${giftNoteTo}`
       ],
       giftBoxDetails: {
@@ -102,7 +93,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
       }
     };
 
-    onAddToCart(customBundleProduct, customOutfitSize, customOutfitColor, 1);
+    onAddToCart(customBundleProduct, customOutfitSize, 1);
     setCustomAddedSuccess(true);
     setTimeout(() => setCustomAddedSuccess(false), 2500);
   };
@@ -169,7 +160,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                 onClick={() => onSelectProduct(bundle)}
                 className="group bg-white rounded-3xl overflow-hidden border border-neutral-200/90 hover:border-amber-400/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
               >
-                {/* Visual Banner */}
                 <div className="relative aspect-16/10 w-full overflow-hidden bg-neutral-100">
                   <img
                     src={bundle.images[0]}
@@ -179,7 +169,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   
-                  {/* Floating Tags */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-neutral-950 shadow-md">
                       <Gift className="w-3.5 h-3.5" />
@@ -212,14 +201,12 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   </div>
                 </div>
 
-                {/* Content Breakdown */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-2">
                       {bundle.description}
                     </p>
 
-                    {/* Included Items Checklist */}
                     {bundle.bundleItems && (
                       <div className="bg-amber-50/60 rounded-2xl p-3.5 border border-amber-200/70 space-y-2">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 block">
@@ -237,7 +224,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                     )}
                   </div>
 
-                  {/* Pricing & CTA */}
                   <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-4">
                     <div>
                       <div className="text-[10px] text-neutral-400 uppercase font-semibold">Total Bundle Price</div>
@@ -251,6 +237,11 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                           </span>
                         )}
                       </div>
+                      {bundle.priceTZS && (
+                        <div className="text-[10px] font-bold text-emerald-700">
+                          {bundle.priceTZS.toLocaleString()} TZS
+                        </div>
+                      )}
                     </div>
 
                     <button
@@ -261,7 +252,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                       className="px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
                     >
                       <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Select Size & Customize</span>
+                      <span>Select Size & Details</span>
                     </button>
                   </div>
                 </div>
@@ -282,13 +273,13 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
             Build Your Own Custom Gift Hamper
           </h2>
           <p className="text-sm text-amber-100/90 max-w-2xl mt-1">
-            Handpick any outfit from our collection, add matching headbands and shoes, choose your luxury gift box style, and write a personalized gift card note.
+            Handpick any outfit from our collection, add matching headbands, choose your luxury gift box style, and write a personalized gift card note.
           </p>
         </div>
 
         <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Left Builder Controls (7 cols) */}
+          {/* Left Builder Controls */}
           <div className="lg:col-span-7 space-y-6">
             
             {/* Step 1: Choose Outfit */}
@@ -306,7 +297,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                       onClick={() => {
                         setCustomOutfit(c);
                         setCustomOutfitSize(c.sizes[0]?.size || '2-3Y');
-                        setCustomOutfitColor(c.colors[0]);
                       }}
                       className={`p-2 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-1.5 ${
                         isSel
@@ -329,35 +319,17 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                 })}
               </div>
 
-              {/* Size & Color for selected Outfit */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <span className="text-[11px] font-semibold text-neutral-600 mb-1 block">Outfit Size:</span>
-                  <select
-                    value={customOutfitSize}
-                    onChange={(e) => setCustomOutfitSize(e.target.value)}
-                    className="w-full text-xs font-medium bg-neutral-50 border border-neutral-300 rounded-xl p-2"
-                  >
-                    {customOutfit.sizes.map((s) => (
-                      <option key={s.size} value={s.size}>{s.size}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <span className="text-[11px] font-semibold text-neutral-600 mb-1 block">Outfit Color:</span>
-                  <select
-                    value={customOutfitColor.name}
-                    onChange={(e) => {
-                      const col = customOutfit.colors.find((c) => c.name === e.target.value) || customOutfit.colors[0];
-                      setCustomOutfitColor(col);
-                    }}
-                    className="w-full text-xs font-medium bg-neutral-50 border border-neutral-300 rounded-xl p-2"
-                  >
-                    {customOutfit.colors.map((col) => (
-                      <option key={col.name} value={col.name}>{col.name}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <span className="text-[11px] font-semibold text-neutral-600 mb-1 block">Outfit Size:</span>
+                <select
+                  value={customOutfitSize}
+                  onChange={(e) => setCustomOutfitSize(e.target.value)}
+                  className="w-full text-xs font-medium bg-neutral-50 border border-neutral-300 rounded-xl p-2"
+                >
+                  {customOutfit.sizes.map((s) => (
+                    <option key={s.size} value={s.size}>{s.size}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -452,31 +424,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   </span>
                 </button>
               </div>
-
-              {/* Ribbon Selection */}
-              <div className="flex items-center gap-2 pt-2">
-                <span className="text-xs text-neutral-600 font-semibold">Ribbon:</span>
-                {[
-                  { id: 'champagne', label: 'Champagne Satin', hex: '#D4AF37' },
-                  { id: 'rose', label: 'Rose Gold', hex: '#E0A9A5' },
-                  { id: 'navy', label: 'Royal Navy', hex: '#1B2A47' },
-                  { id: 'sage', label: 'Sage Olive', hex: '#8A9A86' },
-                ].map((r) => (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => setRibbonColor(r.id as any)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border transition-all ${
-                      ribbonColor === r.id
-                        ? 'border-neutral-900 bg-neutral-900 text-white font-bold'
-                        : 'border-neutral-200 hover:bg-neutral-100 text-neutral-700'
-                    }`}
-                  >
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: r.hex }} />
-                    <span className="text-[11px]">{r.label}</span>
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Step 4: Handwritten Gift Message */}
@@ -514,7 +461,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
 
           </div>
 
-          {/* Right Live Preview Card (5 cols) */}
+          {/* Right Live Preview Card */}
           <div className="lg:col-span-5 bg-neutral-50 rounded-3xl p-6 border border-neutral-200 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
@@ -522,7 +469,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                 <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-white">Bespoke Crate</span>
               </div>
 
-              {/* Visual Box Rendering */}
               <div className="relative rounded-2xl overflow-hidden border border-neutral-300 shadow-md bg-white p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <img
@@ -533,7 +479,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   />
                   <div>
                     <h4 className="text-xs font-bold text-neutral-900">{customOutfit.name}</h4>
-                    <p className="text-[11px] text-neutral-500">Size: {customOutfitSize} • Color: {customOutfitColor.name}</p>
+                    <p className="text-[11px] text-neutral-500">Size: {customOutfitSize}</p>
                     <p className="text-xs font-bold text-amber-800 mt-1">{formatPrice(customOutfit.price, currentCurrency)}</p>
                   </div>
                 </div>
@@ -553,7 +499,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   </div>
                 )}
 
-                {/* Card Preview */}
                 <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-neutral-800 font-serif italic text-xs space-y-1">
                   <div className="font-bold text-[10px] font-sans not-italic text-amber-900 uppercase">
                     Gift Note to {giftNoteTo || 'Recipient'}:
@@ -565,7 +510,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                 </div>
               </div>
 
-              {/* Price Calculation */}
               <div className="space-y-1.5 text-xs text-neutral-600">
                 <div className="flex justify-between">
                   <span>Selected Outfit</span>
@@ -588,7 +532,6 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
               </div>
             </div>
 
-            {/* Add to Cart CTA */}
             <div>
               <button
                 id="add-custom-bundle-btn"

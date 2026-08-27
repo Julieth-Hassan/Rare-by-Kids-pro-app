@@ -6,7 +6,6 @@ import {
   Minus, 
   ShoppingBag, 
   ArrowRight, 
-  Sparkles, 
   Truck, 
   ShieldCheck, 
   Tag, 
@@ -59,12 +58,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const selectedRegion = deliveryRegions.find((r) => r.id === selectedRegionId) || deliveryRegions[0];
   
-  // Calculate if free shipping threshold reached for selected region
   const freeThreshold = selectedRegion?.freeShippingAbove || 100;
   const isFreeShipping = selectedRegion?.freeShippingAbove ? subtotal >= selectedRegion.freeShippingAbove : false;
   const shippingCost = isFreeShipping ? 0 : (selectedRegion?.cost || 5.00);
 
-  // Promo Calculation
   let discountAmount = 0;
   if (appliedPromo) {
     if (appliedPromo.discountPercentage) {
@@ -138,7 +135,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <button
               id="close-cart-drawer-btn"
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-neutral-200 text-neutral-500 transition-colors"
+              className="p-2 rounded-full hover:bg-neutral-200 text-neutral-500 transition-colors cursor-pointer"
               aria-label="Close cart"
             >
               <X className="w-5 h-5" />
@@ -184,7 +181,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   Your bag is currently empty
                 </h4>
                 <p className="text-xs text-neutral-500 max-w-xs mx-auto">
-                  Explore our celebrated waffle sets, twirl party dresses and baby essentials from @rare.bykidspro.
+                  Explore our celebrated Moyo sets, Kaya boys pieces, and handmade accessories from @rare.bykidspro.
                 </p>
                 <button
                   onClick={onClose}
@@ -224,16 +221,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-neutral-600">
-                        <span className="bg-white px-2 py-0.5 rounded border border-neutral-200 font-semibold">
-                          {item.selectedSize}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full border border-neutral-300"
-                            style={{ backgroundColor: item.selectedColor.hex }}
-                          />
-                          {item.selectedColor.name}
-                        </span>
+                        {item.selectedSize && (
+                          <span className="bg-white px-2 py-0.5 rounded border border-neutral-200 font-semibold">
+                            {item.selectedSize}
+                          </span>
+                        )}
+                        {item.selectedColor && (
+                          <span className="flex items-center gap-1">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full border border-neutral-300"
+                              style={{ backgroundColor: item.selectedColor.hex }}
+                            />
+                            {item.selectedColor.name}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -273,7 +274,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {cartItems.length > 0 && (
             <div className="p-4 sm:p-6 border-t border-neutral-200 bg-neutral-50/50 space-y-4">
               
-              {/* Delivery Destination Region Select in Cart */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <label htmlFor="cart-region-select" className="font-bold text-neutral-800 flex items-center gap-1">
@@ -383,7 +383,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              {/* Safe Checkout Badges */}
               <div className="flex items-center justify-center gap-2 text-[10px] text-neutral-400 pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
                 <span>256-bit Encrypted SSL • Instant Regional Dispatch</span>

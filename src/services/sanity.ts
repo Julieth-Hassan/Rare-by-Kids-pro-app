@@ -1,12 +1,12 @@
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
-import { Product, ProductColor, SizeOption, AgeCategory } from '../types';
+import { Product, SizeOption, AgeCategory } from '../types';
 
 export const SANITY_CONFIG = {
   projectId: 'q9d6pxzm',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: true, // `false` if you want to ensure fresh data
+  useCdn: true,
 };
 
 // Initialize Sanity Client
@@ -30,7 +30,6 @@ export function urlFor(source: any): string {
   try {
     return imageBuilder.image(source).auto('format').fit('max').url() || '';
   } catch (err) {
-    console.warn('Error formatting Sanity image URL:', err);
     if (typeof source === 'object' && source?.asset?.url) {
       return source.asset.url;
     }
@@ -38,7 +37,6 @@ export function urlFor(source: any): string {
   }
 }
 
-// Convert PortableText or rich text blocks to plain text if needed
 function parseDescription(desc: any): string {
   if (!desc) return '';
   if (typeof desc === 'string') return desc;
@@ -56,8 +54,8 @@ function parseDescription(desc: any): string {
   return String(desc);
 }
 
-// GROQ Query for all clothing items & products
-export const PRODUCTS_QUERY = `*[_type == "product" || _type in ["product", "clothingItem", "clothing", "item", "productItem", "wear", "dress", "accessory"] || defined(price) || defined(title) || defined(clothingImage)] | order(_createdAt desc) {
+// GROQ Query for all products, multiple images, and video
+export const PRODUCTS_QUERY = `*[_type == "product" || _type in ["product", "clothingItem", "clothing", "item"] || defined(price) || defined(title) || defined(clothingImages) || defined(clothingImage)] | order(_createdAt desc) {
   _id,
   _type,
   _createdAt,
@@ -67,148 +65,189 @@ export const PRODUCTS_QUERY = `*[_type == "product" || _type in ["product", "clo
   price,
   originalPrice,
   compareAtPrice,
+  category,
+  collection,
+  clothingImages,
+  "clothingImageUrls": clothingImages[].asset->url,
   clothingImage,
   "clothingImageUrl": clothingImage.asset->url,
+  additionalImages,
+  "additionalImageUrls": additionalImages[].asset->url,
   mainImage,
   "mainImageUrl": mainImage.asset->url,
-  image,
-  "imageUrl": image.asset->url,
-  images,
-  gallery,
-  photos,
+  productVideo,
+  "productVideoUrl": productVideo.asset->url,
+  videoFile,
+  "videoFileUrl": videoFile.asset->url,
+  videoUrl,
+  video,
+  "videoAssetUrl": video.asset->url,
   tagline,
   subtitle,
   description,
+  sizes,
+  inStock,
+  isFeatured,
+  featured,
   rating,
   reviewCount,
-  category,
-  categoryLabel,
-  gender,
-  "slug": slug.current,
-  instagramPostUrl,
-  isInstagramBestseller,
-  isNewArrival,
-  isOrganic,
-  sizes,
-  colors,
-  materials,
-  careInstructions,
-  inStock,
-  featured,
-  collectionId,
-  collectionName,
-  isGiftBundle,
-  bundleItems,
-  giftBoxDetails,
-  isAccessory,
-  accessoryType
+  instagramPostUrl
 }`;
 
 /**
- * Normalizes raw Sanity document into application Product interface
+ * Normalizes raw Sanity document into single independent product with multi-image gallery
  */
 export function normalizeSanityProduct(doc: any, fallbackIndex = 0): Product {
   const docId = doc._id || doc.slug || `sanity-item-${fallbackIndex}`;
-  const title = doc.title || doc.name || `Rare Item #${fallbackIndex + 1}`;
-  const price = typeof doc.price === 'number' ? doc.price : parseFloat(doc.price) || 28.00;
-  const originalPrice = typeof doc.originalPrice === 'number' 
-    ? doc.originalPrice 
-    : (typeof doc.compareAtPrice === 'number' ? doc.compareAtPrice : (price > 0 ? Number((price * 1.3).toFixed(2)) : undefined));
+  const title = doc.title || doc.name || `Rare Piece #${fallbackIndex + 1}`;
+  
+  // TZS & USD Price conversion logic
+  // If price entered in TZS (e.g. 60,000), convert to USD base for multi-currency engine
+  const rawPrice = typeof doc.price === 'number' ? doc.price : parseFloat(doc.price) || 60000;
+  let priceUSD: number;
+  let priceTZS: number;
 
-  // Extract all images with prioritization for clothingImage
+  if (rawPrice >= 1000) {
+    priceTZS = rawPrice;
+    priceUSD = Number((rawPrice / 2600).toFixed(2));
+  } else {
+    priceUSD = rawPrice;
+    priceTZS = Math.round(rawPrice * 2600);
+  }
+
+  const rawOriginalPrice = typeof doc.originalPrice === 'number' 
+    ? doc.originalPrice 
+    : (typeof doc.compareAtPrice === 'number' ? doc.compareAtPrice : undefined);
+  
+  let originalPriceUSD: number | undefined = undefined;
+  let originalPriceTZS: number | undefined = undefined;
+
+  if (rawOriginalPrice) {
+    if (rawOriginalPrice >= 1000) {
+      originalPriceTZS = rawOriginalPrice;
+      originalPriceUSD = Number((rawOriginalPrice / 2600).toFixed(2));
+    } else {
+      originalPriceUSD = rawOriginalPrice;
+      originalPriceTZS = Math.round(rawOriginalPrice * 2600);
+    }
+  }
+
+  // Extract all images for this single garment
   const rawImages: any[] = [];
-  if (doc.clothingImageUrl) rawImages.push(doc.clothingImageUrl);
-  if (doc.clothingImage) rawImages.push(doc.clothingImage);
-  if (doc.clothing_image) rawImages.push(doc.clothing_image);
-  if (doc.mainImageUrl) rawImages.push(doc.mainImageUrl);
-  if (doc.mainImage) rawImages.push(doc.mainImage);
-  if (doc.imageUrl) rawImages.push(doc.imageUrl);
-  if (doc.image) rawImages.push(doc.image);
+  
+  // 1. Primary Clothing Images array (Sanity schema field: clothingImages)
+  if (Array.isArray(doc.clothingImageUrls) && doc.clothingImageUrls.length > 0) {
+    doc.clothingImageUrls.forEach((url: string) => {
+      if (url && !rawImages.includes(url)) rawImages.push(url);
+    });
+  } else if (Array.isArray(doc.clothingImages)) {
+    doc.clothingImages.forEach((img: any) => {
+      if (img) rawImages.push(img);
+    });
+  }
+
+  // 2. Single clothingImage / mainImage (if present)
+  if (doc.clothingImageUrl && !rawImages.includes(doc.clothingImageUrl)) rawImages.push(doc.clothingImageUrl);
+  else if (doc.clothingImage) rawImages.push(doc.clothingImage);
+  else if (doc.mainImageUrl && !rawImages.includes(doc.mainImageUrl)) rawImages.push(doc.mainImageUrl);
+  else if (doc.mainImage) rawImages.push(doc.mainImage);
+
+  // 3. Additional Images array for this same product
+  if (Array.isArray(doc.additionalImageUrls) && doc.additionalImageUrls.length > 0) {
+    doc.additionalImageUrls.forEach((url: string) => {
+      if (url && !rawImages.includes(url)) rawImages.push(url);
+    });
+  } else if (Array.isArray(doc.additionalImages)) {
+    doc.additionalImages.forEach((img: any) => {
+      if (img) rawImages.push(img);
+    });
+  }
+
+  // 4. Fallback other photo arrays
   if (Array.isArray(doc.images)) rawImages.push(...doc.images);
   if (Array.isArray(doc.gallery)) rawImages.push(...doc.gallery);
   if (Array.isArray(doc.photos)) rawImages.push(...doc.photos);
+  if (doc.imageUrl) rawImages.push(doc.imageUrl);
+  if (doc.image) rawImages.push(doc.image);
 
   const formattedImages: string[] = rawImages
     .map((img) => urlFor(img))
     .filter((url) => Boolean(url) && url.length > 0);
 
-  // Default image if none provided in Sanity document
-  const finalImages = formattedImages.length > 0 
-    ? formattedImages 
+  const uniqueImages = Array.from(new Set(formattedImages));
+
+  const finalImages = uniqueImages.length > 0 
+    ? uniqueImages 
     : ['https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80'];
 
-  // Parse category safely
-  const rawCat = (doc.category || '').toLowerCase();
-  let category: AgeCategory = 'sets';
-  if (rawCat.includes('girl')) category = 'girls';
-  else if (rawCat.includes('boy')) category = 'boys';
-  else if (rawCat.includes('toddler')) category = 'toddler';
-  else if (rawCat.includes('baby') || rawCat.includes('infant')) category = 'baby';
-  else if (rawCat.includes('access')) category = 'accessories';
-  else if (rawCat.includes('bundle') || rawCat.includes('gift')) category = 'bundles';
-  else if (rawCat.includes('street')) category = 'streetwear';
-  else if (rawCat.includes('occasion') || rawCat.includes('party')) category = 'occasion';
-  else if (rawCat.includes('set')) category = 'sets';
+  // Video resolution (Sanity productVideo field)
+  const productVideoUrl = doc.productVideoUrl 
+    || (doc.productVideo?.asset?.url ? doc.productVideo.asset.url : undefined)
+    || doc.videoFileUrl 
+    || doc.videoAssetUrl 
+    || (doc.video?.asset?.url ? doc.video.asset.url : undefined);
+  const videoUrl = doc.videoUrl || undefined;
+
+  // Category determination (moyo, kaya, gift-bundles, accessories)
+  const rawCat = (doc.category || doc.collection || '').toLowerCase().trim();
+  let category: AgeCategory = 'moyo';
+  let collectionType: 'moyo' | 'kaya' | 'gift-bundles' | 'accessories' = 'moyo';
+  let categoryLabel = 'Moyo Collection';
+
+  if (rawCat === 'moyo' || rawCat.includes('moyo')) {
+    category = 'moyo';
+    collectionType = 'moyo';
+    categoryLabel = 'Moyo Collection';
+  } else if (rawCat === 'kaya' || rawCat.includes('kaya')) {
+    category = 'kaya';
+    collectionType = 'kaya';
+    categoryLabel = 'Kaya Collection';
+  } else if (rawCat === 'gift-bundles' || rawCat === 'bundles' || rawCat.includes('bundle') || rawCat.includes('gift')) {
+    category = 'gift-bundles';
+    collectionType = 'gift-bundles';
+    categoryLabel = 'Gift Bundles';
+  } else if (rawCat === 'accessories' || rawCat.includes('access') || rawCat.includes('headband') || rawCat.includes('bow')) {
+    category = 'accessories';
+    collectionType = 'accessories';
+    categoryLabel = 'Accessories';
+  } else {
+    category = 'moyo';
+    collectionType = 'moyo';
+    categoryLabel = 'Moyo Collection';
+  }
 
   // Parse Gender safely
   let gender: 'unisex' | 'girl' | 'boy' = 'unisex';
   const rawGender = (doc.gender || '').toLowerCase();
-  if (rawGender.includes('girl') || rawCat.includes('girl')) gender = 'girl';
-  else if (rawGender.includes('boy') || rawCat.includes('boy')) gender = 'boy';
+  if (rawGender.includes('girl')) gender = 'girl';
+  else if (rawGender.includes('boy')) gender = 'boy';
 
-  // Parse Sizes safely
+  // Parse Sizes
   let sizes: SizeOption[] = [];
   if (Array.isArray(doc.sizes) && doc.sizes.length > 0) {
     sizes = doc.sizes.map((s: any) => {
       if (typeof s === 'string') {
-        return { size: s, inStock: true, stockCount: 15 };
+        return { size: s, inStock: true, stockCount: 10 };
       }
       return {
-        size: s.size || s.name || 'Standard',
+        size: s.size || s.name || 'Standard Fit',
         inStock: s.inStock !== false,
-        stockCount: typeof s.stockCount === 'number' ? s.stockCount : 15,
+        stockCount: typeof s.stockCount === 'number' ? s.stockCount : 10,
       };
     });
   } else {
-    // Default luxury sizes based on category
-    if (category === 'baby') {
-      sizes = [
-        { size: '0-3 Months (36-42cm)', inStock: true, stockCount: 12 },
-        { size: '3-6 Months (42-46cm)', inStock: true, stockCount: 15 },
-        { size: '6-12 Months (46-50cm)', inStock: true, stockCount: 10 },
-      ];
-    } else if (category === 'accessories') {
-      sizes = [
-        { size: 'One Size Comfort Flex', inStock: true, stockCount: 25 },
-      ];
+    // Default luxury sizes
+    if (category === 'accessories') {
+      sizes = [{ size: 'One Size / Comfort Fit', inStock: true, stockCount: 20 }];
     } else {
       sizes = [
-        { size: '1-2 Years (86-92cm)', inStock: true, stockCount: 8 },
-        { size: '2-3 Years (92-98cm)', inStock: true, stockCount: 14 },
-        { size: '3-4 Years (98-104cm)', inStock: true, stockCount: 10 },
-        { size: '5-6 Years (110-116cm)', inStock: true, stockCount: 6 },
+        { size: '1-2 Years', inStock: true, stockCount: 8 },
+        { size: '2-3 Years', inStock: true, stockCount: 10 },
+        { size: '3-4 Years', inStock: true, stockCount: 12 },
+        { size: '5-6 Years', inStock: true, stockCount: 8 },
+        { size: '7-8 Years', inStock: true, stockCount: 6 },
       ];
     }
-  }
-
-  // Parse Colors safely
-  let colors: ProductColor[] = [];
-  if (Array.isArray(doc.colors) && doc.colors.length > 0) {
-    colors = doc.colors.map((c: any) => {
-      if (typeof c === 'string') {
-        return { name: c, hex: '#C6653E' };
-      }
-      return {
-        name: c.name || 'Artisanal Batik',
-        hex: c.hex || '#C6653E',
-        image: c.image ? urlFor(c.image) : undefined,
-      };
-    });
-  } else {
-    colors = [
-      { name: 'Heritage African Batik', hex: '#C6653E' },
-      { name: 'Warm Desert Sand', hex: '#E7D8C9' },
-    ];
   }
 
   // Parse Materials
@@ -227,49 +266,45 @@ export function normalizeSanityProduct(doc: any, fallbackIndex = 0): Product {
     careInstructions = ['Machine wash gentle in cold water with mild detergent', 'Line dry in shade, warm iron if needed'];
   }
 
-  const isAccessory = Boolean(doc.isAccessory || category === 'accessories' || doc._type === 'accessory');
-  let accessoryType = doc.accessoryType;
-  if (!accessoryType && isAccessory) {
-    const lTitle = title.toLowerCase();
-    if (lTitle.includes('bow tie') || lTitle.includes('bowtie')) accessoryType = 'bowtie';
-    else if (lTitle.includes('headband') || lTitle.includes('crown') || lTitle.includes('turban')) accessoryType = 'headband';
-    else if (lTitle.includes('bonnet')) accessoryType = 'bonnet';
-    else if (lTitle.includes('shoe') || lTitle.includes('loafer')) accessoryType = 'shoes';
-    else if (lTitle.includes('hat') || lTitle.includes('sun')) accessoryType = 'hat';
-    else if (lTitle.includes('sock')) accessoryType = 'socks';
-    else accessoryType = 'headband';
-  }
+  const isAccessory = category === 'accessories';
+  const isGiftBundle = category === 'gift-bundles';
 
   return {
     id: String(docId),
     name: title,
     tagline: doc.tagline || doc.subtitle || `Authentic artisanal kidswear by Rare by KidsPro`,
-    description: parseDescription(doc.description) || `${title} crafted with premium breathable textures and vibrant African wax batik motifs.`,
+    description: parseDescription(doc.description) || `${title} crafted with premium breathable textures and bespoke handcrafted tailoring.`,
     category,
-    categoryLabel: doc.categoryLabel || `${category.charAt(0).toUpperCase() + category.slice(1)} Collection`,
+    categoryLabel,
+    collectionType,
     gender,
-    price,
-    originalPrice,
+    price: priceUSD,
+    priceTZS,
+    originalPrice: originalPriceUSD,
+    originalPriceTZS,
     rating: typeof doc.rating === 'number' ? doc.rating : 4.9,
-    reviewCount: typeof doc.reviewCount === 'number' ? doc.reviewCount : Math.floor(Math.random() * 30 + 15),
+    reviewCount: typeof doc.reviewCount === 'number' ? doc.reviewCount : Math.floor(Math.random() * 25 + 12),
     images: finalImages,
+    clothingImages: finalImages,
+    videoUrl,
+    videoFileUrl: productVideoUrl,
+    productVideoUrl,
     instagramPostUrl: doc.instagramPostUrl || 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: doc.isInstagramBestseller ?? true,
     isNewArrival: doc.isNewArrival ?? false,
     isOrganic: doc.isOrganic ?? false,
     sizes,
-    colors,
     materials,
     careInstructions,
     inStock: doc.inStock !== false,
-    featured: doc.featured ?? true,
-    collectionId: doc.collectionId,
-    collectionName: doc.collectionName,
-    isGiftBundle: doc.isGiftBundle || category === 'bundles',
+    featured: doc.featured ?? doc.isFeatured ?? true,
+    collectionId: doc.collectionId || collectionType,
+    collectionName: categoryLabel,
+    isGiftBundle,
     bundleItems: Array.isArray(doc.bundleItems) ? doc.bundleItems : undefined,
     giftBoxDetails: doc.giftBoxDetails,
     isAccessory,
-    accessoryType,
+    accessoryType: doc.accessoryType,
   };
 }
 
@@ -281,9 +316,6 @@ export interface SanityFetchResult {
   fetchedAt: Date;
 }
 
-/**
- * Main function to fetch live products from Sanity database
- */
 export async function fetchLiveSanityProducts(): Promise<SanityFetchResult> {
   try {
     const rawDocs = await sanityClient.fetch(PRODUCTS_QUERY);
@@ -307,7 +339,7 @@ export async function fetchLiveSanityProducts(): Promise<SanityFetchResult> {
       fetchedAt: new Date(),
     };
   } catch (err: any) {
-    console.error('Error fetching live products from Sanity database (Project ID: q9d6pxzm):', err);
+    console.error('Error fetching live products from Sanity (Project ID: q9d6pxzm):', err);
     return {
       products: [],
       totalFromSanity: 0,

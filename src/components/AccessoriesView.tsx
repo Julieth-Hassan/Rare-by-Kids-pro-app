@@ -1,25 +1,16 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
   Crown, 
-  Heart, 
-  ShoppingBag, 
-  Star, 
-  ShieldCheck, 
-  Check, 
-  ArrowRight,
-  Filter,
-  Scissors
+  Sparkles,
 } from 'lucide-react';
-import { Product, ProductColor } from '../types';
+import { Product } from '../types';
 import { ProductCard } from './ProductCard';
-import { formatPrice } from '../data/currencies';
 
 interface AccessoriesViewProps {
   products: Product[];
   currentCurrency: string;
   onSelectProduct: (product: Product) => void;
-  onQuickAdd: (product: Product, size: string, color: ProductColor) => void;
+  onQuickAdd: (product: Product, size: string) => void;
   wishlistIds: string[];
   onToggleWishlist: (productId: string) => void;
   onSwitchToBundles: () => void;
@@ -32,7 +23,6 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
   onQuickAdd,
   wishlistIds,
   onToggleWishlist,
-  onSwitchToBundles,
 }) => {
   const [selectedSubFilter, setSelectedSubFilter] = useState<'all' | 'headband' | 'bowtie' | 'bonnet' | 'shoes' | 'hat' | 'socks'>('all');
 
@@ -106,7 +96,7 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedSubFilter(cat.id as any)}
-              className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-3 ${
+              className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-3 cursor-pointer ${
                 isActive
                   ? 'bg-amber-500 text-white border-amber-500 shadow-md transform -translate-y-0.5'
                   : 'bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-900'
@@ -153,7 +143,7 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setSelectedSubFilter(tab.id as any)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedSubFilter === tab.id
                   ? 'bg-neutral-900 text-white'
                   : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'

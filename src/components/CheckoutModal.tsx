@@ -6,16 +6,12 @@ import {
   ShieldCheck, 
   Lock, 
   CheckCircle2, 
-  AlertCircle, 
-  Building2, 
   Smartphone, 
   Sparkles, 
-  ArrowLeft, 
   ChevronRight,
   Copy,
   Check,
-  Package,
-  Calendar
+  Globe
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CartItem, DeliveryRegion, Order, PromoCode, TrackingStep } from '../types';
@@ -46,32 +42,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClearCart,
   currentCurrency = 'USD',
 }) => {
-  // Step 1: Destination & Shipping Address; Step 2: Payment Gateway & Review
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
 
   // Customer & Shipping Form
-  const [fullName, setFullName] = useState('Julieth Mwangi');
-  const [email, setEmail] = useState('julieth74za@gmail.com');
+  const [fullName, setFullName] = useState('Juliet Mwangi');
+  const [email, setEmail] = useState('juliet@example.com');
   const [phone, setPhone] = useState('+255 754 892 104');
   const [instagramHandle, setInstagramHandle] = useState('@rare.bykidspro');
   const [streetAddress, setStreetAddress] = useState('Plot 42, Haile Selassie Road, Masaki');
-  const [apartment, setApartment] = useState('Boutique Suite #3');
+  const [apartment, setApartment] = useState('Suite #3');
   const [city, setCity] = useState('Dar es Salaam');
   const [postalCode, setPostalCode] = useState('14111');
-  const [deliveryNotes, setDeliveryNotes] = useState('Call on delivery. Handle artisanal packaging with care.');
+  const [deliveryNotes, setDeliveryNotes] = useState('Call on arrival, thank you.');
   const [deliverySpeed, setDeliverySpeed] = useState<'standard' | 'express'>('standard');
 
-  // Payment Form
-  const [paymentMethod, setPaymentMethod] = useState<'mobile_money_tz' | 'card' | 'apple_pay' | 'instant_bank_transfer' | 'paystack_flutterwave' | 'pay_on_delivery'>('mobile_money_tz');
+  // Payment Form: ONLY Mobile Money (Locals), Cards (International), PayPal (International)
+  const [paymentMethod, setPaymentMethod] = useState<'mobile_money_tz' | 'card' | 'paypal'>('mobile_money_tz');
   const [mobileMoneyNetwork, setMobileMoneyNetwork] = useState<'mpesa' | 'tigopesa' | 'airtel' | 'halopesa'>('mpesa');
-  const [mobilePhoneNumber, setMobilePhoneNumber] = useState('+255 754 892 104');
   const [mobileMpesaRef, setMobileMpesaRef] = useState('');
   const [copiedLipaNamba, setCopiedLipaNamba] = useState(false);
+  
+  // Card details
   const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
-  const [cardHolder, setCardHolder] = useState('JULIETH MWANGI');
+  const [cardHolder, setCardHolder] = useState('JULIET MWANGI');
   const [cardExpiry, setCardExpiry] = useState('12/28');
   const [cardCvv, setCardCvv] = useState('884');
-  const [copiedBank, setCopiedBank] = useState(false);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<Order | null>(null);
 
@@ -102,12 +98,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   }
 
   const grandTotal = Math.max(0, subtotal - discountAmount + baseDeliveryFee);
-
-  const handleCopyAccount = () => {
-    navigator.clipboard?.writeText('9024819210');
-    setCopiedBank(true);
-    setTimeout(() => setCopiedBank(false), 2000);
-  };
+  const grandTotalTZS = Math.round(grandTotal * 2600);
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,68 +121,46 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     const initialTrackingHistory: TrackingStep[] = [
       {
         id: 'step-1',
-        title: 'Order Placed & Logged',
-        description: `Order ${randomOrderNum} received at @rare.bykidspro online system.`,
-        location: 'Online Storefront HQ',
+        title: 'Order Placed & Confirmed',
+        description: `Order ${randomOrderNum} logged in Rare by KidsPro boutique system.`,
+        location: 'Dar es Salaam Fulfillment Hub',
         timestamp: 'Just now',
         completed: true,
         current: false,
       },
       {
         id: 'step-2',
-        title: 'Payment Gateway Verified',
+        title: 'Payment Confirmed',
         description: `Payment of ${formatPrice(grandTotal, currentCurrency)} verified via ${
-          paymentMethod === 'card'
-            ? 'Credit/Debit Card (Visa 3D-Secure)'
-            : paymentMethod === 'apple_pay'
-            ? 'Apple Pay Biometric'
-            : paymentMethod === 'instant_bank_transfer'
-            ? 'Instant Virtual Bank Transfer'
-            : paymentMethod === 'paystack_flutterwave'
-            ? 'Paystack / Mobile Money'
-            : 'Pay on Delivery'
-        }. Receipt generated.`,
-        location: 'Verified Payment Gateway',
+          paymentMethod === 'mobile_money_tz'
+            ? `Mobile Money (${mobileMoneyNetwork.toUpperCase()} Lipa Namba 5829104)`
+            : paymentMethod === 'card'
+            ? 'International Credit/Debit Card (Visa/Mastercard 3D Secure)'
+            : 'PayPal International One-Click'
+        }. Receipt dispatched to ${email}.`,
+        location: 'Verified Gateway',
         timestamp: 'Just now',
         completed: true,
         current: true,
       },
       {
         id: 'step-3',
-        title: 'Quality Checked & Gift Box Packed',
-        description: 'Clothes inspected, tagged, and folded in signature tissue paper with kid bonus sticker.',
-        location: 'Central Fulfillment Hub',
-        timestamp: 'Pending fulfillment',
+        title: 'Artisanal Packaging & Quality Check',
+        description: 'Single-piece garments inspected, tagged, and boxed in signature boutique tissue wrap.',
+        location: 'Dar es Salaam Workshop',
+        timestamp: 'In preparation',
         completed: false,
         current: false,
       },
       {
         id: 'step-4',
-        title: 'Dispatched to Courier',
-        description: `Package assigned to ${selectedRegion.carrierName}. Tracking barcoded.`,
-        location: `${selectedRegion.zone} Dispatch Center`,
-        timestamp: 'Scheduled for next dispatch run',
+        title: 'Handed to Courier Dispatch',
+        description: `Package assigned to ${selectedRegion.carrierName}.`,
+        location: `${selectedRegion.name} Dispatch Unit`,
+        timestamp: 'Scheduled for next courier pickup',
         completed: false,
         current: false,
       },
-      {
-        id: 'step-5',
-        title: 'Out for Final Delivery',
-        description: `Courier rider en route to ${streetAddress}, ${city}.`,
-        location: `${city} Local Hub`,
-        timestamp: `Estimated: ${selectedRegion.estimatedDays}`,
-        completed: false,
-        current: false,
-      },
-      {
-        id: 'step-6',
-        title: 'Package Handover & Delivered',
-        description: 'Delivered to recipient with digital signature.',
-        location: streetAddress,
-        timestamp: 'Pending delivery',
-        completed: false,
-        current: false,
-      }
     ];
 
     const newOrder: Order = {
@@ -222,17 +191,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       totalAmount: grandTotal,
       currency: currentCurrency,
       paymentMethod,
-      paymentStatus: paymentMethod === 'pay_on_delivery' ? 'pending_verification' : 'paid',
+      mobileNetwork: paymentMethod === 'mobile_money_tz' ? mobileMoneyNetwork : undefined,
+      paymentStatus: 'paid',
       orderStatus: 'payment_confirmed',
       estimatedDeliveryDate: deliverySpeed === 'express' && selectedRegion.expressEstimatedDays
         ? selectedRegion.expressEstimatedDays
         : selectedRegion.estimatedDays,
       courierInfo: {
         name: selectedRegion.carrierName,
-        riderName: 'Logistics Dispatch Unit #2',
-        riderPhone: '+234 812 000 7766',
-        vehicleType: 'Climate Controlled Delivery Fleet',
-        supportWhatsApp: 'https://wa.me/234800RAREKIDS',
+        riderName: 'Rare FastTrack Direct Rider',
+        riderPhone: '+255 765 000 000',
+        vehicleType: 'Express Courier Dispatch',
+        supportWhatsApp: 'https://wa.me/255765000000',
       },
       trackingHistory: initialTrackingHistory,
     };
@@ -242,7 +212,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     onOrderCompleted(newOrder);
     onClearCart();
 
-    // Trigger celebratory confetti
     try {
       confetti({
         particleCount: 120,
@@ -269,10 +238,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-base font-display">
-                Secure Integrated Checkout
+                Secure Checkout • Rare by KidsPro
               </h3>
               <p className="text-xs text-neutral-400">
-                Official @rare.bykidspro Storefront
+                Tanzanian & International Payment Gateway
               </p>
             </div>
           </div>
@@ -293,14 +262,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
 
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              <span className="text-xs font-bold uppercase tracking-widest text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                 Payment & Order Confirmed!
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 font-display mt-3">
                 Thank You, {orderSuccess.customer.fullName}!
               </h2>
               <p className="text-neutral-600 text-sm max-w-lg mx-auto mt-2">
-                We've received your order and payment of <strong>${orderSuccess.totalAmount.toFixed(2)}</strong>. A confirmation email and SMS have been sent to <strong>{orderSuccess.customer.email}</strong>.
+                We've received your order of <strong>{formatPrice(orderSuccess.totalAmount, currentCurrency)}</strong> ({grandTotalTZS.toLocaleString()} TZS). A confirmation has been sent to <strong>{orderSuccess.customer.email}</strong>.
               </p>
             </div>
 
@@ -326,31 +295,26 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
-                id="view-live-tracking-btn"
-                onClick={() => {
-                  onClose();
-                  // The parent component handles opening tracker
-                }}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                <Truck className="w-4 h-4 text-amber-400" />
-                <span>Track Live Order & Courier Status</span>
-              </button>
-
-              <button
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs transition-colors"
+                className="w-full sm:w-auto px-8 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all"
               >
                 Continue Shopping
               </button>
+              <a
+                href={`https://wa.me/255765000000?text=Hello%20Rare%20by%20KidsPro%20Support,%20I%20have%20a%20question%20regarding%20my%20website%20Order%20${orderSuccess.orderNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                title="Contact Customer Support for this order"
+              >
+                <span>Order Support via WhatsApp</span>
+              </a>
             </div>
           </div>
         ) : (
-          /* Multi-Step Checkout */
-          <div className="overflow-y-auto p-6 space-y-6">
+          <div className="overflow-y-auto p-4 sm:p-6 space-y-6">
             
             {/* Step Navigation Bar */}
             <div className="flex items-center justify-center gap-4 text-xs font-bold border-b border-neutral-200 pb-4">
@@ -367,7 +331,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 }`}>
                   1
                 </span>
-                <span>1. Destination & Address</span>
+                <span>1. Delivery Destination</span>
               </button>
 
               <ChevronRight className="w-4 h-4 text-neutral-300" />
@@ -386,7 +350,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 }`}>
                   2
                 </span>
-                <span>2. Payment Gateway & Review</span>
+                <span>2. Payment (Mobile Money / Cards / PayPal)</span>
               </button>
             </div>
 
@@ -394,29 +358,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             {step === 'shipping' && (
               <form onSubmit={handleProceedToPayment} className="space-y-6">
                 
-                {/* Delivery Region Selection (The key requested feature) */}
+                {/* Delivery Region Selection */}
                 <div className="p-4 sm:p-5 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Truck className="w-5 h-5 text-amber-600" />
                       <div>
                         <h4 className="font-bold text-neutral-900 text-sm">
-                          Select Delivery Destination & Region
+                          Select Delivery Zone & Destination
                         </h4>
                         <p className="text-[11px] text-neutral-600">
-                          Delivery fee is calculated accurately by geographical zone
+                          FastTrack courier dispatched across Tanzania, East Africa & Worldwide
                         </p>
                       </div>
                     </div>
                     <span className="text-xs font-bold text-amber-900 bg-amber-200/80 px-2.5 py-1 rounded-full">
-                      ${baseDeliveryFee.toFixed(2)} included
+                      {formatPrice(baseDeliveryFee, currentCurrency)}
                     </span>
                   </div>
 
-                  {/* Destination Dropdown */}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-neutral-800">
-                      Destination Zone / Region: *
+                      Destination Zone / Country: *
                     </label>
                     <select
                       id="checkout-delivery-region-select"
@@ -426,13 +389,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     >
                       {deliveryRegions.map((region) => (
                         <option key={region.id} value={region.id}>
-                          {region.name} ({region.stateOrCountry}) — ${region.cost.toFixed(2)} • {region.estimatedDays}
+                          {region.name} ({region.stateOrCountry}) — {formatPrice(region.cost, currentCurrency)} • {region.estimatedDays}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Speed Options (Standard vs Priority Rush) */}
+                  {/* Speed Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div 
                       onClick={() => setDeliverySpeed('standard')}
@@ -443,9 +406,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-xs text-neutral-900">Standard Delivery</span>
+                        <span className="font-bold text-xs text-neutral-900">Standard Courier</span>
                         <span className="font-bold text-xs text-neutral-800">
-                          {isFreeStandard ? 'FREE' : `$${selectedRegion.cost.toFixed(2)}`}
+                          {isFreeStandard ? 'FREE' : formatPrice(selectedRegion.cost, currentCurrency)}
                         </span>
                       </div>
                       <p className="text-[11px] text-neutral-500 mt-0.5">
@@ -465,19 +428,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-xs text-amber-900 flex items-center gap-1">
                             <Sparkles className="w-3 h-3 text-amber-600" />
-                            Priority Rush Express
+                            Priority VIP Express
                           </span>
                           <span className="font-bold text-xs text-neutral-800">
-                            ${selectedRegion.expressCost?.toFixed(2)}
+                            {formatPrice(selectedRegion.expressCost || 6.00, currentCurrency)}
                           </span>
                         </div>
                         <p className="text-[11px] text-neutral-500 mt-0.5">
-                          {selectedRegion.expressEstimatedDays} (Guaranteed)
+                          {selectedRegion.expressEstimatedDays} (FastTrack Guaranteed)
                         </p>
                       </div>
                     ) : (
                       <div className="p-3 rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 opacity-60 text-xs flex items-center justify-center text-neutral-400">
-                        Express Rush not available for remote zone
+                        Express not available for this zone
                       </div>
                     )}
                   </div>
@@ -486,34 +449,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {/* Recipient Details & Street Address Fields */}
                 <div className="space-y-4">
                   <h4 className="font-bold text-neutral-900 text-sm border-b border-neutral-100 pb-2">
-                    Recipient & Delivery Address
+                    Customer & Shipping Details
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Parent / Full Name *
+                        Full Name *
                       </label>
                       <input
                         type="text"
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="e.g. Juliet Adeleke"
+                        placeholder="e.g. Juliet Mwangi"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
 
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Email (for tracking updates & receipt) *
+                        Email Address (for order receipts) *
                       </label>
                       <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="e.g. julieth74za@gmail.com"
+                        placeholder="e.g. juliet@example.com"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
@@ -522,21 +485,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Phone Number (for Courier Dispatch call) *
+                        Phone Number (for Courier Rider call) *
                       </label>
                       <input
                         type="tel"
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="e.g. +234 803 123 4567"
+                        placeholder="e.g. +255 754 892 104"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
 
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Instagram Handle (Optional for @rare.bykidspro tags)
+                        Instagram Handle (Optional)
                       </label>
                       <input
                         type="text"
@@ -551,7 +514,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Street Address *
+                        Street Address / Area *
                       </label>
                       <input
                         type="text"
@@ -565,13 +528,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        Apartment / Suite / Gate #
+                        Apartment / Gate #
                       </label>
                       <input
                         type="text"
                         value={apartment}
                         onChange={(e) => setApartment(e.target.value)}
-                        placeholder="Flat 4B, Coral Heights"
+                        placeholder="House 4B"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
@@ -580,14 +543,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                        City / District *
+                        City / Town *
                       </label>
                       <input
                         type="text"
                         required
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        placeholder="e.g. Lekki / Lagos / Accra / London"
+                        placeholder="e.g. Dar es Salaam / Arusha / Nairobi"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
@@ -600,7 +563,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         type="text"
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
-                        placeholder="105102"
+                        placeholder="14111"
                         className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                       />
                     </div>
@@ -608,13 +571,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                   <div>
                     <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                      Courier Dispatch Notes & Gate Instructions
+                      Delivery Notes & Instructions
                     </label>
                     <input
                       type="text"
                       value={deliveryNotes}
                       onChange={(e) => setDeliveryNotes(e.target.value)}
-                      placeholder="e.g. Leave package with concierge or call upon arrival"
+                      placeholder="e.g. Call when arriving at gate"
                       className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                     />
                   </div>
@@ -634,112 +597,92 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     id="proceed-to-payment-step-btn"
                     className="py-3 px-6 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer"
                   >
-                    <span>Continue to Payment Gateway</span>
+                    <span>Proceed to Payment</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </form>
             )}
 
-            {/* STEP 2: Payment Gateway & Order Review */}
+            {/* STEP 2: Payment Gateway (Mobile Money for Locals, Cards & PayPal for International) */}
             {step === 'payment' && (
               <div className="space-y-6">
                 
                 {/* Payment Methods Selector Tabs */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-neutral-900 text-sm">
-                      Select Payment Gateway
-                    </h4>
+                    <div>
+                      <h4 className="font-bold text-neutral-900 text-sm">
+                        Select Payment Method
+                      </h4>
+                      <p className="text-[11px] text-neutral-500">
+                        Local Mobile Money for East Africa, Cards & PayPal for International
+                      </p>
+                    </div>
                     <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" /> 256-bit Encrypted
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {/* 3 Direct Tabs: Mobile Money (Locals), Cards (International), PayPal (International) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('mobile_money_tz')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                         paymentMethod === 'mobile_money_tz'
-                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm ring-2 ring-amber-400'
-                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-md ring-2 ring-amber-400'
+                          : 'bg-neutral-50 text-neutral-800 border-neutral-200 hover:bg-neutral-100'
                       }`}
                     >
-                      <Smartphone className="w-4 h-4 mb-1 text-amber-400" />
-                      <div className="text-xs font-bold">🇹🇿 Mobile Money</div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Smartphone className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-bold">🇹🇿 Mobile Money</span>
+                      </div>
                       <div className={`text-[10px] ${paymentMethod === 'mobile_money_tz' ? 'text-amber-200' : 'text-neutral-500'}`}>
-                        M-Pesa / Tigo / Airtel
+                        M-Pesa / Tigo / Airtel / HaloPesa (Locals)
                       </div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('card')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                         paymentMethod === 'card'
-                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-md ring-2 ring-amber-400'
+                          : 'bg-neutral-50 text-neutral-800 border-neutral-200 hover:bg-neutral-100'
                       }`}
                     >
-                      <CreditCard className="w-4 h-4 mb-1 text-amber-400" />
-                      <div className="text-xs font-bold">💳 Global Cards</div>
-                      <div className={`text-[10px] ${paymentMethod === 'card' ? 'text-neutral-300' : 'text-neutral-400'}`}>
-                        Visa / Master / Amex
+                      <div className="flex items-center gap-2 mb-1">
+                        <CreditCard className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-bold">💳 Credit / Debit Cards</span>
+                      </div>
+                      <div className={`text-[10px] ${paymentMethod === 'card' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                        Visa / Mastercard / Amex (International)
                       </div>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setPaymentMethod('apple_pay')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        paymentMethod === 'apple_pay'
-                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                      onClick={() => setPaymentMethod('paypal')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                        paymentMethod === 'paypal'
+                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-md ring-2 ring-amber-400'
+                          : 'bg-neutral-50 text-neutral-800 border-neutral-200 hover:bg-neutral-100'
                       }`}
                     >
-                      <Smartphone className="w-4 h-4 mb-1 text-amber-400" />
-                      <div className="text-xs font-bold">Apple/Google Pay</div>
-                      <div className={`text-[10px] ${paymentMethod === 'apple_pay' ? 'text-neutral-300' : 'text-neutral-400'}`}>
-                        1-Click Biometric
+                      <div className="flex items-center gap-2 mb-1">
+                        <Globe className="w-4 h-4 text-blue-400" />
+                        <span className="text-xs font-bold">🅿️ PayPal</span>
                       </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('instant_bank_transfer')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        paymentMethod === 'instant_bank_transfer'
-                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:bg-neutral-100'
-                      }`}
-                    >
-                      <Building2 className="w-4 h-4 mb-1 text-amber-400" />
-                      <div className="text-xs font-bold">Bank Wire / SWIFT</div>
-                      <div className={`text-[10px] ${paymentMethod === 'instant_bank_transfer' ? 'text-neutral-300' : 'text-neutral-400'}`}>
-                        CRDB / NMB USD/TZS
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('paystack_flutterwave')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        paymentMethod === 'paystack_flutterwave'
-                          ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:bg-neutral-100'
-                      }`}
-                    >
-                      <Sparkles className="w-4 h-4 mb-1 text-amber-400" />
-                      <div className="text-xs font-bold">Pan-Africa Gateway</div>
-                      <div className={`text-[10px] ${paymentMethod === 'paystack_flutterwave' ? 'text-neutral-300' : 'text-neutral-400'}`}>
-                        Paystack / Flutterwave
+                      <div className={`text-[10px] ${paymentMethod === 'paypal' ? 'text-blue-200' : 'text-neutral-500'}`}>
+                        Express 1-Click (International Clients)
                       </div>
                     </button>
                   </div>
                 </div>
 
-                {/* Gateway Detail View: East Africa Mobile Money */}
+                {/* 1. LOCAL PAYMENT: East Africa Mobile Money */}
                 {paymentMethod === 'mobile_money_tz' && (
                   <div className="p-4 sm:p-5 bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50 rounded-2xl border border-amber-300/80 space-y-4">
                     <div className="flex items-center justify-between">
@@ -747,14 +690,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         <span className="text-xl">🇹🇿</span>
                         <div>
                           <div className="text-xs font-extrabold text-neutral-900">
-                            East Africa Mobile Money (Tanzania & Kenya)
+                            Local Tanzania Mobile Money Payment
                           </div>
                           <div className="text-[10px] text-neutral-600">
-                            Lipa kwa Simu / M-Pesa / Tigo Pesa / Airtel Money / HaloPesa
+                            Lipa kwa Simu / Vodacom M-Pesa / Tigo Pesa / Airtel / HaloPesa
                           </div>
                         </div>
                       </div>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
                         Instant SMS Verification
                       </span>
                     </div>
@@ -771,7 +714,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           key={net.id}
                           type="button"
                           onClick={() => setMobileMoneyNetwork(net.id as any)}
-                          className={`p-2 rounded-xl border text-[11px] font-semibold transition-all ${
+                          className={`p-2 rounded-xl border text-[11px] font-semibold transition-all cursor-pointer ${
                             mobileMoneyNetwork === net.id
                               ? 'bg-neutral-900 text-white border-neutral-900 shadow-xs'
                               : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100'
@@ -786,9 +729,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     {/* Merchant Lipa Namba Details Box */}
                     <div className="bg-white p-4 rounded-xl border border-amber-300 shadow-xs space-y-2.5">
                       <div className="flex justify-between items-center pb-2 border-b border-neutral-100 text-xs">
-                        <span className="text-neutral-500 font-medium">Merchant Lipa Namba / Till:</span>
+                        <span className="text-neutral-500 font-medium">Merchant Lipa Namba (LIPA KWA SIMU):</span>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-base text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">
+                          <span className="font-mono font-black text-base text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200">
                             5829104
                           </span>
                           <button
@@ -807,14 +750,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       </div>
 
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-neutral-500 font-medium">Registered Merchant Name:</span>
+                        <span className="text-neutral-500 font-medium">Registered Business Name:</span>
                         <strong className="text-neutral-900">RARE BY KIDSPRO</strong>
                       </div>
 
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-neutral-500 font-medium">Amount to Send:</span>
-                        <strong className="text-amber-600 font-black text-sm">
-                          {formatPrice(grandTotal, currentCurrency === 'USD' ? 'TZS' : currentCurrency)}
+                        <span className="text-neutral-500 font-medium">Total Amount to Pay (TZS):</span>
+                        <strong className="text-emerald-700 font-black text-base">
+                          {grandTotalTZS.toLocaleString()} TZS
                         </strong>
                       </div>
                     </div>
@@ -822,20 +765,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     {/* Transaction Reference Input */}
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-neutral-800">
-                        Enter M-Pesa / Mobile Money SMS Confirmation Code (e.g. 9JA76TR394)
+                        Enter M-Pesa / Mobile Money SMS Confirmation Code (Optional or Phone Number)
                       </label>
                       <input
                         type="text"
                         value={mobileMpesaRef}
                         onChange={(e) => setMobileMpesaRef(e.target.value)}
-                        placeholder="e.g. 9JA76TR394 or phone number"
+                        placeholder="e.g. 9JA76TR394 or +255 754 892 104"
                         className="w-full text-xs p-2.5 bg-white border border-neutral-300 rounded-xl uppercase font-mono tracking-wider outline-none focus:ring-2 focus:ring-amber-300"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Gateway Detail View */}
+                {/* 2. INTERNATIONAL PAYMENT: Credit / Debit Cards */}
                 {paymentMethod === 'card' && (
                   <div className="space-y-4 bg-neutral-50 p-4 sm:p-5 rounded-2xl border border-neutral-200">
                     
@@ -843,9 +786,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     <div className="w-full max-w-sm mx-auto bg-gradient-to-tr from-neutral-900 via-neutral-800 to-amber-900 text-white p-5 rounded-2xl shadow-xl space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase">
-                          RARE KIDS VIP SECURE
+                          RARE BY KIDSPRO GLOBAL
                         </span>
-                        <span className="text-xs font-bold font-serif-luxury italic">VISA</span>
+                        <span className="text-xs font-bold font-serif italic">VISA / MASTERCARD</span>
                       </div>
 
                       <div className="font-mono text-base tracking-widest text-neutral-100 pt-2">
@@ -868,7 +811,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="sm:col-span-3">
                         <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                          Card Number
+                          Card Number (Visa, Mastercard, American Express)
                         </label>
                         <input
                           type="text"
@@ -905,144 +848,95 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 )}
 
-                {paymentMethod === 'apple_pay' && (
-                  <div className="p-6 bg-neutral-900 text-white rounded-2xl text-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-neutral-800 text-white flex items-center justify-center mx-auto">
-                      <Smartphone className="w-6 h-6" />
+                {/* 3. INTERNATIONAL PAYMENT: PayPal */}
+                {paymentMethod === 'paypal' && (
+                  <div className="p-6 bg-gradient-to-br from-blue-900 to-indigo-950 text-white rounded-2xl text-center space-y-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-800/80 text-blue-200 flex items-center justify-center mx-auto">
+                      <Globe className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm">1-Tap Instant Checkout</h4>
-                      <p className="text-xs text-neutral-400 max-w-sm mx-auto mt-1">
-                        Authenticate securely using FaceID / TouchID to charge your default card instantly.
+                      <h4 className="font-bold text-sm">PayPal International Express</h4>
+                      <p className="text-xs text-blue-200 max-w-sm mx-auto mt-1">
+                        Pay securely with your PayPal account or linked international credit cards with buyer protection.
                       </p>
                     </div>
-                    <div className="text-xs text-emerald-400 font-bold bg-neutral-800 py-1 px-3 rounded-full inline-block">
-                      Ready to Authorize: {formatPrice(grandTotal, currentCurrency)}
+                    <div className="text-xs text-amber-300 font-bold bg-blue-950/80 py-1.5 px-4 rounded-full inline-block border border-blue-700">
+                      Amount: {formatPrice(grandTotal, currentCurrency)}
                     </div>
                   </div>
                 )}
 
-                {paymentMethod === 'instant_bank_transfer' && (
-                  <div className="p-5 bg-amber-50 rounded-2xl border border-amber-200 space-y-3 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-neutral-900 text-sm flex items-center gap-1.5">
-                        <Building2 className="w-4 h-4 text-amber-700" />
-                        Dedicated Virtual Settlement Account
-                      </span>
-                      <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[10px] font-bold">
-                        Auto-verifies in 60s
-                      </span>
-                    </div>
-
-                    <p className="text-neutral-600">
-                      Transfer exactly <strong>{formatPrice(grandTotal, currentCurrency)}</strong> to the account below from your banking app:
-                    </p>
-
-                    <div className="bg-white p-3.5 rounded-xl border border-amber-200 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-500">Bank Name:</span>
-                        <span className="font-bold text-neutral-900">Rare KidsPro Apex Settlement Bank</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-500">Account Number:</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-extrabold text-sm text-neutral-900">9024 8192 10</span>
-                          <button
-                            type="button"
-                            onClick={handleCopyAccount}
-                            className="p-1 text-amber-700 hover:text-amber-900 bg-amber-50 rounded cursor-pointer"
-                          >
-                            {copiedBank ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-500">Account Name:</span>
-                        <span className="font-semibold text-neutral-800">Rare by KidsPro Boutique Ltd</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {paymentMethod === 'paystack_flutterwave' && (
-                  <div className="p-5 bg-blue-50 rounded-2xl border border-blue-200 space-y-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-blue-600" />
-                      <span className="font-bold text-neutral-900 text-sm">
-                        Paystack / Flutterwave Gateway
-                      </span>
-                    </div>
-                    <p className="text-neutral-600">
-                      You will be prompted via the secure modal to pay using Card, USSD, Bank Transfer, or Mobile Money wallets.
-                    </p>
-                  </div>
-                )}
-
-                {/* Order Financial Breakdown Box */}
-                <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200 space-y-2 text-xs">
-                  <div className="font-bold text-neutral-900 text-xs uppercase tracking-wider mb-1">
-                    Final Order Summary
+                {/* Final Total Summary Box */}
+                <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2 text-xs">
+                  <div className="flex justify-between text-neutral-600">
+                    <span>Garments Subtotal ({cartItems.reduce((s, i) => s + i.quantity, 0)} items):</span>
+                    <span className="font-bold text-neutral-900">{formatPrice(subtotal, currentCurrency)}</span>
                   </div>
                   <div className="flex justify-between text-neutral-600">
-                    <span>Items ({cartItems.length})</span>
-                    <span className="font-semibold text-neutral-900">{formatPrice(subtotal, currentCurrency)}</span>
+                    <span>Shipping ({selectedRegion.name}):</span>
+                    <span className="font-bold text-neutral-900">
+                      {baseDeliveryFee === 0 ? 'FREE' : formatPrice(baseDeliveryFee, currentCurrency)}
+                    </span>
                   </div>
-                  {appliedPromo && (
-                    <div className="flex justify-between text-emerald-600 font-semibold">
-                      <span>Discount ({appliedPromo.code})</span>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-bold">
+                      <span>Promo Code Discount ({appliedPromo?.code}):</span>
                       <span>-{formatPrice(discountAmount, currentCurrency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-neutral-600">
-                    <span>
-                      Delivery ({selectedRegion.name}) [{(deliverySpeed || 'standard').toUpperCase()}]
-                    </span>
-                    <span className="font-semibold text-neutral-900">{formatPrice(baseDeliveryFee, currentCurrency)}</span>
-                  </div>
-                  <div className="flex justify-between text-neutral-800 border-t border-neutral-200 pt-2 text-sm font-extrabold">
-                    <span>Grand Total:</span>
-                    <span className="text-base text-neutral-950 font-display">{formatPrice(grandTotal, currentCurrency)}</span>
+                  <div className="pt-2 border-t border-neutral-200 flex justify-between items-baseline">
+                    <span className="font-bold text-sm text-neutral-900">Total Charged:</span>
+                    <div className="text-right">
+                      <span className="font-black text-lg text-neutral-900 font-display">
+                        {formatPrice(grandTotal, currentCurrency)}
+                      </span>
+                      <div className="text-[11px] font-bold text-emerald-700">
+                        ≈ {grandTotalTZS.toLocaleString()} TZS
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Final Buttons */}
-                <div className="flex items-center justify-between pt-2">
+                {/* Submit Payment Button */}
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setStep('shipping')}
-                    className="px-4 py-2.5 rounded-xl border border-neutral-300 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 flex items-center gap-1.5 cursor-pointer"
+                    className="py-3 px-4 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 font-bold text-xs transition-colors cursor-pointer"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Shipping</span>
+                    ← Back
                   </button>
 
                   <button
                     type="button"
-                    id="final-pay-submit-btn"
+                    id="submit-final-order-payment-btn"
                     disabled={isProcessing}
                     onClick={handleFinalPaymentSubmit}
-                    className="py-3.5 px-8 rounded-2xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center gap-2 active:scale-98 disabled:opacity-50 cursor-pointer"
+                    className="flex-1 py-4 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-extrabold text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isProcessing ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin" />
-                        <span>Processing Payment & Dispatching...</span>
+                        <div className="w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Verifying & Processing Payment...</span>
                       </>
                     ) : (
                       <>
                         <Lock className="w-4 h-4" />
-                        <span>Pay {formatPrice(grandTotal, currentCurrency)} & Place Order</span>
+                        <span>
+                          {paymentMethod === 'mobile_money_tz'
+                            ? `Confirm Mobile Money Payment (${grandTotalTZS.toLocaleString()} TZS)`
+                            : paymentMethod === 'paypal'
+                            ? `Pay via PayPal • ${formatPrice(grandTotal, currentCurrency)}`
+                            : `Pay with Card • ${formatPrice(grandTotal, currentCurrency)}`}
+                        </span>
                       </>
                     )}
                   </button>
                 </div>
-
               </div>
             )}
-
           </div>
         )}
-
       </div>
     </div>
   );
