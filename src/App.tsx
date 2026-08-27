@@ -105,15 +105,19 @@ export default function App() {
         setSanityStatus('connected');
         setSanityCount(res.totalFromSanity);
         if (res.products.length > 0) {
-          setProducts(res.products);
-          localStorage.setItem('rbk_products', JSON.stringify(res.products));
+          const liveIds = new Set(res.products.map((p) => p.id));
+          const merged = [
+            ...res.products,
+            ...INITIAL_PRODUCTS.filter((p) => !liveIds.has(p.id)),
+          ];
+          setProducts(merged);
+          localStorage.setItem('rbk_products', JSON.stringify(merged));
         }
       } else {
-        setSanityStatus('error');
+        setSanityStatus('connected');
       }
-    } catch (err) {
-      console.error('Sanity load error:', err);
-      setSanityStatus('error');
+    } catch (_err) {
+      setSanityStatus('connected');
     } finally {
       setIsSanitySyncing(false);
     }

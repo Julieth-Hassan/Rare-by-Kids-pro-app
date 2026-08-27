@@ -17,6 +17,79 @@ async function startServer() {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // Sanity Live Products Proxy Endpoint (avoids browser CORS issues)
+  app.get("/api/sanity-products", async (req, res) => {
+    try {
+      const projectId = "q9d6pxzm";
+      const dataset = "production";
+      const apiVersion = "2024-01-01";
+      const query = (typeof req.query.query === "string" && req.query.query.trim().length > 0)
+        ? req.query.query
+        : `*[_type == "product" || _type in ["product", "clothingItem", "clothing", "item"] || defined(price) || defined(title) || defined(clothingImages) || defined(clothingImage)] | order(_createdAt desc) {
+          _id,
+          _type,
+          _createdAt,
+          _updatedAt,
+          title,
+          name,
+          price,
+          originalPrice,
+          compareAtPrice,
+          category,
+          collection,
+          clothingImages,
+          "clothingImageUrls": clothingImages[].asset->url,
+          clothingImage,
+          "clothingImageUrl": clothingImage.asset->url,
+          additionalImages,
+          "additionalImageUrls": additionalImages[].asset->url,
+          mainImage,
+          "mainImageUrl": mainImage.asset->url,
+          productVideo,
+          "productVideoUrl": productVideo.asset->url,
+          videoFile,
+          "videoFileUrl": videoFile.asset->url,
+          videoUrl,
+          video,
+          "videoAssetUrl": video.asset->url,
+          tagline,
+          subtitle,
+          description,
+          sizes,
+          inStock,
+          isFeatured,
+          featured,
+          rating,
+          reviewCount,
+          instagramPostUrl
+        }`;
+
+      const sanityUrl = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`;
+      const response = await fetch(sanityUrl, {
+        headers: {
+          "Accept": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Sanity HTTP Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as { result?: any[] };
+      return res.json({
+        success: true,
+        result: data.result || [],
+      });
+    } catch (error: any) {
+      console.warn("Sanity proxy fetch notice:", error?.message || error);
+      return res.status(200).json({
+        success: false,
+        error: error?.message || "Failed to fetch from Sanity",
+        result: [],
+      });
+    }
+  });
+
   // AI Kids Fashion Stylist Endpoint
   app.post("/api/stylist", async (req, res) => {
     try {

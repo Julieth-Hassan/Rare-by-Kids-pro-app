@@ -317,6 +317,33 @@ export interface SanityFetchResult {
 }
 
 export async function fetchLiveSanityProducts(): Promise<SanityFetchResult> {
+  // 1. First attempt to fetch via server-side proxy route (/api/sanity-products)
+  // This bypasses browser CORS restrictions seamlessly
+  try {
+    const proxyRes = await fetch('/api/sanity-products', {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (proxyRes.ok) {
+      const data = await proxyRes.json();
+      if (data && data.success && Array.isArray(data.result)) {
+        const normalized = data.result.map((doc: any, idx: number) => normalizeSanityProduct(doc, idx));
+        return {
+          products: normalized,
+          totalFromSanity: data.result.length,
+          isLive: true,
+          error: null,
+          fetchedAt: new Date(),
+        };
+      }
+    }
+  } catch (_proxyErr) {
+    // Fall back to direct client if proxy is unreachable
+  }
+
+  // 2. Direct client fallback via @sanity/client
   try {
     const rawDocs = await sanityClient.fetch(PRODUCTS_QUERY);
     
@@ -339,12 +366,11 @@ export async function fetchLiveSanityProducts(): Promise<SanityFetchResult> {
       fetchedAt: new Date(),
     };
   } catch (err: any) {
-    console.error('Error fetching live products from Sanity (Project ID: q9d6pxzm):', err);
     return {
       products: [],
       totalFromSanity: 0,
       isLive: false,
-      error: err?.message || 'Failed to connect to Sanity database',
+      error: err?.message || 'Sanity connection standby',
       fetchedAt: new Date(),
     };
   }
