@@ -25,14 +25,12 @@ export const MoyoCollectionView: React.FC<MoyoCollectionViewProps> = ({
   onBackToHome,
   onNavigateTo,
 }) => {
-  // Filter products belonging to Moyo collection
+  // Filter products belonging strictly to Moyo collection
   const moyoProducts = products.filter((p) => 
+    p.category === 'moyo' ||
+    p.collectionType === 'moyo' ||
     p.collection === 'moyo' ||
-    p.name.toLowerCase().includes('moyo') ||
-    p.description.toLowerCase().includes('moyo') ||
-    p.id.includes('moyo') ||
-    p.id === 'rbk-savanna-01' ||
-    p.category === 'girls'
+    (p.isLiveSanity && (p.category === 'moyo' || p.collectionType === 'moyo'))
   );
 
   return (
@@ -132,19 +130,29 @@ export const MoyoCollectionView: React.FC<MoyoCollectionViewProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {moyoProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              currentCurrency={currentCurrency}
-              onSelectProduct={onSelectProduct}
-              onQuickAdd={onQuickAdd}
-              isWishlisted={wishlistIds.includes(product.id)}
-              onToggleWishlist={onToggleWishlist}
-            />
-          ))}
-        </div>
+        {moyoProducts.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-neutral-50 rounded-3xl border border-neutral-200/80 space-y-3">
+            <Sparkles className="w-8 h-8 text-pink-400 mx-auto" />
+            <h3 className="text-lg font-bold text-neutral-800">No Moyo Collection Pieces Found</h3>
+            <p className="text-xs text-neutral-500 max-w-md mx-auto">
+              Any products published in Sanity Studio with the "Moyo Collection" category will automatically display here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {moyoProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                currentCurrency={currentCurrency}
+                onSelectProduct={onSelectProduct}
+                onQuickAdd={onQuickAdd}
+                isWishlisted={wishlistIds.includes(product.id)}
+                onToggleWishlist={onToggleWishlist}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

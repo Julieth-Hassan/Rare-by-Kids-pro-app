@@ -2,7 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowLeft, Heart, ShoppingBag, Instagram, Crown } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
-import kayaDadyPrideImg from '../assets/images/kaya_dady_pride_1787746474947.jpg';
+import boysResortKayaImg from '../assets/images/boys_resort_kaya_1787751379655.jpg';
 
 interface KayaCollectionViewProps {
   products: Product[];
@@ -25,16 +25,12 @@ export const KayaCollectionView: React.FC<KayaCollectionViewProps> = ({
   onBackToHome,
   onNavigateTo,
 }) => {
-  // Filter products belonging to Kaya collection
+  // Filter products belonging strictly to Kaya collection
   const kayaProducts = products.filter((p) => 
+    p.category === 'kaya' ||
+    p.collectionType === 'kaya' ||
     p.collection === 'kaya' ||
-    p.name.toLowerCase().includes('kaya') ||
-    p.name.toLowerCase().includes('dady') ||
-    p.name.toLowerCase().includes('safari') ||
-    p.description.toLowerCase().includes('kaya') ||
-    p.id.includes('kaya') ||
-    p.category === 'boys' ||
-    p.category === 'sets'
+    (p.isLiveSanity && (p.category === 'kaya' || p.collectionType === 'kaya'))
   );
 
   return (
@@ -103,8 +99,8 @@ export const KayaCollectionView: React.FC<KayaCollectionViewProps> = ({
 
           <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
             <img
-              src={kayaDadyPrideImg}
-              alt="Kaya Collection Lookbook"
+              src={boysResortKayaImg}
+              alt="Kaya Boys Tailored Resort Outfit"
               className="w-full h-full object-cover object-center"
               referrerPolicy="no-referrer"
             />
@@ -134,19 +130,29 @@ export const KayaCollectionView: React.FC<KayaCollectionViewProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {kayaProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              currentCurrency={currentCurrency}
-              onSelectProduct={onSelectProduct}
-              onQuickAdd={onQuickAdd}
-              isWishlisted={wishlistIds.includes(product.id)}
-              onToggleWishlist={onToggleWishlist}
-            />
-          ))}
-        </div>
+        {kayaProducts.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-neutral-50 rounded-3xl border border-neutral-200/80 space-y-3">
+            <Crown className="w-8 h-8 text-blue-400 mx-auto" />
+            <h3 className="text-lg font-bold text-neutral-800">No Kaya Collection Pieces Found</h3>
+            <p className="text-xs text-neutral-500 max-w-md mx-auto">
+              Any products published in Sanity Studio with the "Kaya Collection" category will automatically display here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {kayaProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                currentCurrency={currentCurrency}
+                onSelectProduct={onSelectProduct}
+                onQuickAdd={onQuickAdd}
+                isWishlisted={wishlistIds.includes(product.id)}
+                onToggleWishlist={onToggleWishlist}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

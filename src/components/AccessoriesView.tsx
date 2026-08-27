@@ -24,19 +24,23 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
   wishlistIds,
   onToggleWishlist,
 }) => {
-  const [selectedSubFilter, setSelectedSubFilter] = useState<'all' | 'headband' | 'bowtie' | 'bonnet' | 'shoes' | 'hat' | 'socks'>('all');
+  const [selectedSubFilter, setSelectedSubFilter] = useState<'all' | 'headband' | 'bowtie' | 'bonnet' | 'duo'>('all');
 
-  // Filter all accessories
-  const allAccessories = products.filter((p) => p.isAccessory || p.category === 'accessories');
+  // Filter all accessories strictly
+  const allAccessories = products.filter(
+    (p) =>
+      p.category === 'accessories' ||
+      p.collectionType === 'accessories' ||
+      p.collection === 'accessories' ||
+      p.isAccessory
+  );
 
   const filteredAccessories = allAccessories.filter((acc) => {
     if (selectedSubFilter === 'all') return true;
     if (selectedSubFilter === 'bowtie') return acc.accessoryType === 'bowtie' || acc.name.toLowerCase().includes('bow tie') || acc.name.toLowerCase().includes('bowtie');
     if (selectedSubFilter === 'headband') return acc.accessoryType === 'headband' || acc.name.toLowerCase().includes('headband') || acc.name.toLowerCase().includes('crown') || acc.name.toLowerCase().includes('turban');
     if (selectedSubFilter === 'bonnet') return acc.accessoryType === 'bonnet' || acc.name.toLowerCase().includes('bonnet');
-    if (selectedSubFilter === 'shoes') return acc.accessoryType === 'shoes' || acc.name.toLowerCase().includes('loafer') || acc.name.toLowerCase().includes('sneaker');
-    if (selectedSubFilter === 'hat') return acc.accessoryType === 'hat' || acc.name.toLowerCase().includes('hat') || acc.name.toLowerCase().includes('sunglasses');
-    if (selectedSubFilter === 'socks') return acc.accessoryType === 'socks' || acc.name.toLowerCase().includes('socks');
+    if (selectedSubFilter === 'duo') return acc.name.toLowerCase().includes('duo') || acc.name.toLowerCase().includes('set') || acc.name.toLowerCase().includes('sibling');
     return true;
   });
 
@@ -55,7 +59,7 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
         </h1>
 
         <p className="text-neutral-600 text-sm sm:text-base leading-relaxed">
-          From vibrant African batik bow ties with adjustable brass clasps to twisted knot turban headbands, oversized butterfly bows, heirloom knitted bonnets, and orthopedic loafers.
+          From vibrant African batik bow ties with adjustable brass clasps to twisted knot turban headbands, oversized butterfly bows, and heirloom knitted bonnets.
         </p>
       </div>
 
@@ -67,28 +71,28 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
             title: 'Batik Bow Ties',
             subtitle: 'Pre-tied adjustable straps with brass clasps',
             icon: '👔',
-            count: allAccessories.filter(a => a.accessoryType === 'bowtie' || a.name.toLowerCase().includes('bow tie')).length || 2,
+            count: allAccessories.filter(a => a.accessoryType === 'bowtie' || a.name.toLowerCase().includes('bow tie')).length,
           },
           {
             id: 'headband',
             title: 'Batik & Silk Headbands',
             subtitle: 'Twisted knot turbans, butterfly bows & crowns',
             icon: '👑',
-            count: allAccessories.filter(a => a.accessoryType === 'headband' || a.name.toLowerCase().includes('headband')).length || 3,
+            count: allAccessories.filter(a => a.accessoryType === 'headband' || a.name.toLowerCase().includes('headband')).length,
           },
           {
             id: 'bonnet',
-            title: 'Heirloom Bonnets & Hats',
-            subtitle: 'Pointelle cotton bonnets & UPF50+ hats',
+            title: 'Heirloom Bonnets',
+            subtitle: 'Pointelle cotton & hand-knitted baby bonnets',
             icon: '🌸',
-            count: allAccessories.filter(a => a.accessoryType === 'bonnet' || a.accessoryType === 'hat').length || 2,
+            count: allAccessories.filter(a => a.accessoryType === 'bonnet' || a.name.toLowerCase().includes('bonnet')).length,
           },
           {
-            id: 'shoes',
-            title: 'Footwear & Ruffle Socks',
-            subtitle: 'Ergonomic loafers & bamboo lace socks',
-            icon: '👞',
-            count: allAccessories.filter(a => a.accessoryType === 'shoes' || a.accessoryType === 'socks').length || 2,
+            id: 'duo',
+            title: 'Sibling & Match Accents',
+            subtitle: 'Coordinated bow tie & headband duo packs',
+            icon: '✨',
+            count: allAccessories.filter(a => a.name.toLowerCase().includes('duo') || a.name.toLowerCase().includes('set')).length,
           },
         ].map((cat) => {
           const isActive = selectedSubFilter === cat.id;
@@ -136,9 +140,7 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
             { id: 'bowtie', label: '👔 Batik Bow Ties' },
             { id: 'headband', label: '👑 Batik Headbands & Turbans' },
             { id: 'bonnet', label: '🌸 Heirloom Bonnets' },
-            { id: 'shoes', label: '👞 Loafers & Shoes' },
-            { id: 'hat', label: '☀️ Hats & Sunglasses' },
-            { id: 'socks', label: '🧦 Ruffle Socks' },
+            { id: 'duo', label: '✨ Sibling Match Duos' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -160,19 +162,29 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
       </div>
 
       {/* 4. Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredAccessories.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            currentCurrency={currentCurrency}
-            onSelectProduct={onSelectProduct}
-            onQuickAdd={onQuickAdd}
-            isWishlisted={wishlistIds.includes(product.id)}
-            onToggleWishlist={onToggleWishlist}
-          />
-        ))}
-      </div>
+      {filteredAccessories.length === 0 ? (
+        <div className="text-center py-16 px-4 bg-neutral-50 rounded-3xl border border-neutral-200/80 space-y-3">
+          <Crown className="w-8 h-8 text-amber-500 mx-auto" />
+          <h3 className="text-lg font-bold text-neutral-800">No Accessories Found</h3>
+          <p className="text-xs text-neutral-500 max-w-md mx-auto">
+            Any products published in Sanity Studio with the "Accessories" category will automatically display here.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredAccessories.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              currentCurrency={currentCurrency}
+              onSelectProduct={onSelectProduct}
+              onQuickAdd={onQuickAdd}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 5. Craftsmanship Quality Guarantee Banner */}
       <div className="bg-neutral-900 rounded-3xl p-8 text-white border border-neutral-800 grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -28,11 +28,26 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
   onToggleWishlist,
 }) => {
   // Filter pre-made gift bundle products
-  const giftBundleProducts = products.filter((p) => p.isGiftBundle || p.category === 'bundles');
+  const giftBundleProducts = products.filter(
+    (p) =>
+      p.category === 'gift-bundles' ||
+      p.category === 'bundles' ||
+      p.collectionType === 'gift-bundles' ||
+      p.collection === 'gift-bundles' ||
+      p.isGiftBundle
+  );
 
   // Custom Bundle Builder State
-  const clothesList = products.filter((p) => !p.isGiftBundle && !p.isAccessory);
-  const accessoriesList = products.filter((p) => p.isAccessory || p.category === 'accessories');
+  const clothesList = products.filter(
+    (p) =>
+      (p.category === 'moyo' || p.category === 'kaya' || p.category === 'girls' || p.category === 'boys' || p.category === 'toddler') &&
+      !p.isGiftBundle &&
+      !p.isAccessory &&
+      p.category !== 'accessories'
+  );
+  const accessoriesList = products.filter(
+    (p) => p.isAccessory || p.category === 'accessories' || p.collectionType === 'accessories'
+  );
 
   const [customOutfit, setCustomOutfit] = useState<Product>(clothesList[0] || products[0]);
   const [customOutfitSize, setCustomOutfitSize] = useState<string>(clothesList[0]?.sizes[0]?.size || '2-3Y');
@@ -150,116 +165,126 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {giftBundleProducts.map((bundle) => {
-            const isWish = wishlistIds.includes(bundle.id);
-            return (
-              <div 
-                key={bundle.id}
-                id={`gift-bundle-card-${bundle.id}`}
-                onClick={() => onSelectProduct(bundle)}
-                className="group bg-white rounded-3xl overflow-hidden border border-neutral-200/90 hover:border-amber-400/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
-              >
-                <div className="relative aspect-16/10 w-full overflow-hidden bg-neutral-100">
-                  <img
-                    src={bundle.images[0]}
-                    alt={bundle.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-neutral-950 shadow-md">
-                      <Gift className="w-3.5 h-3.5" />
-                      <span>Complete Gift Hamper</span>
-                    </span>
-                    {bundle.originalPrice && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-red-600 text-white shadow-xs">
-                        Save {Math.round(((bundle.originalPrice - bundle.price) / bundle.originalPrice) * 100)}% Bundle Deal
+        {giftBundleProducts.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-neutral-50 rounded-3xl border border-neutral-200/80 space-y-3">
+            <Gift className="w-8 h-8 text-amber-500 mx-auto" />
+            <h3 className="text-lg font-bold text-neutral-800">No Gift Bundles Found</h3>
+            <p className="text-xs text-neutral-500 max-w-md mx-auto">
+              Any products published in Sanity Studio with the "Gift Bundles" category will automatically display here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            {giftBundleProducts.map((bundle) => {
+              const isWish = wishlistIds.includes(bundle.id);
+              return (
+                <div 
+                  key={bundle.id}
+                  id={`gift-bundle-card-${bundle.id}`}
+                  onClick={() => onSelectProduct(bundle)}
+                  className="group bg-white rounded-3xl overflow-hidden border border-neutral-200/90 hover:border-amber-400/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
+                >
+                  <div className="relative aspect-16/10 w-full overflow-hidden bg-neutral-100">
+                    <img
+                      src={bundle.images[0]}
+                      alt={bundle.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-neutral-950 shadow-md">
+                        <Gift className="w-3.5 h-3.5" />
+                        <span>Complete Gift Hamper</span>
                       </span>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleWishlist(bundle.id);
-                    }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-md text-neutral-600 hover:text-red-500 shadow-sm"
-                  >
-                    <Heart className={`w-4 h-4 ${isWish ? 'fill-red-500 text-red-500' : ''}`} />
-                  </button>
-
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
-                      {bundle.categoryLabel}
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-tight">
-                      {bundle.name}
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
-                  <div className="space-y-4">
-                    <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-2">
-                      {bundle.description}
-                    </p>
-
-                    {bundle.bundleItems && (
-                      <div className="bg-amber-50/60 rounded-2xl p-3.5 border border-amber-200/70 space-y-2">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 block">
-                          What's Packed Inside This Gift Chest:
+                      {bundle.originalPrice && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-red-600 text-white shadow-xs">
+                          Save {Math.round(((bundle.originalPrice - bundle.price) / bundle.originalPrice) * 100)}% Bundle Deal
                         </span>
-                        <ul className="space-y-1.5">
-                          {bundle.bundleItems.map((item, idx) => (
-                            <li key={idx} className="text-xs text-neutral-800 flex items-start gap-2">
-                              <Check className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                              <span className="leading-tight">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-[10px] text-neutral-400 uppercase font-semibold">Total Bundle Price</div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl sm:text-2xl font-black text-neutral-900 font-display">
-                          {formatPrice(bundle.price, currentCurrency)}
-                        </span>
-                        {bundle.originalPrice && (
-                          <span className="text-xs text-neutral-400 line-through">
-                            {formatPrice(bundle.originalPrice, currentCurrency)}
-                          </span>
-                        )}
-                      </div>
-                      {bundle.priceTZS && (
-                        <div className="text-[10px] font-bold text-emerald-700">
-                          {bundle.priceTZS.toLocaleString()} TZS
-                        </div>
                       )}
                     </div>
 
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSelectProduct(bundle);
+                        onToggleWishlist(bundle.id);
                       }}
-                      className="px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+                      className="absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-md text-neutral-600 hover:text-red-500 shadow-sm"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Select Size & Details</span>
+                      <Heart className={`w-4 h-4 ${isWish ? 'fill-red-500 text-red-500' : ''}`} />
                     </button>
+
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
+                        {bundle.categoryLabel}
+                      </span>
+                      <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-tight">
+                        {bundle.name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
+                    <div className="space-y-4">
+                      <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-2">
+                        {bundle.description}
+                      </p>
+
+                      {bundle.bundleItems && (
+                        <div className="bg-amber-50/60 rounded-2xl p-3.5 border border-amber-200/70 space-y-2">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 block">
+                            What's Packed Inside This Gift Chest:
+                          </span>
+                          <ul className="space-y-1.5">
+                            {bundle.bundleItems.map((item, idx) => (
+                              <li key={idx} className="text-xs text-neutral-800 flex items-start gap-2">
+                                <Check className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                <span className="leading-tight">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-[10px] text-neutral-400 uppercase font-semibold">Total Bundle Price</div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl sm:text-2xl font-black text-neutral-900 font-display">
+                            {formatPrice(bundle.price, currentCurrency)}
+                          </span>
+                          {bundle.originalPrice && (
+                            <span className="text-xs text-neutral-400 line-through">
+                              {formatPrice(bundle.originalPrice, currentCurrency)}
+                            </span>
+                          )}
+                        </div>
+                        {bundle.priceTZS && (
+                          <div className="text-[10px] font-bold text-emerald-700">
+                            {bundle.priceTZS.toLocaleString()} TZS
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectProduct(bundle);
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Select Size & Details</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 3. Interactive "Build-Your-Own Gift Bundle" Tool */}

@@ -12,7 +12,6 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderTracker } from './components/OrderTracker';
-import { InstagramFeed } from './components/InstagramFeed';
 import { AiStylistModal } from './components/AiStylistModal';
 import { MerchantDashboardModal } from './components/MerchantDashboardModal';
 import { WhatsAppFloatingButton } from './components/WhatsAppFloatingButton';
@@ -386,12 +385,6 @@ export default function App() {
               lastSanitySyncTime={lastSanitySyncTime}
               onRefreshSanity={() => loadSanityCatalog(false)}
               onNavigateToView={(view) => handleNavigateView(view as AppView)}
-            />
-
-            {/* Shoppable Instagram Feed Section */}
-            <InstagramFeed
-              products={products}
-              onSelectProduct={(product) => setSelectedProduct(product)}
             />
           </>
         )}

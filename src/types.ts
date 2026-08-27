@@ -73,6 +73,8 @@ export interface Product {
   featured?: boolean;
   collectionId?: string;
   collectionName?: string;
+  collection?: string;
+  isLiveSanity?: boolean;
   isGiftBundle?: boolean;
   bundleItems?: string[];
   giftBoxDetails?: GiftBoxDetails;
