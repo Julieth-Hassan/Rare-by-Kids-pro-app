@@ -93,6 +93,24 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
 
+  // Check if admin/debug mode is activated via URL query param: ?admin=true
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('admin') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const checkAdminParam = () => {
+      const params = new URLSearchParams(window.location.search);
+      setIsAdmin(params.get('admin') === 'true');
+    };
+    window.addEventListener('popstate', checkAdminParam);
+    return () => window.removeEventListener('popstate', checkAdminParam);
+  }, []);
+
   // Filters and Sorting State
   const [selectedGender, setSelectedGender] = useState<string>('all');
   const [selectedAge, setSelectedAge] = useState<string>('all');
@@ -413,27 +431,30 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             <span className="text-neutral-300">•</span>
             <span className="text-neutral-600">{filteredProducts.length} Pieces</span>
             
-            {/* Sanity Live Database Status Badge */}
-            <span className="text-neutral-300">•</span>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 border border-neutral-200 text-neutral-700">
-              <Database className="w-3 h-3 text-red-500" />
-              <span>Sanity DB:</span>
-              <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                {liveCount > 0 ? `${liveCount} Live Items` : 'q9d6pxzm (production)'}
-              </span>
-            </div>
+            {/* Sanity Live Database Status Badge & Sync Sanity Button (Visible ONLY if ?admin=true) */}
+            {isAdmin ? (
+              <>
+                <span className="text-neutral-300">•</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 border border-neutral-200 text-neutral-700">
+                  <Database className="w-3 h-3 text-red-500" />
+                  <span>Sanity DB:</span>
+                  <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {liveCount > 0 ? `${liveCount} Live Items` : 'q9d6pxzm (production)'}
+                  </span>
+                </div>
 
-            {/* Sync Sanity Button */}
-            <button
-              onClick={handleRefresh}
-              disabled={isSyncing}
-              title="Sync latest clothing items from Sanity database"
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors cursor-pointer"
-            >
-              <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync Sanity'}</span>
-            </button>
+                <button
+                  onClick={handleRefresh}
+                  disabled={isSyncing}
+                  title="Sync latest clothing items from Sanity database"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Syncing...' : 'Sync Sanity'}</span>
+                </button>
+              </>
+            ) : null}
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 font-display">
