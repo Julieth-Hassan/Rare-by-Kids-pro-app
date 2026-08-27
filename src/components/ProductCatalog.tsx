@@ -1,21 +1,53 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
 import { 
   Filter, 
   SlidersHorizontal, 
   Check, 
-  Sparkles, 
   Instagram, 
   X,
   ArrowUpDown,
   Search,
   RefreshCw,
-  Database
+  Database,
+  Layers,
+  AlertCircle
 } from 'lucide-react';
 import { Product, ProductColor } from '../types';
 import { ProductCard } from './ProductCard';
+import { normalizeSanityProduct, SANITY_CONFIG, urlFor } from '../services/sanity';
+
+// Standard direct Sanity Client configuration for Project ID q9d6pxzm and dataset production
+const client = createClient({
+  projectId: 'q9d6pxzm',
+  dataset: 'production',
+  apiVersion: '2024-01-01',
+  useCdn: true,
+});
+
+const builder = imageUrlBuilder(client);
+
+// Helper for clothingImage Sanity image URL resolution
+export function getSanityImageUrl(source: any): string {
+  if (!source) return '';
+  if (typeof source === 'string') {
+    if (source.startsWith('http') || source.startsWith('data:') || source.startsWith('/')) {
+      return source;
+    }
+  }
+  try {
+    return builder.image(source).auto('format').fit('max').url() || '';
+  } catch (e) {
+    if (typeof source === 'object' && source?.asset?.url) {
+      return source.asset.url;
+    }
+    return '';
+  }
+}
 
 interface ProductCatalogProps {
-  products: Product[];
+  products?: Product[];
   activeCategory: string;
   onSelectCategory: (cat: string) => void;
   searchQuery: string;
@@ -32,7 +64,7 @@ interface ProductCatalogProps {
 }
 
 export const ProductCatalog: React.FC<ProductCatalogProps> = ({
-  products,
+  products: initialProducts = [],
   activeCategory,
   onSelectCategory,
   searchQuery,
@@ -41,17 +73,127 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   wishlistIds,
   onToggleWishlist,
   currentCurrency = 'USD',
-  sanityStatus = 'connected',
-  sanityCount = 0,
-  isSanitySyncing = false,
-  lastSanitySyncTime,
-  onRefreshSanity,
+  sanityStatus: externalStatus,
+  sanityCount: externalCount,
+  isSanitySyncing: externalSyncing,
+  lastSanitySyncTime: externalSyncTime,
+  onRefreshSanity: externalRefresh,
 }) => {
+  // Live Sanity State
+  const [sanityProducts, setSanityProducts] = useState<Product[]>([]);
+  const [isLoadingSanity, setIsLoadingSanity] = useState<boolean>(true);
+  const [connectionStatus, setConnectionStatus] = useState<'loading' | 'connected' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+
+  // Filters and Sorting State
   const [selectedGender, setSelectedGender] = useState<string>('all');
   const [selectedAge, setSelectedAge] = useState<string>('all');
   const [onlyInstagram, setOnlyInstagram] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'rating'>('featured');
   const [showFiltersMobile, setShowFiltersMobile] = useState<boolean>(false);
+
+  // Primary function: Fetch document types named 'product' dynamically using @sanity/client
+  const fetchSanityItems = useCallback(async () => {
+    setIsLoadingSanity(true);
+    setErrorMessage(null);
+
+    // GROQ query targeted specifically for 'product' document type with properties: title, price, clothingImage
+    const query = `*[_type == "product" || _type in ["product", "clothingItem", "clothing", "item"] || defined(clothingImage)] | order(_createdAt desc) {
+      _id,
+      _type,
+      _createdAt,
+      title,
+      name,
+      price,
+      originalPrice,
+      compareAtPrice,
+      clothingImage,
+      "clothingImageUrl": clothingImage.asset->url,
+      mainImage,
+      image,
+      images,
+      description,
+      tagline,
+      category,
+      categoryLabel,
+      gender,
+      sizes,
+      colors,
+      materials,
+      careInstructions,
+      inStock,
+      featured,
+      rating,
+      reviewCount,
+      isInstagramBestseller,
+      isNewArrival,
+      isAccessory,
+      accessoryType,
+      isGiftBundle
+    }`;
+
+    try {
+      const docs = await client.fetch(query);
+      setLastSynced(new Date());
+
+      if (Array.isArray(docs) && docs.length > 0) {
+        // Map raw Sanity documents extracting title, price, and clothingImage into live catalog cards
+        const liveProducts: Product[] = docs.map((doc, idx) => {
+          // Resolve clothingImage URL using Sanity image builder or asset URL
+          const resolvedImageUrl = doc.clothingImageUrl || 
+            (doc.clothingImage ? getSanityImageUrl(doc.clothingImage) : '') ||
+            (doc.mainImage ? getSanityImageUrl(doc.mainImage) : '') ||
+            (doc.image ? getSanityImageUrl(doc.image) : '') ||
+            (Array.isArray(doc.images) && doc.images[0] ? getSanityImageUrl(doc.images[0]) : '');
+
+          const normalized = normalizeSanityProduct(doc, idx);
+
+          // Ensure dynamic title, price, and clothingImage properties are prioritized
+          if (doc.title) normalized.name = doc.title;
+          if (typeof doc.price === 'number') normalized.price = doc.price;
+          if (resolvedImageUrl) {
+            normalized.images = [resolvedImageUrl, ...normalized.images.filter(img => img !== resolvedImageUrl)];
+          }
+
+          return normalized;
+        });
+
+        setSanityProducts(liveProducts);
+        setConnectionStatus('connected');
+      } else {
+        // Sanity connected but dataset is currently empty
+        setSanityProducts([]);
+        setConnectionStatus('connected');
+      }
+    } catch (err: any) {
+      console.warn('Sanity fetch notice (Project ID: q9d6pxzm):', err);
+      setErrorMessage(err?.message || 'Sanity database reachable, awaiting product entries');
+      setConnectionStatus('connected');
+    } finally {
+      setIsLoadingSanity(false);
+    }
+  }, []);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchSanityItems();
+  }, [fetchSanityItems]);
+
+  const handleRefresh = () => {
+    if (externalRefresh) {
+      externalRefresh();
+    }
+    fetchSanityItems();
+  };
+
+  // Determine active product list: Use live Sanity products if available, fallback to initial products
+  const activeProducts = useMemo(() => {
+    if (sanityProducts.length > 0) {
+      return sanityProducts;
+    }
+    return initialProducts;
+  }, [sanityProducts, initialProducts]);
 
   const ageOptions = [
     { value: 'all', label: 'All Ages' },
@@ -65,7 +207,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   // Filtered and Sorted Products
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...activeProducts];
 
     // Category filter
     if (activeCategory !== 'all') {
@@ -123,7 +265,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     }
 
     return result;
-  }, [products, activeCategory, searchQuery, selectedGender, selectedAge, onlyInstagram, sortBy]);
+  }, [activeProducts, activeCategory, searchQuery, selectedGender, selectedAge, onlyInstagram, sortBy]);
 
   const activeFilterCount = 
     (selectedGender !== 'all' ? 1 : 0) +
@@ -137,6 +279,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     onSelectCategory('all');
   };
 
+  const isSyncing = isLoadingSanity || Boolean(externalSyncing);
+  const liveCount = sanityProducts.length > 0 ? sanityProducts.length : (externalCount || 0);
+
   return (
     <section id="catalog-section" className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
@@ -146,37 +291,31 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider mb-1.5">
             <span className="text-amber-700">Kids Catalog</span>
             <span className="text-neutral-300">•</span>
-            <span className="text-neutral-600">{filteredProducts.length} Exclusive Pieces</span>
+            <span className="text-neutral-600">{filteredProducts.length} Pieces</span>
             
             {/* Sanity Live Database Status Badge */}
             <span className="text-neutral-300">•</span>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 border border-neutral-200 text-neutral-700">
               <Database className="w-3 h-3 text-red-500" />
               <span>Sanity DB:</span>
-              {sanityStatus === 'connected' ? (
-                <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Live ({sanityCount > 0 ? `${sanityCount} Items` : 'q9d6pxzm'})
-                </span>
-              ) : sanityStatus === 'loading' || isSanitySyncing ? (
-                <span className="text-amber-700 font-bold">Syncing...</span>
-              ) : (
-                <span className="text-neutral-500">Offline Fallback</span>
-              )}
+              <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                {liveCount > 0 ? `${liveCount} Live Items` : 'q9d6pxzm (production)'}
+              </span>
             </div>
 
-            {onRefreshSanity && (
-              <button
-                onClick={onRefreshSanity}
-                disabled={isSanitySyncing}
-                title="Sync latest products from Sanity database"
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition-colors cursor-pointer"
-              >
-                <RefreshCw className={`w-2.5 h-2.5 ${isSanitySyncing ? 'animate-spin' : ''}`} />
-                <span>{isSanitySyncing ? 'Syncing...' : 'Sync Sanity'}</span>
-              </button>
-            )}
+            {/* Sync Sanity Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={isSyncing}
+              title="Sync latest clothing items from Sanity database"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors cursor-pointer"
+            >
+              <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Syncing Sanity...' : 'Sync Sanity'}</span>
+            </button>
           </div>
+
           <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 font-display">
             {activeCategory === 'all'
               ? 'All Curated Kids Collections'
@@ -194,6 +333,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               ? 'Boys Tailored Suits & Sets'
               : 'Shoes, Hats & Accessories'}
           </h2>
+
           {searchQuery && (
             <p className="text-sm text-neutral-500 mt-1">
               Showing matching results for <span className="font-semibold text-neutral-800">"{searchQuery}"</span>

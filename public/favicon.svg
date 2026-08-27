@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Soft warm cream circular background matching official branding -->
+  <circle cx="256" cy="256" r="250" fill="#FDFBF7" stroke="#EAE5DC" stroke-width="4"/>
+  
+  <!-- Minimalist Crown at top -->
+  <g transform="translate(256, 150) scale(1.6)" text-anchor="middle">
+    <path d="M-30 20 L-38 -15 L-12 5 L0 -25 L12 5 L38 -15 L30 20 Z" fill="none" stroke="#1A1816" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="-38" cy="-18" r="4.5" fill="#1A1816"/>
+    <circle cx="0" cy="-28" r="5" fill="#1A1816"/>
+    <circle cx="38" cy="-18" r="4.5" fill="#1A1816"/>
+  </g>
+
+  <!-- RARE text with arched styling and serif flair -->
+  <text x="256" y="295" font-family="'Playfair Display', 'Bodoni MT', 'Didot', Georgia, serif" font-weight="700" font-size="118" fill="#1A1816" text-anchor="middle" letter-spacing="14">RARE</text>
+
+  <!-- Divider lines and BY KIDSPRO -->
+  <line x1="110" y1="340" x2="185" y2="340" stroke="#1A1816" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="256" y="347" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="600" font-size="20" fill="#1A1816" text-anchor="middle" letter-spacing="6">BY KIDSPRO</text>
+  <line x1="327" y1="340" x2="402" y2="340" stroke="#1A1816" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- MODERN KIDSWEAR -->
+  <text x="256" y="380" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="500" font-size="14" fill="#6B655D" text-anchor="middle" letter-spacing="7">MODERN KIDSWEAR</text>
+</svg>

@@ -57,30 +57,34 @@ function parseDescription(desc: any): string {
 }
 
 // GROQ Query for all clothing items & products
-export const PRODUCTS_QUERY = `*[_type in ["product", "clothingItem", "clothing", "item", "productItem", "wear", "dress", "accessory"] || defined(price) || defined(title) || defined(name)] | order(_createdAt desc) {
+export const PRODUCTS_QUERY = `*[_type == "product" || _type in ["product", "clothingItem", "clothing", "item", "productItem", "wear", "dress", "accessory"] || defined(price) || defined(title) || defined(clothingImage)] | order(_createdAt desc) {
   _id,
   _type,
   _createdAt,
   _updatedAt,
   title,
   name,
-  tagline,
-  subtitle,
-  description,
   price,
   originalPrice,
   compareAtPrice,
+  clothingImage,
+  "clothingImageUrl": clothingImage.asset->url,
+  mainImage,
+  "mainImageUrl": mainImage.asset->url,
+  image,
+  "imageUrl": image.asset->url,
+  images,
+  gallery,
+  photos,
+  tagline,
+  subtitle,
+  description,
   rating,
   reviewCount,
   category,
   categoryLabel,
   gender,
   "slug": slug.current,
-  "mainImage": mainImage,
-  "image": image,
-  "images": images,
-  "gallery": gallery,
-  "photos": photos,
   instagramPostUrl,
   isInstagramBestseller,
   isNewArrival,
@@ -111,9 +115,14 @@ export function normalizeSanityProduct(doc: any, fallbackIndex = 0): Product {
     ? doc.originalPrice 
     : (typeof doc.compareAtPrice === 'number' ? doc.compareAtPrice : (price > 0 ? Number((price * 1.3).toFixed(2)) : undefined));
 
-  // Extract all images
+  // Extract all images with prioritization for clothingImage
   const rawImages: any[] = [];
+  if (doc.clothingImageUrl) rawImages.push(doc.clothingImageUrl);
+  if (doc.clothingImage) rawImages.push(doc.clothingImage);
+  if (doc.clothing_image) rawImages.push(doc.clothing_image);
+  if (doc.mainImageUrl) rawImages.push(doc.mainImageUrl);
   if (doc.mainImage) rawImages.push(doc.mainImage);
+  if (doc.imageUrl) rawImages.push(doc.imageUrl);
   if (doc.image) rawImages.push(doc.image);
   if (Array.isArray(doc.images)) rawImages.push(...doc.images);
   if (Array.isArray(doc.gallery)) rawImages.push(...doc.gallery);
