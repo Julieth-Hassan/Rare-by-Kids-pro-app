@@ -1,60 +1,40 @@
 import { BrandCollection, DeliveryRegion, Order, Product, PromoCode, Review } from '../types';
-import savannaSetImg from '../assets/images/savanna_set_1787746384981.jpg';
-import moyoVol2LookbookImg from '../assets/images/moyo_vol2_lookbook_1787746408248.jpg';
-import butterflyBloomImg from '../assets/images/butterfly_bloom_1787746428753.jpg';
-import baraBloomImg from '../assets/images/bara_bloom_1787746443802.jpg';
-import moyoVol1Img from '../assets/images/moyo_vol1_sets_1787746459842.jpg';
-import kayaDadyPrideImg from '../assets/images/kaya_dady_pride_1787746474947.jpg';
-import boysResortKayaImg from '../assets/images/boys_resort_kaya_1787751379655.jpg';
-import girlsBatikPeplumImg from '../assets/images/girls_batik_peplum_1787751394431.jpg';
-import toddlerSavannaFlatlayImg from '../assets/images/toddler_savanna_flatlay_1787751409352.jpg';
-import babyOrganicRomperImg from '../assets/images/baby_organic_romper_1787751423155.jpg';
-import rareBrandCampaignImg from '../assets/images/rare_brand_campaign_1787751440718.jpg';
-import batikBowTieImg from '../assets/images/batik_bow_tie_gentleman_1787751934065.jpg';
-import batikHeadbandsImg from '../assets/images/batik_knot_headbands_1787751951928.jpg';
-import kidsBatikDuoImg from '../assets/images/kids_batik_duo_acc_1787751967759.jpg';
+import kijaniMoyoModelImg from '../assets/images/kijani_moyo_model.jpg';
+import kijaniMoyoFlatlayImg from '../assets/images/kijani_moyo_flatlay.jpg';
+import sunsetMoyoModelImg from '../assets/images/sunset_moyo_model.jpg';
+import sunsetMoyoFlatlayImg from '../assets/images/sunset_moyo_flatlay.jpg';
+import rubyMoyoModelImg from '../assets/images/ruby_moyo_model.jpg';
+import rubyMoyoFlatlayImg from '../assets/images/ruby_moyo_flatlay.jpg';
+import girlsHairAccessories1 from '../assets/images/girls_hair_accessories_1.jpg';
+import girlsHairAccessories3 from '../assets/images/girls_hair_accessories_3.jpg';
+import girlsHairAccessories4 from '../assets/images/girls_hair_accessories_4.jpg';
+import girlsHairAccessories5 from '../assets/images/girls_hair_accessories_5.jpg';
+import girlsHairAccessories6 from '../assets/images/girls_hair_accessories_6.jpg';
 
 export const INITIAL_COLLECTIONS: BrandCollection[] = [
   {
-    id: 'col-moyo-vol-2',
-    title: 'Moyo Collection Vol. 02 — The Flow of Moyo',
-    subtitle: 'Vibrant African batik tie-shoulder tops & wide-leg flared palazzo trousers',
-    description: 'The viral flagship collection by Rare by KidsPro. Flowing silhouettes handcrafted from premium breathable cotton, featuring the Butterfly Bloom, Bara Bloom, and Terracotta Swirl sets for bold, joyful expression.',
-    bannerImage: moyoVol2LookbookImg,
-    moodTag: 'Viral Flagship',
-    itemCount: 4,
-    season: 'Vol. 02 — The Flow of Moyo',
-    colorPalette: [
-      { name: 'Terracotta Earth', hex: '#C6653E' },
-      { name: 'Butterfly Orchid', hex: '#A8448B' },
-      { name: 'Bara Maroon Batik', hex: '#6E1F28' },
-      { name: 'Olive Bloom', hex: '#7A8450' }
-    ],
-    featuredProductIds: ['rbk-moyo-butterfly', 'rbk-moyo-bara', 'rbk-savanna-01']
-  },
-  {
     id: 'col-moyo-vol-1',
-    title: 'Moyo Collection Vol. 01 — Timeless Restock',
-    subtitle: 'Back by popular demand! Breathable tie-strap sets & everyday shorts',
-    description: 'Timeless designs made for little moments. Features Breeze Bloom, Berry Bloom, Sunbeam, Earthy Bloom, and Rustic Stripe sets across sizes 2-3Y to 8-9Y.',
-    bannerImage: moyoVol1Img,
-    moodTag: 'Back in Stock',
-    itemCount: 5,
-    season: 'Vol. 01 Iconic Bloom',
+    title: 'Moyo Collection — Real Brand Showcase',
+    subtitle: 'Handcrafted African batik tie-shoulder sets & breathable play shorts',
+    description: 'The beloved signature collection by Rare by KidsPro. Featuring the Kijani Moyo Set (green florals & monochrome batik), Sunset Moyo Set (golden hearts), and Ruby Moyo Set (magenta floral & sunshine yellow). Pairings include on-model photoshoot shots and boutique flatlays.',
+    bannerImage: sunsetMoyoModelImg,
+    moodTag: 'Signature Collection',
+    itemCount: 3,
+    season: 'Moyo Collection Vol. 01',
     colorPalette: [
-      { name: 'Breeze Red', hex: '#C72C2C' },
-      { name: 'Berry Violet', hex: '#7D2A72' },
-      { name: 'Sunbeam Gold', hex: '#E8A824' },
-      { name: 'Earthy Coral', hex: '#DB6B6B' }
+      { name: 'Kijani Emerald', hex: '#2D5A27' },
+      { name: 'Sunset Gold', hex: '#E8A824' },
+      { name: 'Ruby Magenta', hex: '#8B1E4B' },
+      { name: 'Monochrome Batik', hex: '#1F2421' }
     ],
-    featuredProductIds: ['rbk-moyo-vol1-set', 'rbk-savanna-01']
+    featuredProductIds: ['rbk-moyo-kijani', 'rbk-moyo-sunset', 'rbk-moyo-ruby']
   },
   {
     id: 'col-savanna-play',
     title: 'Savanna & Heritage Everyday Play',
     subtitle: 'Soft & breathable African batik tie-strap tops and comfy play shorts',
     description: 'Available in size 1–3 Years! Crafted with love for everyday adventures, park picnics, and sunshine days. Signature handcrafted heirloom sets.',
-    bannerImage: savannaSetImg,
+    bannerImage: sunsetMoyoFlatlayImg,
     moodTag: 'Toddler Essential',
     itemCount: 3,
     season: 'Savanna Capsule 2026',
@@ -63,14 +43,14 @@ export const INITIAL_COLLECTIONS: BrandCollection[] = [
       { name: 'Royal Indigo Batik', hex: '#21336E' },
       { name: 'Warm Biscuit', hex: '#D6C7B2' }
     ],
-    featuredProductIds: ['rbk-savanna-01', 'rbk-kaya-01']
+    featuredProductIds: ['rbk-moyo-kijani', 'rbk-kaya-01']
   },
   {
     id: 'col-kaya-vol-1',
     title: 'Kaya Collection Vol. 01 — Boy Heritage',
     subtitle: "Dady's Pride soft ribbed tees & artisanal geometric chevron batik shorts",
     description: "Tailored modern streetwear meets African batik craft for boys. Features breathable organic cotton tees with high-density typography and drawstring batik shorts.",
-    bannerImage: kayaDadyPrideImg,
+    bannerImage: kijaniMoyoModelImg,
     moodTag: 'Boys Heritage',
     itemCount: 3,
     season: 'Kaya Vol. 01',
@@ -86,7 +66,7 @@ export const INITIAL_COLLECTIONS: BrandCollection[] = [
     title: 'Waffle & Linen Resort Living',
     subtitle: 'Breathable organic textures designed for warm days and effortless luxury',
     description: 'Our viral Instagram waffle cotton 2-piece sets crafted with GOTS organic yarns, coconut buttons, and elastic easy-fit waistbands.',
-    bannerImage: rareBrandCampaignImg,
+    bannerImage: rubyMoyoModelImg,
     moodTag: 'Signature Essential',
     itemCount: 4,
     season: 'Spring / Summer 2026',
@@ -218,187 +198,138 @@ export const PROMO_CODES: PromoCode[] = [
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
-    id: 'rbk-savanna-01',
-    name: 'Savanna Set (Rare by KidsPro)',
-    tagline: 'Soft & breathable African batik tie-strap top & matching shorts',
-    description: 'Available in size 1–3 Years! The iconic Savanna Set by Rare by KidsPro features a vibrant red-and-white geometric diamond batik cami top with adjustable shoulder tie straps, paired with deep royal blue and white batik shorts with an elastic drawstring waistband. Soft & breathable, perfect for everyday play, and made with love.',
-    category: 'toddler',
-    categoryLabel: 'Savanna Play & Everyday',
+    id: 'rbk-moyo-kijani',
+    name: 'Kijani Moyo Set 🌿',
+    tagline: 'Inspired by nature. Designed for little hearts.',
+    description: 'Inspired by nature. Designed for little hearts. The Kijani Moyo Set brings together vibrant green floral African batiks on a breezy tie-shoulder babydoll top, paired with timeless monochrome black & white hand-stamped geometric shorts with a flexible comfort waistband.',
+    category: 'moyo',
+    categoryLabel: 'Moyo Collection Vol. 01',
+    collection: 'moyo',
+    collectionType: 'moyo',
     gender: 'unisex',
     price: 19.00,
-    originalPrice: 24.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
     rating: 5.0,
-    reviewCount: 47,
+    reviewCount: 46,
     images: [
-      savannaSetImg,
-      toddlerSavannaFlatlayImg,
-      moyoVol1Img
+      kijaniMoyoModelImg,
+      kijaniMoyoFlatlayImg,
     ],
-    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    clothingImages: [
+      kijaniMoyoModelImg,
+      kijaniMoyoFlatlayImg,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/p/Db8qLWDMuBo/',
     isInstagramBestseller: true,
     isOrganic: true,
     isNewArrival: true,
     sizes: [
-      { size: '1-2 Years', inStock: true, stockCount: 18 },
-      { size: '2-3 Years', inStock: true, stockCount: 25 },
-      { size: '3-4 Years', inStock: true, stockCount: 14 },
+      { size: '0-3 Months', inStock: true, stockCount: 10 },
+      { size: '3-6 Months', inStock: true, stockCount: 14 },
+      { size: '6-12 Months', inStock: true, stockCount: 16 },
+      { size: '1-2 Years', inStock: true, stockCount: 22 },
+      { size: '2-3 Years', inStock: true, stockCount: 28 },
+      { size: '3-4 Years', inStock: true, stockCount: 20 },
+      { size: '5-6 Years', inStock: true, stockCount: 15 },
+      { size: '7-8 Years', inStock: true, stockCount: 12 },
+      { size: '9-10 Years', inStock: true, stockCount: 8 },
     ],
     colors: [
-      { name: 'Savanna Red & Indigo Batik', hex: '#A62424' },
-      { name: 'Royal Blue Batik', hex: '#21336E' },
-      { name: 'Warm Terracotta', hex: '#C67D5A' }
+      { name: 'Kijani Green & Monochrome Batik', hex: '#2D5A27' },
+      { name: 'Forest Lime Floral', hex: '#5E8C31' },
+      { name: 'Ivory Batik', hex: '#F5F5F0' }
     ],
-    materials: ['100% Breathable Combed Cotton Batik', 'Hand-dyed Non-Toxic Vegetable Dyes', 'Adjustable Shoulder Tie Straps', 'Elasticated Comfort Waistband'],
+    materials: ['100% Breathable Combed Cotton Batik', 'Hand-Crafted African Artisan Print', 'Adjustable Shoulder Ribbon Ties', 'Elasticated Comfort Waistband'],
     careInstructions: ['Hand wash or machine wash gentle cold (30°C)', 'Wash with similar colors', 'Hang dry in shade', 'Warm iron on reverse'],
     inStock: true,
     featured: true,
   },
   {
-    id: 'rbk-moyo-terra-flow',
-    name: 'Terra Flow Set — Moyo Vol. 02',
-    tagline: 'Rooted in earth. Made to move.',
-    description: 'Featured on @rare.bykidspro Instagram! The Terra Flow Set from the Moyo Collection Vol. 02 "The Flow of Moyo" pairs a vibrant burnt orange/terracotta tie-strap peplum cami top with matching brick-red geometric batik wide-leg palazzo pants. Also available in crisp white eyelet with bold red floral batik trousers. Lightweight, flowing, and crafted for radiant comfort.',
-    category: 'girls',
-    categoryLabel: 'Moyo Collection Vol. 02',
+    id: 'rbk-moyo-sunset',
+    name: 'Sunset Moyo Set 🌅💛',
+    tagline: 'Golden moments. Little smiles. Beautiful memories.',
+    description: 'Golden moments. Little smiles. Beautiful memories. The Sunset Moyo Set features a radiant sunbeam-yellow tie-shoulder babydoll top patterned with hand-dyed white heart motifs, paired with olive-grey and yellow floral leaf batik shorts with an elastic tie waistband. Crafted for effortless joy and timeless memories.',
+    category: 'moyo',
+    categoryLabel: 'Moyo Collection Vol. 01',
+    collection: 'moyo',
+    collectionType: 'moyo',
     gender: 'girl',
     price: 19.00,
-    originalPrice: 26.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
     rating: 5.0,
-    reviewCount: 44,
+    reviewCount: 52,
     images: [
-      savannaSetImg, // Or matched Moyo lookbook assets
-      baraBloomImg,
-      moyoVol2LookbookImg
+      sunsetMoyoModelImg,
+      sunsetMoyoFlatlayImg,
+    ],
+    clothingImages: [
+      sunsetMoyoModelImg,
+      sunsetMoyoFlatlayImg,
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
     isOrganic: true,
     isNewArrival: true,
     sizes: [
-      { size: '1-2 Years', inStock: true, stockCount: 16 },
+      { size: '1-2 Years', inStock: true, stockCount: 15 },
       { size: '2-3 Years', inStock: true, stockCount: 24 },
-      { size: '4-5 Years', inStock: true, stockCount: 20 },
-      { size: '6-7 Years', inStock: true, stockCount: 15 },
+      { size: '3-4 Years', inStock: true, stockCount: 20 },
+      { size: '4-5 Years', inStock: true, stockCount: 25 },
+      { size: '5-6 Years', inStock: true, stockCount: 18 },
+      { size: '7-8 Years', inStock: true, stockCount: 14 },
     ],
     colors: [
-      { name: 'Terra Flow Burnt Orange & Brick Batik', hex: '#D94E1F' },
-      { name: 'White & Crimson Floral Batik', hex: '#9B1C28' },
-      { name: 'Warm Clay', hex: '#B85D36' }
+      { name: 'Sunbeam Yellow & Olive Leaf Batik', hex: '#E8A824' },
+      { name: 'Golden Honey & Grey Flora', hex: '#D48B16' },
     ],
-    materials: ['100% Breathable Combed Cotton Batik', 'Hand-Crafted African Artisan Print', 'Adjustable Ribbon Shoulder Ties', 'Flowing Wide-Leg Palazzo Fit'],
+    materials: ['100% Breathable Combed Cotton Batik', 'Hand-Crafted African Artisan Print', 'Adjustable Ribbon Shoulder Ties', 'Drawstring Comfort Shorts'],
     careInstructions: ['Machine wash cold gentle or hand wash', 'Hang dry in shade', 'Warm iron on reverse'],
     inStock: true,
     featured: true,
   },
   {
-    id: 'rbk-moyo-butterfly',
-    name: 'Butterfly Bloom Set — Moyo Vol. 02',
-    tagline: 'Spread your wings. Bloom in your own way.',
-    description: 'From the Moyo Collection Vol. 02 "The Flow of Moyo" by Rare by KidsPro. Features a rich magenta purple sleeveless ruffled tie-shoulder peplum top paired with olive green and lilac floral batik wide-leg flared palazzo trousers. Designed for flow, comfort, and radiant confidence.',
-    category: 'girls',
-    categoryLabel: 'Moyo Collection Vol. 02',
+    id: 'rbk-moyo-ruby',
+    name: 'Ruby Moyo Set 🌺',
+    tagline: 'A playful blend of comfort, colour, and African craftsmanship.',
+    description: 'Introducing the Ruby Moyo Set! A playful blend of comfort, colour, and African craftsmanship. Features a rich magenta-ruby cotton tie-shoulder flared top with white traditional flower-star batik prints and cheerful yellow ribbons, paired with vibrant sunshine-yellow and ivory geometric diamond tribal print shorts.',
+    category: 'moyo',
+    categoryLabel: 'Moyo Collection Vol. 01',
+    collection: 'moyo',
+    collectionType: 'moyo',
     gender: 'girl',
-    price: 22.00,
-    originalPrice: 28.00,
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
     rating: 5.0,
     reviewCount: 39,
     images: [
-      butterflyBloomImg,
-      moyoVol2LookbookImg,
-      baraBloomImg
+      rubyMoyoModelImg,
+      rubyMoyoFlatlayImg,
+    ],
+    clothingImages: [
+      rubyMoyoModelImg,
+      rubyMoyoFlatlayImg,
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
     isOrganic: true,
     isNewArrival: true,
     sizes: [
-      { size: '2-3Y', inStock: true, stockCount: 12 },
-      { size: '4-5Y', inStock: true, stockCount: 20 },
-      { size: '6-7Y', inStock: true, stockCount: 16 },
-      { size: '8-9Y', inStock: true, stockCount: 10 },
+      { size: '1-2 Years', inStock: true, stockCount: 14 },
+      { size: '2-3 Years', inStock: true, stockCount: 20 },
+      { size: '3-4 Years', inStock: true, stockCount: 18 },
+      { size: '4-5 Years', inStock: true, stockCount: 22 },
+      { size: '5-6 Years', inStock: true, stockCount: 16 },
+      { size: '7-8 Years', inStock: true, stockCount: 10 },
     ],
     colors: [
-      { name: 'Butterfly Magenta & Olive', hex: '#A8448B' },
-      { name: 'Lilac Floral Meadow', hex: '#D8B4E2' },
-      { name: 'Olive Bloom', hex: '#7A8450' }
+      { name: 'Ruby Magenta & Sunshine Yellow', hex: '#8B1E4B' },
+      { name: 'Burgundy Star & Yellow Diamond', hex: '#6E1F28' },
     ],
-    materials: ['100% Premium Flowing Cotton', 'Flared Palazzo Cut', 'Shoulder Ribbon Ties', 'Deep Side Pockets'],
-    careInstructions: ['Machine wash cold gentle cycle', 'Hang to dry', 'Cool iron if desired'],
-    inStock: true,
-    featured: true,
-  },
-  {
-    id: 'rbk-moyo-bara',
-    name: 'Bara Bloom Set — Moyo Vol. 02',
-    tagline: 'Where petals meet peace. Crisp eyelet top & maroon batik palazzo pants.',
-    description: 'Part of Moyo Collection Vol. 02 by Rare by KidsPro. A clean, crisp white eyelet embroidered sleeveless tie-shoulder cami top paired with deep maroon wine-red and cream geometric batik wide-leg palazzo pants. Includes functional pockets, drawstring waist, and matching retro shades compatibility.',
-    category: 'girls',
-    categoryLabel: 'Moyo Collection Vol. 02',
-    gender: 'girl',
-    price: 22.00,
-    originalPrice: 28.00,
-    rating: 4.9,
-    reviewCount: 31,
-    images: [
-      baraBloomImg,
-      moyoVol2LookbookImg,
-      butterflyBloomImg
-    ],
-    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
-    isInstagramBestseller: true,
-    isOrganic: true,
-    isNewArrival: true,
-    sizes: [
-      { size: '2-3Y', inStock: true, stockCount: 14 },
-      { size: '4-5Y', inStock: true, stockCount: 22 },
-      { size: '6-7Y', inStock: true, stockCount: 18 },
-      { size: '8-9Y', inStock: true, stockCount: 12 },
-    ],
-    colors: [
-      { name: 'Pure White & Bara Maroon', hex: '#6E1F28' },
-      { name: 'Ivory Lace & Crimson', hex: '#8B2635' },
-      { name: 'Pearl Cream', hex: '#FDFBF7' }
-    ],
-    materials: ['Eyelet Embroidered Cotton Top', 'Hand-Crafted African Wax Batik Flared Pants', 'Elastic Tie Waistband'],
+    materials: ['100% Breathable Combed Cotton Batik', 'Hand-Crafted African Artisan Print', 'Adjustable Yellow Ribbon Ties', 'Elasticated Comfort Waistband'],
     careInstructions: ['Gentle hand wash or machine wash 30°C', 'Do not tumble dry', 'Warm iron'],
-    inStock: true,
-    featured: true,
-  },
-  {
-    id: 'rbk-moyo-vol1-set',
-    name: 'Moyo Collection Vol. 01 Bloom Sets (RESTOCKED)',
-    tagline: 'Timeless designs. Made for little moments. (Breeze, Berry, Sunbeam, Earthy, Rustic)',
-    description: 'Back by popular demand! The iconic Moyo Collection Vol. 01 features lightweight breathable tie-strap cami tops and comfy drawstring shorts in 5 signature prints: Breeze Bloom (Red floral), Berry Bloom (Purple diamond), Sunbeam Set (Warm gold), Earthy Bloom (Coral pink), and Rustic Stripe (Classic pinstripe).',
-    category: 'sets',
-    categoryLabel: 'Moyo Collection Vol. 01',
-    gender: 'unisex',
-    price: 19.00,
-    originalPrice: 25.00,
-    rating: 5.0,
-    reviewCount: 52,
-    images: [
-      moyoVol1Img,
-      savannaSetImg,
-      moyoVol2LookbookImg
-    ],
-    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
-    isInstagramBestseller: true,
-    isOrganic: true,
-    sizes: [
-      { size: '2-3Y', inStock: true, stockCount: 20 },
-      { size: '4-5Y', inStock: true, stockCount: 30 },
-      { size: '6-7Y', inStock: true, stockCount: 25 },
-      { size: '8-9Y', inStock: true, stockCount: 15 },
-    ],
-    colors: [
-      { name: 'Breeze Bloom (Red)', hex: '#C72C2C' },
-      { name: 'Berry Bloom (Purple)', hex: '#7D2A72' },
-      { name: 'Sunbeam Set (Yellow)', hex: '#E8A824' },
-      { name: 'Earthy Bloom (Coral)', hex: '#DB6B6B' },
-      { name: 'Rustic Stripe (Red/Black)', hex: '#3A3A3A' }
-    ],
-    materials: ['100% Breathable Lightweight Cotton', 'Adjustable Tie Straps', 'Comfy Elastic Shorts'],
-    careInstructions: ['Machine wash cold gentle', 'Line dry', 'Warm iron'],
     inStock: true,
     featured: true,
   },
@@ -415,9 +346,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 28,
     images: [
-      kayaDadyPrideImg,
-      boysResortKayaImg,
-      rareBrandCampaignImg
+      kijaniMoyoModelImg,
+      kijaniMoyoFlatlayImg,
+      sunsetMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -452,9 +383,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 38,
     images: [
-      rareBrandCampaignImg,
-      boysResortKayaImg,
-      toddlerSavannaFlatlayImg
+      sunsetMoyoModelImg,
+      sunsetMoyoFlatlayImg,
+      kijaniMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -491,9 +422,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 42,
     images: [
-      girlsBatikPeplumImg,
-      butterflyBloomImg,
-      baraBloomImg
+      rubyMoyoModelImg,
+      rubyMoyoFlatlayImg,
+      sunsetMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -530,9 +461,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: 29,
     images: [
-      boysResortKayaImg,
-      rareBrandCampaignImg,
-      kayaDadyPrideImg
+      kijaniMoyoModelImg,
+      sunsetMoyoModelImg,
+      rubyMoyoModelImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -568,9 +499,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 56,
     images: [
-      babyOrganicRomperImg,
-      toddlerSavannaFlatlayImg,
-      moyoVol1Img
+      kijaniMoyoFlatlayImg,
+      rubyMoyoFlatlayImg,
+      sunsetMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -605,9 +536,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 31,
     images: [
-      boysResortKayaImg,
-      kayaDadyPrideImg,
-      rareBrandCampaignImg
+      sunsetMoyoModelImg,
+      kijaniMoyoModelImg,
+      rubyMoyoModelImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: false,
@@ -643,9 +574,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: 27,
     images: [
-      girlsBatikPeplumImg,
-      butterflyBloomImg,
-      baraBloomImg
+      rubyMoyoModelImg,
+      rubyMoyoFlatlayImg,
+      sunsetMoyoModelImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -682,9 +613,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 34,
     images: [
-      batikBowTieImg,
-      kidsBatikDuoImg,
-      boysResortKayaImg
+      girlsHairAccessories5,
+      girlsHairAccessories6,
+      girlsHairAccessories1
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -719,9 +650,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 52,
     images: [
-      batikHeadbandsImg,
-      kidsBatikDuoImg,
-      girlsBatikPeplumImg
+      girlsHairAccessories1,
+      girlsHairAccessories3,
+      girlsHairAccessories4
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -755,9 +686,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 29,
     images: [
-      kidsBatikDuoImg,
-      batikBowTieImg,
-      batikHeadbandsImg
+      girlsHairAccessories3,
+      girlsHairAccessories4,
+      girlsHairAccessories1
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -791,9 +722,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 48,
     images: [
-      batikHeadbandsImg,
-      girlsBatikPeplumImg,
-      butterflyBloomImg
+      girlsHairAccessories4,
+      girlsHairAccessories5,
+      girlsHairAccessories6
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -827,9 +758,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 26,
     images: [
-      girlsBatikPeplumImg,
-      butterflyBloomImg,
-      baraBloomImg
+      girlsHairAccessories6,
+      girlsHairAccessories1,
+      girlsHairAccessories3
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -862,9 +793,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 33,
     images: [
-      babyOrganicRomperImg,
-      toddlerSavannaFlatlayImg,
-      moyoVol1Img
+      girlsHairAccessories5,
+      kijaniMoyoFlatlayImg,
+      sunsetMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isOrganic: true,
@@ -901,9 +832,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 44,
     images: [
-      babyOrganicRomperImg,
-      toddlerSavannaFlatlayImg,
-      moyoVol1Img
+      girlsHairAccessories3,
+      girlsHairAccessories1,
+      girlsHairAccessories4
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -953,9 +884,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 39,
     images: [
-      girlsBatikPeplumImg,
-      butterflyBloomImg,
-      baraBloomImg
+      rubyMoyoModelImg,
+      girlsHairAccessories6,
+      sunsetMoyoFlatlayImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -1005,9 +936,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 28,
     images: [
-      boysResortKayaImg,
-      batikBowTieImg,
-      rareBrandCampaignImg
+      sunsetMoyoModelImg,
+      girlsHairAccessories5,
+      kijaniMoyoModelImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -1057,9 +988,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 31,
     images: [
-      rareBrandCampaignImg,
-      boysResortKayaImg,
-      kidsBatikDuoImg
+      sunsetMoyoModelImg,
+      girlsHairAccessories3,
+      girlsHairAccessories4
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isOrganic: true,
@@ -1112,7 +1043,7 @@ export const INITIAL_REVIEWS: Review[] = [
     helpfulCount: 24,
     fitFeedback: 'True to Size',
     photos: [
-      boysResortKayaImg
+      kijaniMoyoModelImg
     ]
   },
   {
@@ -1143,7 +1074,7 @@ export const INITIAL_REVIEWS: Review[] = [
     helpfulCount: 39,
     fitFeedback: 'True to Size',
     photos: [
-      girlsBatikPeplumImg
+      rubyMoyoModelImg
     ]
   },
   {

@@ -18,13 +18,13 @@ import { Product } from '../types';
 import { formatPrice } from '../data/currencies';
 import { BrandLogo } from './BrandLogo';
 
-import butterflyBloomImg from '../assets/images/butterfly_bloom_1787746428753.jpg';
-import savannaSetImg from '../assets/images/savanna_set_1787746384981.jpg';
-import baraBloomImg from '../assets/images/bara_bloom_1787746443802.jpg';
-import kayaDadyPrideImg from '../assets/images/kaya_dady_pride_1787746474947.jpg';
-import moyoVol2LookbookImg from '../assets/images/moyo_vol2_lookbook_1787746408248.jpg';
-import boysResortKayaImg from '../assets/images/boys_resort_kaya_1787751379655.jpg';
-import girlsBatikPeplumImg from '../assets/images/girls_batik_peplum_1787751394431.jpg';
+import kijaniMoyoModelImg from '../assets/images/kijani_moyo_model.jpg';
+import kijaniMoyoFlatlayImg from '../assets/images/kijani_moyo_flatlay.jpg';
+import sunsetMoyoModelImg from '../assets/images/sunset_moyo_model.jpg';
+import sunsetMoyoFlatlayImg from '../assets/images/sunset_moyo_flatlay.jpg';
+import rubyMoyoModelImg from '../assets/images/ruby_moyo_model.jpg';
+import rubyMoyoFlatlayImg from '../assets/images/ruby_moyo_flatlay.jpg';
+import girlsHairAccessories1 from '../assets/images/girls_hair_accessories_1.jpg';
 
 interface InstagramFeedProps {
   products: Product[];
@@ -41,76 +41,76 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
 
   const lookbookPosts = [
     {
-      id: 'look-moyo-vol2',
+      id: 'look-moyo-kijani',
       category: 'moyo',
-      imageUrl: moyoVol2LookbookImg,
-      title: 'The Flow of Moyo Vol. 02 Lookbook',
-      caption: 'Flutter tie-strap flutter top paired with wide-leg African batik palazzo pants. Crafted for joy, twirling & easy movement ✨ #FlowOfMoyo',
+      imageUrl: kijaniMoyoModelImg,
+      title: 'Kijani Moyo Set 🌿 Lookbook',
+      caption: 'Inspired by nature. Designed for little hearts. Vibrant green floral tie-strap top with monochrome batik shorts ✨ #KijaniMoyo',
       likes: '5.2k',
       comments: '342',
       isReel: true,
-      tag: 'Moyo Vol. 02',
-      productId: 'rbk-moyo-terra-flow',
+      tag: 'Kijani Moyo',
+      productId: 'rbk-moyo-kijani',
     },
     {
-      id: 'look-butterfly',
+      id: 'look-moyo-sunset',
       category: 'moyo',
-      imageUrl: butterflyBloomImg,
-      title: 'Butterfly Bloom Set in Lilac & Green',
-      caption: 'Spread your wings. Bloom in your own way. Featuring authentic hand-dyed botanical batik and shoulder tie bows 🌸 #rarebykidspro',
+      imageUrl: sunsetMoyoModelImg,
+      title: 'Sunset Moyo Set 🌅💛 Golden Moments',
+      caption: 'Golden moments. Little smiles. Beautiful memories. Golden yellow heart top with olive-leaf batik shorts 💛 #SunsetMoyo',
+      likes: '4.8k',
+      comments: '286',
+      isReel: true,
+      tag: 'Sunset Moyo',
+      productId: 'rbk-moyo-sunset',
+    },
+    {
+      id: 'look-moyo-ruby',
+      category: 'moyo',
+      imageUrl: rubyMoyoModelImg,
+      title: 'Ruby Moyo Set 🌺 Vibrant Playfulness',
+      caption: 'A playful blend of comfort, colour, and African craftsmanship. Rich ruby magenta with sunshine yellow batik shorts 🌺 #RubyMoyo',
       likes: '4.1k',
       comments: '218',
       isReel: true,
-      tag: 'Signature Moyo',
-      productId: 'rbk-moyo-butterfly',
+      tag: 'Ruby Moyo',
+      productId: 'rbk-moyo-ruby',
     },
     {
       id: 'look-savanna',
       category: 'moyo',
-      imageUrl: savannaSetImg,
-      title: 'Savanna Geometric Resort Two-Piece',
-      caption: 'Soft & breathable hand-stamped crimson red geometric top with navy chevron batik shorts. Made with endless love for sunny playdays! 🌿',
+      imageUrl: sunsetMoyoFlatlayImg,
+      title: 'Sunset Moyo Flatlay Studio',
+      caption: 'Pure craftsmanship. Hand-dyed wax batik heart patterns and comfy drawstring play shorts. Made with endless love for sunny playdays! 🌿',
       likes: '3.9k',
       comments: '185',
       isReel: false,
       tag: 'Bestseller',
-      productId: 'rbk-savanna-01',
-    },
-    {
-      id: 'look-bara-bloom',
-      category: 'moyo',
-      imageUrl: baraBloomImg,
-      title: 'Bara Bloom White Eyelet & Maroon Batik',
-      caption: 'Where petals meet peace ✨ Pure white cotton broderie anglaise flutter top with deep maroon batik palazzo pants. Styled with chic retro shades.',
-      likes: '3.6k',
-      comments: '142',
-      isReel: true,
-      tag: 'Occasion Wear',
-      productId: 'rbk-moyo-bara',
+      productId: 'rbk-moyo-sunset',
     },
     {
       id: 'look-kaya-pride',
       category: 'kaya',
-      imageUrl: kayaDadyPrideImg,
-      title: "Kaya Vol. 01 — DADY'S PRIDE Heritage Set",
-      caption: "Soft ribbed organic cotton graphic tee paired with authentic monochrome chevron batik drawstring shorts. Unmatched comfort for boys 🖤 #kayacollection",
+      imageUrl: kijaniMoyoFlatlayImg,
+      title: "Kijani Moyo Artisan Flatlay",
+      caption: "Emerald florals and monochrome batik prints styled to perfection. Unmatched comfort for little trendsetters 🖤 #MoyoCollection",
       likes: '4.7k',
       comments: '289',
       isReel: false,
-      tag: 'Kaya Vol. 01',
-      productId: 'rbk-kaya-01',
+      tag: 'Boutique Flatlay',
+      productId: 'rbk-moyo-kijani',
     },
     {
       id: 'look-boys-resort',
       category: 'kaya',
-      imageUrl: boysResortKayaImg,
-      title: 'Kaya Boys Tailored Resort Duo',
-      caption: 'Handcrafted breathable natural linen shirt with geometric batik pocket and relaxed shorts. Designed for summer celebrations and family gatherings.',
+      imageUrl: rubyMoyoFlatlayImg,
+      title: 'Ruby Moyo Artisanal Showcase',
+      caption: 'Vibrant handcrafted African floral motifs with sunny tribal diamond shorts. Designed for summer celebrations and family gatherings.',
       likes: '2.8k',
       comments: '94',
       isReel: true,
-      tag: 'Boys Tailored',
-      productId: 'rbk-kaya-02',
+      tag: 'Ruby Flatlay',
+      productId: 'rbk-moyo-ruby',
     },
   ];
 

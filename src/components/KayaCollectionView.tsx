@@ -2,7 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowLeft, Heart, ShoppingBag, Instagram, Crown } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
-import boysResortKayaImg from '../assets/images/boys_resort_kaya_1787751379655.jpg';
+import kijaniMoyoModelImg from '../assets/images/kijani_moyo_model.jpg';
 
 interface KayaCollectionViewProps {
   products: Product[];
@@ -99,7 +99,7 @@ export const KayaCollectionView: React.FC<KayaCollectionViewProps> = ({
 
           <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
             <img
-              src={boysResortKayaImg}
+              src={kijaniMoyoModelImg}
               alt="Kaya Boys Tailored Resort Outfit"
               className="w-full h-full object-cover object-center"
               referrerPolicy="no-referrer"

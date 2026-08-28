@@ -20,8 +20,6 @@ import {
 import { Product, ProductColor } from '../types';
 import { ProductCard } from './ProductCard';
 import { normalizeSanityProduct, SANITY_CONFIG } from '../services/sanity';
-import moyoVol2LookbookImg from '../assets/images/moyo_vol2_lookbook_1787746408248.jpg';
-import kayaDadyPrideImg from '../assets/images/kaya_dady_pride_1787746474947.jpg';
 
 // Standard direct Sanity Client configuration for Project ID q9d6pxzm and dataset production
 const client = createClient({

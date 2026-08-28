@@ -13,8 +13,9 @@ export const WhatsAppFloatingButton: React.FC<WhatsAppFloatingButtonProps> = ({
   const [showTooltip, setShowTooltip] = useState(true);
 
   const handleOpenWhatsApp = () => {
+    const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
     const encoded = encodeURIComponent(defaultMessage);
-    window.open(`https://wa.me/${phoneNumber}?text=${encoded}`, '_blank');
+    window.open(`https://wa.me/${cleanNumber}?text=${encoded}`, '_blank');
   };
 
   return (

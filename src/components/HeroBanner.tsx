@@ -1,8 +1,8 @@
 import React from 'react';
 import { Sparkles, Instagram, ArrowRight, ShieldCheck, Truck, Star } from 'lucide-react';
-import moyoVol2LookbookImg from '../assets/images/moyo_vol2_lookbook_1787746408248.jpg';
-import savannaSetImg from '../assets/images/savanna_set_1787746384981.jpg';
-import kayaDadyPrideImg from '../assets/images/kaya_dady_pride_1787746474947.jpg';
+import sunsetMoyoModelImg from '../assets/images/sunset_moyo_model.jpg';
+import sunsetMoyoFlatlayImg from '../assets/images/sunset_moyo_flatlay.jpg';
+import kijaniMoyoModelImg from '../assets/images/kijani_moyo_model.jpg';
 
 interface HeroBannerProps {
   onExploreCategory: (category: string) => void;
@@ -110,8 +110,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-2xl aspect-4/5 border border-white/10 transform hover:scale-[1.02] transition-all"
             >
               <img
-                src={moyoVol2LookbookImg}
-                alt="Moyo Collection Vol. 02 The Flow of Moyo"
+                src={sunsetMoyoModelImg}
+                alt="Moyo Collection The Flow of Moyo"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
               />
@@ -128,7 +128,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-xl aspect-square border border-white/10 transform hover:scale-[1.02] transition-all"
               >
                 <img
-                  src={savannaSetImg}
+                  src={sunsetMoyoFlatlayImg}
                   alt="Savanna Set"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
@@ -144,7 +144,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-xl aspect-square border border-white/10 transform hover:scale-[1.02] transition-all"
               >
                 <img
-                  src={kayaDadyPrideImg}
+                  src={kijaniMoyoModelImg}
                   alt="Kaya Collection Dady's Pride"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"

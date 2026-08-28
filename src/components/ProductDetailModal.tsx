@@ -106,7 +106,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       `💰 Price: ${tzsDisplay || formatPrice(product.price, currentCurrency)}\n\n` +
       `Could you help me with sizing/material details for my website order?`
     );
-    window.open(`https://wa.me/255765000000?text=${text}`, '_blank');
+    window.open(`https://wa.me/255784395940?text=${text}`, '_blank');
   };
 
   const handleSubmitReview = (e: React.FormEvent) => {

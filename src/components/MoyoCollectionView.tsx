@@ -2,7 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowLeft, Heart, ShoppingBag, Instagram, Layers } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
-import moyoVol2LookbookImg from '../assets/images/moyo_vol2_lookbook_1787746408248.jpg';
+import sunsetMoyoModelImg from '../assets/images/sunset_moyo_model.jpg';
 
 interface MoyoCollectionViewProps {
   products: Product[];
@@ -99,7 +99,7 @@ export const MoyoCollectionView: React.FC<MoyoCollectionViewProps> = ({
 
           <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
             <img
-              src={moyoVol2LookbookImg}
+              src={sunsetMoyoModelImg}
               alt="Moyo Collection Lookbook"
               className="w-full h-full object-cover object-center"
               referrerPolicy="no-referrer"
