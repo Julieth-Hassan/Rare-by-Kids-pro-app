@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Sparkles, MapPin, Truck, Globe } from 'lucide-react';
+import { Instagram, MapPin, Truck, Globe } from 'lucide-react';
 import { CurrencySelector } from './CurrencySelector';
 
 interface TopBannerProps {
@@ -31,12 +31,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
           </a>
           <span className="text-neutral-600 hidden sm:inline">•</span>
           <span className="text-neutral-300">
-            East Africa & Worldwide Shipping ✈️
-          </span>
-          <span className="text-neutral-600 hidden lg:inline">•</span>
-          <span className="hidden lg:inline-flex items-center gap-1 text-emerald-400">
-            <Sparkles className="w-3 h-3" />
-            Code <strong className="font-mono bg-neutral-800 px-1 py-0.5 rounded text-amber-300">RARE10</strong> for 10% Off
+            East Africa & Worldwide Express Shipping ✈️
           </span>
         </div>
 

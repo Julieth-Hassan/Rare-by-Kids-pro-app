@@ -20,7 +20,8 @@ import {
   Crown,
   Video,
   Play,
-  Share2
+  Share2,
+  ArrowRight
 } from 'lucide-react';
 import { Product, Review, DeliveryRegion } from '../types';
 import { formatPrice } from '../data/currencies';
@@ -29,6 +30,7 @@ interface ProductDetailModalProps {
   product: Product;
   onClose: () => void;
   onAddToCart: (product: Product, size: string, quantity: number) => void;
+  onOpenCart?: () => void;
   reviews: Review[];
   onAddReview: (review: Omit<Review, 'id' | 'date' | 'helpfulCount'>) => void;
   deliveryRegions: DeliveryRegion[];
@@ -42,6 +44,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
   onClose,
   onAddToCart,
+  onOpenCart,
   reviews,
   onAddReview,
   deliveryRegions,
@@ -505,9 +508,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </div>
 
                 {addedNotification && (
-                  <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-2 animate-in fade-in duration-150">
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span>Successfully added {quantity}x ({selectedSize}) to your bag!</span>
+                  <div className="p-3.5 bg-emerald-50 text-emerald-950 rounded-2xl border border-emerald-300 text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in duration-150 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Added {quantity}x ({selectedSize}) to your bag!</span>
+                    </div>
+                    {onOpenCart && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onOpenCart();
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>View Cart</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -553,11 +572,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       Est: {selectedRegion.estimatedDays} via {selectedRegion.carrierName}
                     </p>
                   </div>
-                  {selectedRegion.freeShippingAbove && (
-                    <span className="text-[10px] text-amber-800 font-semibold bg-amber-100 px-2 py-1 rounded-md text-right">
-                      Free shipping over {formatPrice(selectedRegion.freeShippingAbove, currentCurrency)}
-                    </span>
-                  )}
                 </div>
               </div>
 

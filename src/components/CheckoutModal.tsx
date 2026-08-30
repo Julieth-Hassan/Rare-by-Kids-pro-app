@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Copy,
   Check,
-  Globe
+  Globe,
+  MapPin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CartItem, DeliveryRegion, Order, PromoCode, TrackingStep } from '../types';
@@ -79,12 +80,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
-
-  const isFreeStandard = selectedRegion?.freeShippingAbove ? subtotal >= selectedRegion.freeShippingAbove : false;
   
-  let baseDeliveryFee = isFreeStandard ? 0 : (selectedRegion?.cost || 5.00);
+  let baseDeliveryFee = selectedRegion?.cost || 3.00;
   if (deliverySpeed === 'express' && selectedRegion?.expressAvailable) {
-    baseDeliveryFee = selectedRegion.expressCost || (baseDeliveryFee + 8.00);
+    baseDeliveryFee = selectedRegion.expressCost || (baseDeliveryFee + 6.00);
   }
 
   // Promo Calculation
@@ -379,7 +378,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-neutral-800">
-                      Destination Zone / Country: *
+                      Destination Zone / Delivery Method: *
                     </label>
                     <select
                       id="checkout-delivery-region-select"
@@ -389,11 +388,36 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     >
                       {deliveryRegions.map((region) => (
                         <option key={region.id} value={region.id}>
-                          {region.name} ({region.stateOrCountry}) — {formatPrice(region.cost, currentCurrency)} • {region.estimatedDays}
+                          {region.name} ({region.stateOrCountry}) — {region.cost === 0 ? 'FREE' : formatPrice(region.cost, currentCurrency)} • {region.estimatedDays}
                         </option>
                       ))}
                     </select>
                   </div>
+
+                  {/* Informative banner for Bolt / Pickup */}
+                  {selectedRegion.id === 'reg-dar-bolt' && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-start gap-2.5">
+                      <Truck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Dar es Salaam via Bolt</p>
+                        <p className="text-[11px] text-emerald-800">
+                          Direct doorstep delivery via Bolt courier rider across Dar es Salaam (Masaki, Mikocheni, Oysterbay, Kinondoni, Mbezi, City Centre & all areas).
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedRegion.id === 'reg-dar-pickup' && (
+                    <div className="p-3 bg-amber-100/70 border border-amber-300 rounded-xl text-xs text-amber-950 flex items-start gap-2.5">
+                      <MapPin className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Pickup option at the shop (Free)</p>
+                        <p className="text-[11px] text-amber-900">
+                          Collect in person at Rare by Kids Pro Boutique, Dar es Salaam. We will pack your order and message you via phone / WhatsApp once ready for pickup!
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Speed Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -406,9 +430,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-xs text-neutral-900">Standard Courier</span>
+                        <span className="font-bold text-xs text-neutral-900">
+                          {selectedRegion.id === 'reg-dar-pickup' ? 'Standard Shop Collection' : 'Standard Delivery'}
+                        </span>
                         <span className="font-bold text-xs text-neutral-800">
-                          {isFreeStandard ? 'FREE' : formatPrice(selectedRegion.cost, currentCurrency)}
+                          {selectedRegion.cost === 0 ? 'FREE' : formatPrice(selectedRegion.cost, currentCurrency)}
                         </span>
                       </div>
                       <p className="text-[11px] text-neutral-500 mt-0.5">
@@ -428,7 +454,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-xs text-amber-900 flex items-center gap-1">
                             <Sparkles className="w-3 h-3 text-amber-600" />
-                            Priority VIP Express
+                            Priority FastTrack Express
                           </span>
                           <span className="font-bold text-xs text-neutral-800">
                             {formatPrice(selectedRegion.expressCost || 6.00, currentCurrency)}
@@ -440,7 +466,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       </div>
                     ) : (
                       <div className="p-3 rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 opacity-60 text-xs flex items-center justify-center text-neutral-400">
-                        Express not available for this zone
+                        {selectedRegion.id === 'reg-dar-pickup' ? 'Free Shop Collection Ready in 1-2 Hrs' : 'Express not available for this zone'}
                       </div>
                     )}
                   </div>
@@ -875,7 +901,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="flex justify-between text-neutral-600">
                     <span>Shipping ({selectedRegion.name}):</span>
                     <span className="font-bold text-neutral-900">
-                      {baseDeliveryFee === 0 ? 'FREE' : formatPrice(baseDeliveryFee, currentCurrency)}
+                      {formatPrice(baseDeliveryFee, currentCurrency)}
                     </span>
                   </div>
                   {discountAmount > 0 && (

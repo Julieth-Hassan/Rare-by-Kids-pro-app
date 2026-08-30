@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircle2, ShoppingBag, ArrowRight, X } from 'lucide-react';
 import { TopBanner } from './components/TopBanner';
 import { Navbar, AppView } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
@@ -23,6 +24,7 @@ import {
   INITIAL_ORDERS,
   INITIAL_COLLECTIONS
 } from './data/products';
+import { formatPrice } from './data/currencies';
 import { BrandCollection, CartItem, DeliveryRegion, Order, OrderStatus, Product, PromoCode, Review } from './types';
 import { fetchLiveSanityProducts } from './services/sanity';
 
@@ -135,7 +137,16 @@ export default function App() {
 
   const [deliveryRegions, setDeliveryRegions] = useState<DeliveryRegion[]>(() => {
     const saved = localStorage.getItem('rbk_regions');
-    return saved ? JSON.parse(saved) : INITIAL_DELIVERY_REGIONS;
+    if (!saved) return INITIAL_DELIVERY_REGIONS;
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.some(r => r.id === 'reg-dar-bolt' || r.id === 'reg-dar-pickup')) {
+        return parsed;
+      }
+      return INITIAL_DELIVERY_REGIONS;
+    } catch {
+      return INITIAL_DELIVERY_REGIONS;
+    }
   });
 
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -148,8 +159,27 @@ export default function App() {
     const saved = localStorage.getItem('rbk_cart');
     return saved ? JSON.parse(saved) : [];
   });
-  const [selectedRegionId, setSelectedRegionId] = useState<string>(deliveryRegions[0]?.id || 'reg-metro-express');
+  const [selectedRegionId, setSelectedRegionId] = useState<string>(
+    deliveryRegions.some(r => r.id === 'reg-dar-bolt') ? 'reg-dar-bolt' : (deliveryRegions[0]?.id || 'reg-dar-bolt')
+  );
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+
+  // Quick Action Notification: Added to Bag Toast
+  const [addedToast, setAddedToast] = useState<{
+    product: Product;
+    size: string;
+    quantity: number;
+  } | null>(null);
+
+  // Auto-dismiss added toast after 6 seconds
+  useEffect(() => {
+    if (addedToast) {
+      const timer = setTimeout(() => {
+        setAddedToast(null);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [addedToast]);
 
   // State: Wishlist
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
@@ -214,6 +244,13 @@ export default function App() {
       };
       setCartItems([...cartItems, newItem]);
     }
+
+    // Suggest viewing the cart immediately via interactive toast
+    setAddedToast({
+      product,
+      size,
+      quantity,
+    });
   };
 
   const handleUpdateCartQuantity = (itemId: string, newQuantity: number) => {
@@ -464,12 +501,78 @@ export default function App() {
       {/* Floating WhatsApp Action Button */}
       <WhatsAppFloatingButton />
 
+      {/* Floating "Added to Bag" View Cart Suggestion Toast */}
+      {addedToast && (
+        <div 
+          id="added-to-bag-toast"
+          className="fixed bottom-6 right-4 sm:right-6 z-50 max-w-sm w-[calc(100%-2rem)] bg-neutral-950/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-neutral-800 animate-in fade-in slide-in-from-bottom-5 duration-300"
+        >
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-800">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Added to Your Bag!</span>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setAddedToast(null)}
+              className="text-neutral-400 hover:text-white p-1 rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <img
+              src={addedToast.product.clothingImages?.[0] || addedToast.product.images?.[0] || 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=300&q=80'}
+              alt={addedToast.product.name}
+              className="w-12 h-14 object-cover rounded-xl border border-neutral-800 shrink-0 bg-neutral-800"
+            />
+            <div className="flex-1 min-w-0">
+              <h5 className="text-xs font-bold text-neutral-100 truncate">
+                {addedToast.product.name}
+              </h5>
+              <p className="text-[11px] text-neutral-400">
+                Size: <span className="text-amber-400 font-semibold">{addedToast.size}</span> • Qty: {addedToast.quantity}
+              </p>
+              <p className="text-xs font-bold text-amber-400 mt-0.5">
+                {formatPrice(addedToast.product.price * addedToast.quantity, currentCurrency)}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 mt-3 pt-2">
+            <button
+              type="button"
+              id="toast-view-bag-btn"
+              onClick={() => {
+                setAddedToast(null);
+                if (selectedProduct) setSelectedProduct(null);
+                setIsCartOpen(true);
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-amber-500/20 active:scale-98 cursor-pointer"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>View Bag ({cartItems.reduce((s, i) => s + i.quantity, 0)})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setAddedToast(null)}
+              className="py-2.5 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-semibold transition-colors cursor-pointer"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* MODAL 1: Product Detail View & Reviews */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={handleAddToCart}
+          onOpenCart={() => setIsCartOpen(true)}
           reviews={reviews}
           onAddReview={handleAddReview}
           deliveryRegions={deliveryRegions}

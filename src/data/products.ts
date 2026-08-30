@@ -81,17 +81,26 @@ export const INITIAL_COLLECTIONS: BrandCollection[] = [
 
 export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
   {
-    id: 'reg-dar-metro',
-    name: 'Dar es Salaam Metro (Same-Day / Next-Day)',
-    zone: 'Zone 1 - Local Tanzania HQ',
-    stateOrCountry: 'Dar es Salaam (Kinondoni, Masaki, Mikocheni, Oysterbay, Ilala, Mbezi)',
+    id: 'reg-dar-bolt',
+    name: 'Dar es Salaam via Bolt',
+    zone: 'Zone 1 - Local Dar es Salaam',
+    stateOrCountry: 'Dar es Salaam (All areas: Masaki, Mikocheni, Oysterbay, Kinondoni, Mbezi, City Centre & suburbs)',
     cost: 3.00, // ~7,800 TZS
-    estimatedDays: 'Same-Day (Orders before 1 PM) or Next Morning',
-    carrierName: 'Rare FastTrack Direct Rider',
-    freeShippingAbove: 60.00, // ~150,000 TZS
+    estimatedDays: 'Same-Day or Next-Day via Bolt Delivery Rider',
+    carrierName: 'Bolt / Direct Delivery Rider',
     expressAvailable: true,
     expressCost: 6.00,
-    expressEstimatedDays: 'Guaranteed 3-Hour Bodaboda VIP Express',
+    expressEstimatedDays: 'Guaranteed 1-3 Hour Bolt Express Delivery',
+  },
+  {
+    id: 'reg-dar-pickup',
+    name: 'Pickup option at the shop',
+    zone: 'Zone 1 - Boutique Storefront',
+    stateOrCountry: 'Rare by Kids Pro Boutique, Dar es Salaam (Free In-Store Collection)',
+    cost: 0.00,
+    estimatedDays: 'Ready for pickup in 1-2 hours at the shop',
+    carrierName: 'Direct Shop Collection (Rare by Kids Pro Boutique)',
+    expressAvailable: false,
   },
   {
     id: 'reg-tz-upcountry',
@@ -101,7 +110,6 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 6.00, // ~15,000 TZS
     estimatedDays: '1-2 Business Days',
     carrierName: 'BM / Shabiby / Air Tanzania Cargo',
-    freeShippingAbove: 80.00,
     expressAvailable: true,
     expressCost: 10.00,
     expressEstimatedDays: 'Next Day Morning Flight Express',
@@ -114,7 +122,6 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 13.50, // ~35,000 TZS / 1,750 KSh
     estimatedDays: '2-3 Business Days',
     carrierName: 'DHL Express Regional / Cross-Border Courier',
-    freeShippingAbove: 120.00,
     expressAvailable: true,
     expressCost: 20.00,
     expressEstimatedDays: '1-2 Days Priority Air Express',
@@ -127,7 +134,6 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 22.00,
     estimatedDays: '3-5 Business Days',
     carrierName: 'DHL Express Pan-Africa',
-    freeShippingAbove: 180.00,
     expressAvailable: true,
     expressCost: 32.00,
     expressEstimatedDays: '2-3 Business Days Priority',
@@ -140,7 +146,6 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 26.00,
     estimatedDays: '3-5 Business Days',
     carrierName: 'DHL Express Global / FedEx International',
-    freeShippingAbove: 200.00,
     expressAvailable: true,
     expressCost: 38.00,
     expressEstimatedDays: '2-3 Business Days Doorstep Priority',
@@ -153,7 +158,6 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 29.00,
     estimatedDays: '4-6 Business Days',
     carrierName: 'FedEx / DHL Global Express Worldwide',
-    freeShippingAbove: 220.00,
     expressAvailable: true,
     expressCost: 42.00,
     expressEstimatedDays: '2-4 Business Days Express',
@@ -166,35 +170,10 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     cost: 32.00,
     estimatedDays: '4-7 Business Days',
     carrierName: 'DHL Global Express Worldwide',
-    freeShippingAbove: 250.00,
   },
 ];
 
-export const PROMO_CODES: PromoCode[] = [
-  {
-    code: 'RARE10',
-    discountPercentage: 10,
-    description: '10% off your entire order (Welcome Instagram Offer)',
-  },
-  {
-    code: 'KIDSPRO20',
-    discountPercentage: 20,
-    minSpend: 90,
-    description: '20% off when you spend $90 or more',
-  },
-  {
-    code: 'FREESHIP',
-    discountPercentage: 0,
-    discountFixed: 12,
-    minSpend: 60,
-    description: '$12 shipping credit applied',
-  },
-  {
-    code: 'INSTAVIP',
-    discountPercentage: 15,
-    description: '15% VIP discount for @rare.bykidspro followers',
-  }
-];
+export const PROMO_CODES: PromoCode[] = [];
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
@@ -1158,11 +1137,10 @@ export const INITIAL_ORDERS: Order[] = [
       }
     ],
     subtotal: 92.00,
-    deliveryCost: 5.00,
+    deliveryCost: 3.00,
     deliverySpeed: 'standard',
-    discountAmount: 9.20,
-    promoCodeApplied: 'RARE10',
-    totalAmount: 87.80,
+    discountAmount: 0,
+    totalAmount: 95.00,
     currency: 'USD',
     paymentMethod: 'card',
     paymentStatus: 'paid',

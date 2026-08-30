@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   X, 
   Trash2, 
@@ -7,13 +7,9 @@ import {
   ShoppingBag, 
   ArrowRight, 
   Truck, 
-  ShieldCheck, 
-  Tag, 
-  CheckCircle2,
-  AlertCircle
+  ShieldCheck
 } from 'lucide-react';
 import { CartItem, DeliveryRegion, PromoCode } from '../types';
-import { PROMO_CODES } from '../data/products';
 import { formatPrice } from '../data/currencies';
 
 interface CartDrawerProps {
@@ -45,10 +41,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onApplyPromo,
   currentCurrency = 'USD',
 }) => {
-  const [promoInput, setPromoInput] = useState('');
-  const [promoError, setPromoError] = useState('');
-  const [promoSuccess, setPromoSuccess] = useState('');
-
   if (!isOpen) return null;
 
   const subtotal = cartItems.reduce(
@@ -57,51 +49,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   );
 
   const selectedRegion = deliveryRegions.find((r) => r.id === selectedRegionId) || deliveryRegions[0];
-  
-  const freeThreshold = selectedRegion?.freeShippingAbove || 100;
-  const isFreeShipping = selectedRegion?.freeShippingAbove ? subtotal >= selectedRegion.freeShippingAbove : false;
-  const shippingCost = isFreeShipping ? 0 : (selectedRegion?.cost || 5.00);
-
-  let discountAmount = 0;
-  if (appliedPromo) {
-    if (appliedPromo.discountPercentage) {
-      discountAmount = (subtotal * appliedPromo.discountPercentage) / 100;
-    } else if (appliedPromo.discountFixed) {
-      discountAmount = Math.min(appliedPromo.discountFixed, subtotal);
-    }
-  }
-
-  const grandTotal = Math.max(0, subtotal - discountAmount + shippingCost);
-
-  const handleApplyPromo = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPromoError('');
-    setPromoSuccess('');
-
-    const clean = (promoInput || '').trim().toUpperCase();
-    if (!clean) return;
-
-    const found = PROMO_CODES.find((p) => (p.code || '').toUpperCase() === clean);
-    if (!found) {
-      setPromoError('Invalid discount code. Try "RARE10" or "KIDSPRO20"');
-      return;
-    }
-
-    if (found.minSpend && subtotal < found.minSpend) {
-      setPromoError(`Minimum spend of ${formatPrice(found.minSpend, currentCurrency)} required for code ${found.code}`);
-      return;
-    }
-
-    onApplyPromo(found);
-    setPromoSuccess(`Applied! ${found.description}`);
-    setPromoInput('');
-  };
-
-  const handleRemovePromo = () => {
-    onApplyPromo(null);
-    setPromoSuccess('');
-    setPromoError('');
-  };
+  const shippingCost = selectedRegion?.cost || 3.00;
+  const grandTotal = subtotal + shippingCost;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -141,34 +90,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <X className="w-5 h-5" />
             </button>
           </div>
-
-          {/* Free Shipping Progress Indicator */}
-          {cartItems.length > 0 && selectedRegion && (
-            <div className="bg-amber-50/80 px-5 py-3 border-b border-amber-100 text-xs">
-              {isFreeShipping ? (
-                <div className="flex items-center gap-2 text-emerald-800 font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Congratulations! You've unlocked Free Regional Shipping!</span>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-neutral-700 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Truck className="w-3.5 h-3.5 text-amber-600" />
-                      Add <strong className="text-amber-800">{formatPrice(freeThreshold - subtotal, currentCurrency)}</strong> more for Free Shipping in {selectedRegion.zone}
-                    </span>
-                    <span className="font-bold">{Math.min(100, Math.round((subtotal / freeThreshold) * 100))}%</span>
-                  </div>
-                  <div className="w-full bg-amber-200/70 h-1.5 rounded-full overflow-hidden">
-                    <div 
-                      className="bg-amber-500 h-full transition-all duration-300"
-                      style={{ width: `${Math.min(100, (subtotal / freeThreshold) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Cart Items Scrollable Container */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
@@ -292,57 +213,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 >
                   {deliveryRegions.map((reg) => (
                     <option key={reg.id} value={reg.id}>
-                      {reg.name} — {formatPrice(reg.cost, currentCurrency)}
+                      {reg.name} — {reg.cost === 0 ? 'FREE' : formatPrice(reg.cost, currentCurrency)}
                     </option>
                   ))}
                 </select>
-              </div>
-
-              {/* Promo Code Box */}
-              <div>
-                {!appliedPromo ? (
-                  <form onSubmit={handleApplyPromo} className="flex gap-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        value={promoInput}
-                        onChange={(e) => setPromoInput(e.target.value)}
-                        placeholder="Promo code (e.g. RARE10)"
-                        className="w-full pl-8 pr-3 py-2 text-xs uppercase bg-white border border-neutral-300 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
-                      />
-                      <Tag className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-2.5" />
-                    </div>
-                    <button
-                      type="submit"
-                      className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs transition-colors cursor-pointer"
-                    >
-                      Apply
-                    </button>
-                  </form>
-                ) : (
-                  <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-amber-900">
-                      <Tag className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Code <strong>{appliedPromo.code}</strong> applied (-{formatPrice(discountAmount, currentCurrency)})</span>
-                    </div>
-                    <button
-                      onClick={handleRemovePromo}
-                      className="text-neutral-400 hover:text-neutral-700 text-xs underline font-semibold cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-                {promoError && (
-                  <p className="text-[11px] text-red-600 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {promoError}
-                  </p>
-                )}
-                {promoSuccess && (
-                  <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> {promoSuccess}
-                  </p>
-                )}
               </div>
 
               {/* Financial Calculation Breakdown */}
@@ -351,17 +225,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span>Items Subtotal</span>
                   <span className="font-semibold text-neutral-900">{formatPrice(subtotal, currentCurrency)}</span>
                 </div>
-                {appliedPromo && (
-                  <div className="flex justify-between text-emerald-600 font-semibold">
-                    <span>Discount ({appliedPromo.code})</span>
-                    <span>-{formatPrice(discountAmount, currentCurrency)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between">
-                  <span>Regional Delivery ({selectedRegion?.name.split(' ')[0]})</span>
+                  <span>{selectedRegion?.cost === 0 ? 'Shop Pickup' : `Delivery (${selectedRegion?.name})`}</span>
                   <span className="font-semibold text-neutral-900">
-                    {isFreeShipping ? (
-                      <span className="text-emerald-600 font-bold">FREE</span>
+                    {shippingCost === 0 ? (
+                      <span className="text-emerald-700 font-bold">FREE</span>
                     ) : (
                       formatPrice(shippingCost, currentCurrency)
                     )}
