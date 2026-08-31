@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowLeft, Heart, ShoppingBag, Instagram, Layers } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
+import { ProductRecommendations } from './ProductRecommendations';
 import sunsetMoyoModelImg from '../assets/images/sunset_moyo_model.jpg';
 
 interface MoyoCollectionViewProps {
@@ -154,6 +155,21 @@ export const MoyoCollectionView: React.FC<MoyoCollectionViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Recommended Accessories & Sibling Pairings for Moyo */}
+      {products.length > 0 && (
+        <ProductRecommendations
+          allProducts={products}
+          onSelectProduct={onSelectProduct}
+          onQuickAdd={onQuickAdd}
+          currentCurrency={currentCurrency}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={onToggleWishlist}
+          title="Recommended Accessories & Sibling Pairings"
+          subtitle="Handmade batik headband trios, luxury gift chests, and coordinated pieces crafted to pair with Moyo"
+          limit={4}
+        />
+      )}
 
     </div>
   );

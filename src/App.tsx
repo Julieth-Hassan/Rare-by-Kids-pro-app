@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, ShoppingBag, ArrowRight, X } from 'lucide-react';
+import { CheckCircle2, ShoppingBag, ArrowRight, X, Share2, Check } from 'lucide-react';
 import { TopBanner } from './components/TopBanner';
 import { Navbar, AppView } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
@@ -170,13 +170,46 @@ export default function App() {
     size: string;
     quantity: number;
   } | null>(null);
+  const [shareToastStatus, setShareToastStatus] = useState<'idle' | 'copied' | 'shared'>('idle');
 
-  // Auto-dismiss added toast after 6 seconds
+  // Social share handler using native browser Web Share API with clipboard fallback
+  const handleShareAddedProduct = async (product: Product, size: string) => {
+    const shareTitle = `${product.name} | Rare by Kids Pro`;
+    const shareText = `Look at this adorable ${product.name} (${size}) from Rare by Kids Pro! 👑✨`;
+    const shareUrl = window.location.href.split('#')[0] + `#product-${product.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        setShareToastStatus('shared');
+        setTimeout(() => setShareToastStatus('idle'), 3000);
+      } catch (err: unknown) {
+        if ((err as Error)?.name !== 'AbortError') {
+          console.error('Web Share failed:', err);
+        }
+      }
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(`${shareTitle}\n${shareText}\n${shareUrl}`);
+        setShareToastStatus('copied');
+        setTimeout(() => setShareToastStatus('idle'), 3000);
+      } catch (err) {
+        console.error('Clipboard copy failed:', err);
+      }
+    }
+  };
+
+  // Auto-dismiss added toast after 7 seconds
   useEffect(() => {
     if (addedToast) {
+      setShareToastStatus('idle');
       const timer = setTimeout(() => {
         setAddedToast(null);
-      }, 6000);
+      }, 7000);
       return () => clearTimeout(timer);
     }
   }, [addedToast]);
@@ -509,16 +542,52 @@ export default function App() {
         >
           <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-800">
             <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Added to Your Bag!</span>
             </div>
-            <button 
-              type="button" 
-              onClick={() => setAddedToast(null)}
-              className="text-neutral-400 hover:text-white p-1 rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {/* Native Social Share Button */}
+              <button
+                type="button"
+                id="toast-share-product-btn"
+                title="Share this product"
+                aria-label="Share this product"
+                onClick={() => handleShareAddedProduct(addedToast.product, addedToast.size)}
+                className={`p-1.5 px-2 rounded-xl transition-all text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                  shareToastStatus === 'copied' || shareToastStatus === 'shared'
+                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+                    : 'bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800'
+                }`}
+              >
+                {shareToastStatus === 'copied' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-[11px] text-emerald-300 font-bold">Copied!</span>
+                  </>
+                ) : shareToastStatus === 'shared' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-[11px] text-emerald-300 font-bold">Shared!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-[11px]">Share</span>
+                  </>
+                )}
+              </button>
+
+              {/* Close Toast */}
+              <button 
+                type="button" 
+                onClick={() => setAddedToast(null)}
+                className="text-neutral-400 hover:text-white p-1 rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
+                title="Dismiss"
+                aria-label="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -581,6 +650,10 @@ export default function App() {
             setIsTrackerOpen(true);
           }}
           currentCurrency={currentCurrency}
+          allProducts={products}
+          onSelectProduct={(product) => setSelectedProduct(product)}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={handleToggleWishlist}
         />
       )}
 
@@ -601,6 +674,9 @@ export default function App() {
         appliedPromo={appliedPromo}
         onApplyPromo={setAppliedPromo}
         currentCurrency={currentCurrency}
+        allProducts={products}
+        onAddToCart={handleAddToCart}
+        onSelectProduct={(product) => setSelectedProduct(product)}
       />
 
       {/* MODAL 3: Integrated Destination & Multi-Gateway Checkout */}

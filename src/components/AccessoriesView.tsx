@@ -48,10 +48,10 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
     <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 animate-in fade-in duration-200">
       
       {/* 1. Header Banner */}
-      <div className="text-center max-w-3xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-widest">
+      <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 text-amber-900 text-xs font-bold uppercase tracking-widest border border-amber-200">
           <Crown className="w-3.5 h-3.5 text-amber-600" />
-          <span>Handcrafted African Heritage Accents</span>
+          <span>Handcrafted African Heritage Accents • 15,000 TZS Each</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-neutral-900 font-display tracking-tight">
@@ -59,8 +59,13 @@ export const AccessoriesView: React.FC<AccessoriesViewProps> = ({
         </h1>
 
         <p className="text-neutral-600 text-sm sm:text-base leading-relaxed">
-          From vibrant African batik bow ties with adjustable brass clasps to twisted knot turban headbands, oversized butterfly bows, and heirloom knitted bonnets.
+          From vibrant African batik bow ties with adjustable brass clasps to twisted knot turban headbands, oversized butterfly bows, and heirloom knitted bonnets. Handcrafted in Tanzania for your little ones.
         </p>
+
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-bold shadow-2xs">
+          <Sparkles className="w-4 h-4 text-amber-600" />
+          <span>Universal Accessory Pricing: <strong>15,000 TZS</strong> (~$5.77 USD) across all artisan headbands, bow ties & bonnets</span>
+        </div>
       </div>
 
       {/* 2. Highlight Category Cards */}

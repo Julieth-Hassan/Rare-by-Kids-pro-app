@@ -90,6 +90,88 @@ async function startServer() {
     }
   });
 
+  // Create / Sync Order and Gift Note to Sanity Studio endpoint
+  app.post("/api/create-order", async (req, res) => {
+    try {
+      const order = req.body;
+      const projectId = "q9d6pxzm";
+      const dataset = "production";
+      const apiVersion = "2024-01-01";
+      const token = process.env.SANITY_API_TOKEN || process.env.SANITY_AUTH_TOKEN;
+
+      if (!token) {
+        // Return clear notice that order is recorded locally and token is needed for Sanity Studio write
+        return res.json({
+          success: true,
+          syncedToSanity: false,
+          message: "Order recorded in local store engine. To sync directly to Sanity Studio, add SANITY_API_TOKEN in environment settings.",
+        });
+      }
+
+      const sanityDoc = {
+        _type: "order",
+        _id: `order-${order.orderNumber || Date.now()}`,
+        orderNumber: order.orderNumber,
+        trackingNumber: order.trackingNumber,
+        orderDate: order.createdAt || new Date().toISOString(),
+        customer: {
+          fullName: order.customer?.fullName,
+          phone: order.customer?.phone,
+          email: order.customer?.email,
+          instagramHandle: order.customer?.instagramHandle,
+          streetAddress: order.customer?.streetAddress,
+          city: order.customer?.city,
+          region: order.customer?.stateOrRegion,
+          deliveryNotes: order.customer?.deliveryNotes,
+        },
+        giftCardNote: order.giftNote ? {
+          to: order.giftNote.to,
+          from: order.giftNote.from,
+          message: order.giftNote.message,
+          packagingBox: order.giftNote.boxStyle,
+          ribbonColor: order.giftNote.ribbonColor,
+          isCalligraphyRequired: true,
+        } : null,
+        itemsSummary: (order.items || []).map((i: any) => `${i.quantity}x ${i.product?.name} (${i.selectedSize || 'Standard'})`),
+        totalAmount: order.totalAmount,
+        currency: order.currency || "TZS",
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus || "paid",
+        orderStatus: order.orderStatus || "processing",
+      };
+
+      const sanityMutationUrl = `https://${projectId}.api.sanity.io/v${apiVersion}/data/mutate/${dataset}`;
+      const mutateResponse = await fetch(sanityMutationUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mutations: [
+            {
+              createOrReplace: sanityDoc,
+            },
+          ],
+        }),
+      });
+
+      const mutateData = await mutateResponse.json();
+      return res.json({
+        success: mutateResponse.ok,
+        syncedToSanity: mutateResponse.ok,
+        sanityResult: mutateData,
+      });
+    } catch (err: any) {
+      console.error("Sanity order sync notice:", err);
+      return res.json({
+        success: false,
+        syncedToSanity: false,
+        error: err?.message || "Failed to sync with Sanity",
+      });
+    }
+  });
+
   // AI Kids Fashion Stylist Endpoint
   app.post("/api/stylist", async (req, res) => {
     try {

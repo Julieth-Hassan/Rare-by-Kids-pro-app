@@ -587,8 +587,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Bow Ties & Formalwear',
     gender: 'boy',
-    price: 16.00,
-    originalPrice: 22.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 5.0,
     reviewCount: 34,
     images: [
@@ -624,8 +625,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Headbands & Turbans',
     gender: 'girl',
-    price: 24.00,
-    originalPrice: 32.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 5.0,
     reviewCount: 52,
     images: [
@@ -660,8 +662,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Sibling Sets & Accents',
     gender: 'unisex',
-    price: 32.00,
-    originalPrice: 42.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 5.0,
     reviewCount: 29,
     images: [
@@ -696,8 +699,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Headbands & Bows',
     gender: 'girl',
-    price: 18.00,
-    originalPrice: 24.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 5.0,
     reviewCount: 48,
     images: [
@@ -732,8 +736,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Headbands & Crowns',
     gender: 'girl',
-    price: 22.00,
-    originalPrice: 28.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 4.9,
     reviewCount: 26,
     images: [
@@ -767,8 +772,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'accessories',
     categoryLabel: 'Bonnets & Headwear',
     gender: 'unisex',
-    price: 20.00,
-    originalPrice: 26.00,
+    price: 5.77,
+    priceTZS: 15000,
+    originalPrice: 7.70,
     rating: 5.0,
     reviewCount: 33,
     images: [
@@ -806,8 +812,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'gift-bundles',
     categoryLabel: 'Luxury Gift Hamper',
     gender: 'unisex',
-    price: 78.00,
-    originalPrice: 98.00,
+    price: 32.69,
+    priceTZS: 85000,
+    originalPrice: 40.38,
     rating: 5.0,
     reviewCount: 44,
     images: [
@@ -836,18 +843,18 @@ export const INITIAL_PRODUCTS: Product[] = [
     collectionType: 'gift-bundles',
     isGiftBundle: true,
     bundleItems: [
-      'Cozy Cloud Bamboo 2-Way Zip Romper ($32 Value)',
-      'Hand-Knitted Pointelle Baby Bonnet ($20 Value)',
-      'Organic Cotton Knot Booties ($16 Value)',
-      'Natural Beechwood & Crochet Bunny Rattle ($18 Value)',
-      'Rigid Magnetic Gold-Foil Gift Chest with Satin Ribbon ($15 Value)',
+      'Cozy Cloud Bamboo 2-Way Zip Romper (50,000 TZS Value)',
+      'Hand-Knitted Pointelle Baby Bonnet (15,000 TZS Value)',
+      'Organic Cotton Knot Booties (15,000 TZS Value)',
+      'Natural Beechwood & Crochet Bunny Rattle (15,000 TZS Value)',
+      'Rigid Magnetic Gold-Foil Gift Chest with Satin Ribbon Packaging (10,000 TZS Value)',
       'Custom Handwritten Calligraphy Note Card (Complimentary)'
     ],
     giftBoxDetails: {
       boxType: 'Magnetic Keepsake Chest with Gold Foil',
       ribbonColor: 'Champagne Gold Satin',
       includesCard: true,
-      includedItemsSummary: ['Bamboo Romper', 'Knitted Bonnet', 'Booties', 'Bunny Rattle', 'Luxury Gift Box', 'Gift Card']
+      includedItemsSummary: ['Bamboo Romper', 'Knitted Bonnet', 'Booties', 'Bunny Rattle', 'Luxury Gift Box Packaging (10,000 TZS Value)', 'Gift Card']
     }
   },
   {
@@ -858,8 +865,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'gift-bundles',
     categoryLabel: 'Birthday Gift Hamper',
     gender: 'girl',
-    price: 79.00,
-    originalPrice: 99.00,
+    price: 28.85,
+    priceTZS: 75000,
+    originalPrice: 34.62,
     rating: 5.0,
     reviewCount: 39,
     images: [
@@ -889,17 +897,17 @@ export const INITIAL_PRODUCTS: Product[] = [
     collectionType: 'gift-bundles',
     isGiftBundle: true,
     bundleItems: [
-      'Moyo Hand-Dyed Batik Peplum Twirl Dress ($48 Value)',
-      'Royal Velvet & Pearl Princess Crown ($22 Value)',
-      'Matching Artisan Batik Bow Accent ($14 Value)',
-      'Signature Gold-Foil Ribbon Gift Presentation Box ($15 Value)',
+      'Moyo Hand-Dyed Batik Peplum Twirl Dress (50,000 TZS Value)',
+      'Royal Velvet & Pearl Princess Crown (15,000 TZS Value)',
+      'Matching Artisan Batik Bow Accent (15,000 TZS Value)',
+      'Signature Gold-Foil Ribbon Gift Presentation Box Packaging (10,000 TZS Value)',
       'Personalized Birthday Gift Note (Complimentary)'
     ],
     giftBoxDetails: {
       boxType: 'Princess Luxury Boutique Hamper Box',
       ribbonColor: 'Rose Gold Shimmer Satin',
       includesCard: true,
-      includedItemsSummary: ['Moyo Batik Dress', 'Pearl Crown Headband', 'Batik Hair Accent', 'Gift Box', 'Personalized Card']
+      includedItemsSummary: ['Moyo Batik Dress', 'Pearl Crown Headband', 'Batik Hair Accent', 'Gift Box Packaging (10,000 TZS Value)', 'Personalized Card']
     }
   },
   {
@@ -910,8 +918,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'gift-bundles',
     categoryLabel: 'Gentleman Gift Hamper',
     gender: 'boy',
-    price: 88.00,
-    originalPrice: 110.00,
+    price: 30.77,
+    priceTZS: 80000,
+    originalPrice: 35.77,
     rating: 4.9,
     reviewCount: 28,
     images: [
@@ -941,17 +950,17 @@ export const INITIAL_PRODUCTS: Product[] = [
     collectionType: 'gift-bundles',
     isGiftBundle: true,
     bundleItems: [
-      'Gentleman Little Boss 3-Piece Linen Suit Set ($58 Value)',
-      'Artisanal African Batik Bow Tie with Brass Hardware ($16 Value)',
-      'Matching Linen Pocket Square ($10 Value)',
-      'Matte Black & Gold Crest Hamper Box ($18 Value)',
+      'Gentleman Little Boss 3-Piece Linen Suit Set (58,000 TZS Value)',
+      'Artisanal African Batik Bow Tie with Brass Hardware (15,000 TZS Value)',
+      'Matching Linen Pocket Square (10,000 TZS Value)',
+      'Matte Black & Gold Crest Hamper Box Packaging (10,000 TZS Value)',
       'Formal Congratulatory Gift Card (Complimentary)'
     ],
     giftBoxDetails: {
       boxType: 'Matte Onyx & Gold Crest Executive Gift Box',
       ribbonColor: 'Champagne Gold Satin',
       includesCard: true,
-      includedItemsSummary: ['3-Piece Linen Suit', 'Artisanal Batik Bow Tie', 'Pocket Square', 'Executive Box', 'Formal Note']
+      includedItemsSummary: ['3-Piece Linen Suit', 'Artisanal Batik Bow Tie', 'Pocket Square', 'Executive Box Packaging (10,000 TZS Value)', 'Formal Note']
     }
   },
   {
@@ -962,8 +971,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'gift-bundles',
     categoryLabel: 'Resort & Sibling Hamper',
     gender: 'unisex',
-    price: 65.00,
-    originalPrice: 82.00,
+    price: 25.00,
+    priceTZS: 65000,
+    originalPrice: 28.85,
     rating: 4.9,
     reviewCount: 31,
     images: [
@@ -993,16 +1003,16 @@ export const INITIAL_PRODUCTS: Product[] = [
     collectionType: 'gift-bundles',
     isGiftBundle: true,
     bundleItems: [
-      'Luxe Waffle-Knit 2-Piece Resort Set ($38 Value)',
-      'Matching Sibling Batik Bow Tie & Headband Duo ($32 Value)',
-      'Signature Rare by KidsPro Keepsake Gift Box ($15 Value)',
+      'Luxe Waffle-Knit 2-Piece Resort Set (50,000 TZS Value)',
+      'Matching Sibling Batik Bow Tie & Headband Duo (15,000 TZS Value)',
+      'Signature Rare by KidsPro Keepsake Gift Box Packaging (10,000 TZS Value)',
       'Summer Vacation Welcome Card (Complimentary)'
     ],
     giftBoxDetails: {
       boxType: 'Eco Luxury Cotton Tote & Gift Crate',
       ribbonColor: 'Natural Jute & Gold Ribbon',
       includesCard: true,
-      includedItemsSummary: ['Waffle 2-Piece Set', 'Batik Bow Tie', 'Batik Knot Headband', 'Luxury Gift Box']
+      includedItemsSummary: ['Waffle 2-Piece Set', 'Batik Bow Tie', 'Batik Knot Headband', 'Luxury Gift Box Packaging (10,000 TZS Value)']
     }
   }
 ];

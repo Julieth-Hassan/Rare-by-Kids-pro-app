@@ -194,12 +194,57 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
                     {ord.items.map((item) => (
                       <span 
                         key={item.id}
-                        className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg font-medium text-neutral-800"
+                        className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg font-medium text-neutral-800 flex items-center gap-1.5"
                       >
-                        {item.quantity}x {item.product.name} ({item.selectedSize})
+                        {item.product.isGiftBundle && <span className="text-amber-600">🎁</span>}
+                        <span>{item.quantity}x {item.product.name} ({item.selectedSize})</span>
                       </span>
                     ))}
                   </div>
+
+                  {/* Personalized Gift Card Note & Packaging Slip (For Workshop & Calligraphy Team) */}
+                  {(ord.giftNote || ord.customer?.giftNote || ord.items.some(i => i.product.giftBoxDetails || i.product.isGiftBundle)) && (
+                    <div className="bg-amber-50/90 rounded-xl p-3.5 border border-amber-200 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                          <span className="text-sm">💌</span>
+                          <span>Personalized Gift Card Note & Calligraphy Slip</span>
+                        </div>
+                        <span className="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                          Handwritten Card Required
+                        </span>
+                      </div>
+
+                      {/* Note details */}
+                      <div className="bg-white/80 p-3 rounded-lg border border-amber-200/70 space-y-1.5 font-serif">
+                        <div className="flex items-center justify-between text-[11px] font-sans font-bold text-amber-900 border-b border-amber-100 pb-1">
+                          <span>To: <strong className="text-neutral-900">{ord.giftNote?.to || ord.customer?.giftNote?.to || ord.customer.fullName}</strong></span>
+                          <span>From: <strong className="text-neutral-900">{ord.giftNote?.from || ord.customer?.giftNote?.from || ord.customer.fullName}</strong></span>
+                        </div>
+                        <p className="text-neutral-800 text-xs italic leading-relaxed pt-0.5">
+                          "{ord.giftNote?.message || ord.customer?.giftNote?.message || ord.items.find(i => i.product.description?.includes('Note:'))?.product.description?.split('Note: "')[1]?.split('"')[0] || 'Wishing you and your little one immense blessings, happiness, and good health!'}"
+                        </p>
+                      </div>
+
+                      {/* Packaging Specifications & Copy Slip Button */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-sans text-[11px]">
+                        <div className="text-amber-900 font-medium">
+                          Packaging Box: <strong>{ord.giftNote?.boxStyle || ord.items.find(i => i.product.giftBoxDetails)?.product.giftBoxDetails?.boxType || 'Royal Keepsake Gift Box'}</strong> • Ribbon: <strong>{ord.giftNote?.ribbonColor || ord.items.find(i => i.product.giftBoxDetails)?.product.giftBoxDetails?.ribbonColor || 'Champagne Satin'}</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const slipText = `🎁 RARE BY KIDSPRO GIFT PACKAGING SLIP\nOrder: ${ord.orderNumber}\nRecipient (To): ${ord.giftNote?.to || ord.customer.fullName}\nSender (From): ${ord.giftNote?.from || ord.customer.fullName}\nMessage:\n"${ord.giftNote?.message || 'Blessings & Joy'}"\nPackaging: ${ord.giftNote?.boxStyle || 'Luxury Gift Box'}`;
+                            navigator.clipboard?.writeText(slipText);
+                            alert('Gift Card Note & Packaging Slip copied to clipboard!');
+                          }}
+                          className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[10px] transition-colors cursor-pointer"
+                        >
+                          📋 Copy Calligraphy Slip
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Financial & Delivery Detail */}
                   <div className="flex flex-wrap items-center justify-between text-[11px] text-neutral-500 pt-1">

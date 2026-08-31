@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Product, Review, DeliveryRegion } from '../types';
 import { formatPrice } from '../data/currencies';
+import { ProductRecommendations } from './ProductRecommendations';
 
 interface ProductDetailModalProps {
   product: Product;
@@ -34,10 +35,13 @@ interface ProductDetailModalProps {
   reviews: Review[];
   onAddReview: (review: Omit<Review, 'id' | 'date' | 'helpfulCount'>) => void;
   deliveryRegions: DeliveryRegion[];
-  onOpenTracker: () => void;
+  onOpenTracker?: () => void;
   currentCurrency?: string;
   isWishlisted?: boolean;
   onToggleWishlist?: (productId: string) => void;
+  allProducts?: Product[];
+  onSelectProduct?: (product: Product) => void;
+  wishlistIds?: string[];
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -51,6 +55,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   currentCurrency = 'TZS',
   isWishlisted = false,
   onToggleWishlist,
+  allProducts = [],
+  onSelectProduct,
+  wishlistIds = [],
 }) => {
   const images = product.clothingImages && product.clothingImages.length > 0
     ? product.clothingImages
@@ -946,6 +953,26 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               )}
             </div>
           </div>
+
+          {/* Product Recommendations & Complete the Look */}
+          {allProducts.length > 0 && (
+            <ProductRecommendations
+              currentProduct={product}
+              allProducts={allProducts}
+              onSelectProduct={(p) => {
+                if (onSelectProduct) {
+                  onSelectProduct(p);
+                }
+              }}
+              onQuickAdd={(p, s) => {
+                onAddToCart(p, s, 1);
+              }}
+              currentCurrency={currentCurrency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={onToggleWishlist}
+              limit={4}
+            />
+          )}
 
         </div>
       </div>

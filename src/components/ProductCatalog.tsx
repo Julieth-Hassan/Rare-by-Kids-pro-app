@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Product, ProductColor } from '../types';
 import { ProductCard } from './ProductCard';
+import { ProductRecommendations } from './ProductRecommendations';
 import { normalizeSanityProduct, SANITY_CONFIG } from '../services/sanity';
 
 // Standard direct Sanity Client configuration for Project ID q9d6pxzm and dataset production
@@ -636,6 +637,21 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             Show All Kids Outfits
           </button>
         </div>
+      )}
+
+      {/* Recommended For You & Complete the Look Section */}
+      {activeProducts.length > 0 && (
+        <ProductRecommendations
+          allProducts={activeProducts}
+          onSelectProduct={onSelectProduct}
+          onQuickAdd={onQuickAdd}
+          currentCurrency={currentCurrency}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={onToggleWishlist}
+          title="Recommended For You & Complete The Look"
+          subtitle="Artisan batik pairings, handcrafted accessories, and parent favorites styled together"
+          limit={4}
+        />
       )}
     </section>
   );

@@ -154,6 +154,20 @@ export interface Order {
     deliveryRegionId: string;
     deliveryRegionName: string;
     deliveryNotes?: string;
+    giftNote?: {
+      to: string;
+      message: string;
+      from: string;
+      boxStyle?: string;
+      ribbonColor?: string;
+    };
+  };
+  giftNote?: {
+    to: string;
+    message: string;
+    from: string;
+    boxStyle?: string;
+    ribbonColor?: string;
   };
   items: CartItem[];
   subtotal: number;

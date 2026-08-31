@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   X, 
   Trash2, 
@@ -7,10 +7,13 @@ import {
   ShoppingBag, 
   ArrowRight, 
   Truck, 
-  ShieldCheck
+  ShieldCheck,
+  Sparkles,
+  Check
 } from 'lucide-react';
-import { CartItem, DeliveryRegion, PromoCode } from '../types';
+import { CartItem, DeliveryRegion, Product, PromoCode } from '../types';
 import { formatPrice } from '../data/currencies';
+import { getCartAddonRecommendations, getCuratedCatalogRecommendations } from '../utils/recommendations';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -25,6 +28,9 @@ interface CartDrawerProps {
   appliedPromo: PromoCode | null;
   onApplyPromo: (promo: PromoCode | null) => void;
   currentCurrency?: string;
+  allProducts?: Product[];
+  onAddToCart?: (product: Product, size: string, quantity: number) => void;
+  onSelectProduct?: (product: Product) => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -40,7 +46,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   appliedPromo,
   onApplyPromo,
   currentCurrency = 'USD',
+  allProducts = [],
+  onAddToCart,
+  onSelectProduct,
 }) => {
+  const [justAddedMap, setJustAddedMap] = useState<Record<string, boolean>>({});
+
   if (!isOpen) return null;
 
   const subtotal = cartItems.reduce(
@@ -51,6 +62,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const selectedRegion = deliveryRegions.find((r) => r.id === selectedRegionId) || deliveryRegions[0];
   const shippingCost = selectedRegion?.cost || 3.00;
   const grandTotal = subtotal + shippingCost;
+
+  // Addon recommendations
+  const recommendedAddons = cartItems.length > 0
+    ? getCartAddonRecommendations(cartItems, allProducts, 4)
+    : getCuratedCatalogRecommendations(allProducts, 'bestsellers', 3);
+
+  const handleQuickAddAddon = (product: Product) => {
+    if (!onAddToCart) return;
+    const size = product.sizes?.find((s) => s.inStock)?.size || product.sizes?.[0]?.size || 'One Size';
+    onAddToCart(product, size, 1);
+    setJustAddedMap((prev) => ({ ...prev, [product.id]: true }));
+    setTimeout(() => {
+      setJustAddedMap((prev) => ({ ...prev, [product.id]: false }));
+    }, 2000);
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -188,6 +214,73 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 </div>
               ))
+            )}
+
+            {/* Recommended Add-Ons & Complete the Look inside Drawer */}
+            {recommendedAddons.length > 0 && (
+              <div className="pt-4 border-t border-neutral-200/90 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-900">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>
+                      {cartItems.length > 0 ? 'Complete the Look • Recommended Add-Ons' : 'Recommended For You'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-neutral-400 font-medium">1-Tap Add</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {recommendedAddons.map((addon) => {
+                    const isAdded = justAddedMap[addon.id];
+                    return (
+                      <div
+                        key={addon.id}
+                        onClick={() => {
+                          if (onSelectProduct) {
+                            onClose();
+                            onSelectProduct(addon);
+                          }
+                        }}
+                        className="group p-2.5 bg-neutral-50 hover:bg-white rounded-2xl border border-neutral-200/90 hover:border-amber-400 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between gap-2"
+                      >
+                        <img
+                          src={addon.clothingImages?.[0] || addon.images?.[0] || 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=200&q=80'}
+                          alt={addon.name}
+                          className="w-12 h-12 object-cover rounded-xl bg-white border border-neutral-200 shrink-0 group-hover:scale-105 transition-transform"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-bold text-neutral-900 truncate leading-tight">
+                            {addon.name}
+                          </p>
+                          <p className="text-[11px] font-extrabold text-amber-600 mt-0.5">
+                            {formatPrice(addon.price, currentCurrency)}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickAddAddon(addon);
+                          }}
+                          className={`p-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs ${
+                            isAdded
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-neutral-900 hover:bg-neutral-800 text-white active:scale-90'
+                          }`}
+                          title="Quick add to bag"
+                        >
+                          {isAdded ? (
+                            <Check className="w-3.5 h-3.5" />
+                          ) : (
+                            <Plus className="w-3.5 h-3.5 text-amber-400" />
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
 

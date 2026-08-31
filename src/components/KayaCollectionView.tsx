@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowLeft, Heart, ShoppingBag, Instagram, Crown } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
+import { ProductRecommendations } from './ProductRecommendations';
 import kijaniMoyoModelImg from '../assets/images/kijani_moyo_model.jpg';
 
 interface KayaCollectionViewProps {
@@ -154,6 +155,21 @@ export const KayaCollectionView: React.FC<KayaCollectionViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Recommended Gentleman Accessories & Sibling Pairings for Kaya */}
+      {products.length > 0 && (
+        <ProductRecommendations
+          allProducts={products}
+          onSelectProduct={onSelectProduct}
+          onQuickAdd={onQuickAdd}
+          currentCurrency={currentCurrency}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={onToggleWishlist}
+          title="Recommended Gentleman Bowties & Sibling Sets"
+          subtitle="Handcrafted African batik bowties, luxury resort hampers, and coordinated sibling sets styled to pair with Kaya"
+          limit={4}
+        />
+      )}
 
     </div>
   );

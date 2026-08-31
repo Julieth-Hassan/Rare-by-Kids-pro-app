@@ -162,6 +162,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       },
     ];
 
+    // Extract any personalized gift card note or packaging specifications
+    let extractedGiftNote: Order['giftNote'] = undefined;
+    const bundleItem = cartItems.find((i) => i.product.isGiftBundle || i.product.giftBoxDetails);
+    if (bundleItem) {
+      const desc = bundleItem.product.description || '';
+      let message = 'Wishing you and your little one immense blessings, joy, and good health!';
+      let to = fullName;
+      let from = fullName;
+      if (desc.includes('Note: "')) {
+        const parts = desc.split('Note: "');
+        if (parts[1]) {
+          const msgAndFrom = parts[1].split('" - ');
+          message = msgAndFrom[0] || message;
+          from = msgAndFrom[1]?.trim() || from;
+        }
+      }
+      extractedGiftNote = {
+        to,
+        message,
+        from,
+        boxStyle: bundleItem.product.giftBoxDetails?.boxType || 'Royal Keepsake Gift Box',
+        ribbonColor: bundleItem.product.giftBoxDetails?.ribbonColor || 'Champagne Satin',
+      };
+    }
+
     const newOrder: Order = {
       id: `ord-${Date.now()}`,
       orderNumber: randomOrderNum,
@@ -180,7 +205,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         deliveryRegionId: selectedRegion.id,
         deliveryRegionName: selectedRegion.name,
         deliveryNotes,
+        giftNote: extractedGiftNote,
       },
+      giftNote: extractedGiftNote,
       items: [...cartItems],
       subtotal,
       deliveryCost: baseDeliveryFee,
@@ -210,6 +237,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setOrderSuccess(newOrder);
     onOrderCompleted(newOrder);
     onClearCart();
+
+    // Asynchronously dispatch to backend to sync to Sanity if configured
+    try {
+      fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder),
+      }).catch(() => {
+        // Non-blocking background sync
+      });
+    } catch (_err) {
+      // Non-blocking
+    }
 
     try {
       confetti({
@@ -292,6 +332,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <span className="text-neutral-500">Estimated Delivery:</span>
                 <span className="font-bold text-emerald-700">{orderSuccess.estimatedDeliveryDate}</span>
               </div>
+
+              {orderSuccess.giftNote && (
+                <div className="pt-2 border-t border-neutral-200 mt-2 bg-amber-50/70 p-3 rounded-xl border border-amber-200 space-y-1">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-amber-900 uppercase">
+                    <span>💌 Handwritten Card Note:</span>
+                    <span>To {orderSuccess.giftNote.to}</span>
+                  </div>
+                  <p className="text-neutral-800 text-[11px] italic font-serif">
+                    "{orderSuccess.giftNote.message}"
+                  </p>
+                  <div className="text-[10px] text-neutral-500 font-sans pt-0.5">
+                    From: <strong>{orderSuccess.giftNote.from}</strong> • {orderSuccess.giftNote.boxStyle}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

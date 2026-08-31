@@ -53,17 +53,61 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
   const [customOutfitSize, setCustomOutfitSize] = useState<string>(clothesList[0]?.sizes[0]?.size || '2-3Y');
   const [customAccessories, setCustomAccessories] = useState<string[]>([accessoriesList[0]?.id || 'rbk-009']);
   
-  const [boxStyle, setBoxStyle] = useState<'gold' | 'blush' | 'onyx'>('gold');
+  const [boxStyle, setBoxStyle] = useState<'gold' | 'blush' | 'onyx' | 'kraft'>('gold');
   const [ribbonColor, setRibbonColor] = useState<'champagne' | 'rose' | 'navy' | 'sage'>('champagne');
   const [giftNoteTo, setGiftNoteTo] = useState('Baby Liam & Parents');
   const [giftNoteMessage, setGiftNoteMessage] = useState('Congratulations on your new blessing! May your little one grow in health, love, and immense joy.');
   const [giftNoteFrom, setGiftNoteFrom] = useState('With love, Auntie Sophie');
   const [customAddedSuccess, setCustomAddedSuccess] = useState(false);
 
+  const PACKAGING_OPTIONS = [
+    {
+      id: 'gold' as const,
+      name: 'Royal Gold Keepsake Chest',
+      shortName: '✨ Royal Gold Chest',
+      desc: 'Rigid magnetic box with gold foil & 38mm satin ribbon',
+      priceTZS: 10000,
+      priceUSD: 3.85,
+    },
+    {
+      id: 'blush' as const,
+      name: 'Blush Rose Keepsake Box',
+      shortName: '🌸 Blush Rose Chest',
+      desc: 'Pastel keepsake chest with soft shimmer ribbon',
+      priceTZS: 10000,
+      priceUSD: 3.85,
+    },
+    {
+      id: 'onyx' as const,
+      name: 'Matte Onyx Executive Box',
+      shortName: '🖤 Matte Onyx Box',
+      desc: 'Matte black box with embossed crest & grosgrain ribbon',
+      priceTZS: 10000,
+      priceUSD: 3.85,
+    },
+    {
+      id: 'kraft' as const,
+      name: 'Boutique Eco Kraft Box',
+      shortName: '🌿 Eco Kraft Box',
+      desc: 'Natural eco-friendly gift box with pure cotton tie',
+      priceTZS: 5000,
+      priceUSD: 1.92,
+    },
+  ];
+
+  const selectedPackaging = PACKAGING_OPTIONS.find((p) => p.id === boxStyle) || PACKAGING_OPTIONS[0];
   const selectedAccessoryProducts = accessoriesList.filter((a) => customAccessories.includes(a.id));
-  const accessoriesTotal = selectedAccessoryProducts.reduce((sum, acc) => sum + acc.price, 0);
-  const giftBoxPackagingFee = 10.00;
-  const customBundleTotalUSD = customOutfit.price + accessoriesTotal + giftBoxPackagingFee;
+  const accessoriesTotal = selectedAccessoryProducts.reduce((sum, acc) => sum + (acc.price || 5.77), 0);
+  const accessoriesTotalTZS = selectedAccessoryProducts.reduce((sum, acc) => sum + (acc.priceTZS || 15000), 0);
+  
+  const giftBoxPackagingFee = selectedPackaging.priceUSD;
+  const giftBoxPackagingFeeTZS = selectedPackaging.priceTZS;
+  
+  const outfitPrice = customOutfit?.price || 19.00;
+  const outfitPriceTZS = customOutfit?.priceTZS || Math.round(outfitPrice * 2600);
+  
+  const customBundleTotalUSD = outfitPrice + accessoriesTotal + giftBoxPackagingFee;
+  const customBundleTotalTZS = outfitPriceTZS + accessoriesTotalTZS + giftBoxPackagingFeeTZS;
 
   const toggleCustomAccessory = (accId: string) => {
     if (customAccessories.includes(accId)) {
@@ -74,18 +118,18 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
   };
 
   const handleAddCustomBundleToCart = () => {
-    const safeBoxStyle = (boxStyle || 'luxury').toUpperCase();
+    const safeBoxStyle = selectedPackaging.name;
     const safeRibbonColor = (ribbonColor || 'gold').toUpperCase();
     const customBundleProduct: Product = {
       id: `custom-bundle-${Date.now()}`,
       name: `Bespoke Gift Box: ${customOutfit.name} & Accessories`,
-      tagline: `Curated luxury hamper with ${selectedAccessoryProducts.length} accessories in ${safeBoxStyle} box`,
-      description: `Custom curated gift hamper packed with ${customOutfit.name} (${customOutfitSize}), plus ${selectedAccessoryProducts.map(a => a.name).join(', ')}. Presented in our ${boxStyle} magnetic chest with ${ribbonColor} ribbon. Note: "${giftNoteMessage}" - ${giftNoteFrom}`,
+      tagline: `Curated luxury hamper with ${selectedAccessoryProducts.length} accessories in ${safeBoxStyle}`,
+      description: `Custom curated gift hamper packed with ${customOutfit.name} (${customOutfitSize}), plus ${selectedAccessoryProducts.map(a => a.name).join(', ')}. Presented in our ${safeBoxStyle} with ${ribbonColor} ribbon. Note: "${giftNoteMessage}" - ${giftNoteFrom}`,
       category: 'bundles',
       categoryLabel: 'Custom Gift Hamper',
       gender: customOutfit.gender,
       price: customBundleTotalUSD,
-      priceTZS: Math.round(customBundleTotalUSD * 2600),
+      priceTZS: customBundleTotalTZS,
       rating: 5.0,
       reviewCount: 1,
       images: [customOutfit.images[0], ...(selectedAccessoryProducts[0]?.images || [])],
@@ -96,15 +140,15 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
       isGiftBundle: true,
       bundleItems: [
         `${customOutfit.name} (${customOutfitSize})`,
-        ...selectedAccessoryProducts.map((a) => a.name),
-        `Signature ${safeBoxStyle} Magnetic Keepsake Box`,
-        `Handwritten Calligraphy Card to ${giftNoteTo}`
+        ...selectedAccessoryProducts.map((a) => `${a.name} (15,000 TZS Value)`),
+        `${selectedPackaging.name} Packaging (${selectedPackaging.priceTZS.toLocaleString()} TZS Value)`,
+        `Handwritten Calligraphy Card to ${giftNoteTo} (Complimentary)`
       ],
       giftBoxDetails: {
-        boxType: `${safeBoxStyle} Magnetic Keepsake Chest`,
+        boxType: safeBoxStyle,
         ribbonColor: `${safeRibbonColor} Satin Ribbon`,
         includesCard: true,
-        includedItemsSummary: [customOutfit.name, ...selectedAccessoryProducts.map(a => a.name), 'Gift Box & Note']
+        includedItemsSummary: [customOutfit.name, ...selectedAccessoryProducts.map(a => a.name), `${selectedPackaging.name} Packaging`, 'Gift Card']
       }
     };
 
@@ -402,52 +446,40 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
 
             {/* Step 3: Choose Box Style & Ribbon */}
             <div className="space-y-3 pt-4 border-t border-neutral-200">
-              <label className="text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[10px]">3</span>
-                <span>Select Luxury Box Style & Satin Ribbon:</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[10px]">3</span>
+                  <span>Select Gift Packaging Style:</span>
+                </label>
+                <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  {formatPrice(selectedPackaging.priceUSD, currentCurrency)}
+                </span>
+              </div>
               
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setBoxStyle('gold')}
-                  className={`p-2.5 rounded-2xl border text-left transition-all ${
-                    boxStyle === 'gold'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-400'
-                      : 'border-neutral-200 hover:bg-neutral-50 text-neutral-700'
-                  }`}
-                >
-                  <span className="block text-xs font-bold">✨ Royal Gold</span>
-                  <span className="text-[10px] text-neutral-500">Gold foil crest</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setBoxStyle('blush')}
-                  className={`p-2.5 rounded-2xl border text-left transition-all ${
-                    boxStyle === 'blush'
-                      ? 'border-pink-500 bg-pink-50 text-pink-950 font-bold ring-2 ring-pink-400'
-                      : 'border-neutral-200 hover:bg-neutral-50 text-neutral-700'
-                  }`}
-                >
-                  <span className="block text-xs font-bold">🌸 Blush Rose</span>
-                  <span className="text-[10px] text-neutral-500">Pastel boutique</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setBoxStyle('onyx')}
-                  className={`p-2.5 rounded-2xl border text-left transition-all ${
-                    boxStyle === 'onyx'
-                      ? 'border-neutral-900 bg-neutral-900 text-white font-bold ring-2 ring-amber-400'
-                      : 'border-neutral-200 hover:bg-neutral-50 text-neutral-700'
-                  }`}
-                >
-                  <span className="block text-xs font-bold">🖤 Matte Onyx</span>
-                  <span className={`text-[10px] ${boxStyle === 'onyx' ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                    Executive style
-                  </span>
-                </button>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {PACKAGING_OPTIONS.map((pkg) => {
+                  const isSelected = boxStyle === pkg.id;
+                  return (
+                    <button
+                      key={pkg.id}
+                      type="button"
+                      onClick={() => setBoxStyle(pkg.id)}
+                      className={`p-2.5 rounded-2xl border text-left transition-all ${
+                        isSelected
+                          ? 'border-amber-500 bg-amber-50/80 text-amber-950 font-bold ring-2 ring-amber-400 shadow-xs'
+                          : 'border-neutral-200 hover:bg-neutral-50 text-neutral-700'
+                      }`}
+                    >
+                      <span className="block text-xs font-bold">{pkg.shortName}</span>
+                      <span className="text-[11px] font-bold text-amber-800 block mt-0.5">
+                        +{formatPrice(pkg.priceUSD, currentCurrency)}
+                      </span>
+                      <span className="text-[10px] text-neutral-500 line-clamp-1 mt-0.5">
+                        {pkg.desc}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -455,7 +487,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
             <div className="space-y-3 pt-4 border-t border-neutral-200">
               <label className="text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[10px]">4</span>
-                <span>Personalized Gift Card Note:</span>
+                <span>Personalized Gift Card Note (Complimentary):</span>
               </label>
 
               <div className="grid grid-cols-2 gap-2">
@@ -512,7 +544,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                 {selectedAccessoryProducts.length > 0 && (
                   <div className="pt-2 border-t border-neutral-100">
                     <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
-                      Included Accessories ({selectedAccessoryProducts.length}):
+                      Included Accessories ({selectedAccessoryProducts.length} • 15,000 TZS each):
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedAccessoryProducts.map((acc) => (
@@ -523,6 +555,11 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                     </div>
                   </div>
                 )}
+
+                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-neutral-600 font-medium">Selected Packaging:</span>
+                  <span className="font-bold text-neutral-900">{selectedPackaging.name} (+{formatPrice(selectedPackaging.priceUSD, currentCurrency)})</span>
+                </div>
 
                 <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-neutral-800 font-serif italic text-xs space-y-1">
                   <div className="font-bold text-[10px] font-sans not-italic text-amber-900 uppercase">
@@ -541,12 +578,16 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
                   <span>{formatPrice(customOutfit.price, currentCurrency)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Accessories ({selectedAccessoryProducts.length})</span>
+                  <span>Accessories ({selectedAccessoryProducts.length} × 15,000 TZS)</span>
                   <span>+{formatPrice(accessoriesTotal, currentCurrency)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Luxury Box & French Satin Ribbon</span>
+                  <span>{selectedPackaging.name} Packaging</span>
                   <span>+{formatPrice(giftBoxPackagingFee, currentCurrency)}</span>
+                </div>
+                <div className="flex justify-between text-neutral-500">
+                  <span>Calligraphy Note Card</span>
+                  <span className="text-emerald-700 font-bold uppercase text-[10px]">Free</span>
                 </div>
                 <div className="flex justify-between text-base font-extrabold text-neutral-900 pt-2 border-t border-neutral-200">
                   <span>Complete Bundle Total:</span>
