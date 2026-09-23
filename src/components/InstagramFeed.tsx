@@ -224,7 +224,7 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
         {/* Lookbook Gallery Section Header & Filter Pills */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-amber-800 mb-1">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#C23B1C] mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Direct from the Runway & Lookbook</span>
             </div>
@@ -310,24 +310,24 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
                   </span>
                   
                   {post.isReel && (
-                    <div className="p-1.5 rounded-full bg-neutral-950/70 backdrop-blur-md text-amber-400 border border-white/20">
-                      <Play className="w-3 h-3 fill-amber-400" />
+                    <div className="p-1.5 rounded-full bg-neutral-950/70 backdrop-blur-md text-[#FF8566] border border-white/20">
+                      <Play className="w-3 h-3 fill-[#FF8566]" />
                     </div>
                   )}
                 </div>
 
                 {/* Bottom Permanent Bar (Visible on Mobile & Desktop) */}
                 <div className="relative z-10 p-3 bg-gradient-to-t from-neutral-950/90 via-neutral-950/60 to-transparent pt-8 text-white transition-opacity duration-300">
-                  <h4 className="text-xs font-bold text-white line-clamp-1 group-hover:text-amber-300 transition-colors">
+                  <h4 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#FFA085] transition-colors">
                     {post.title}
                   </h4>
                   
                   {matchedProduct ? (
                     <div className="flex items-center justify-between text-[11px] mt-1">
-                      <span className="font-extrabold text-amber-300">
+                      <span className="font-extrabold text-[#FFA085]">
                         {formatPrice(matchedProduct.price, currentCurrency)}
                       </span>
-                      <span className="flex items-center gap-1 text-[10px] font-bold text-white/90 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-md group-hover:bg-amber-400 group-hover:text-neutral-950 transition-colors">
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-white/90 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-md group-hover:bg-[#F06543] group-hover:text-white transition-colors">
                         <ShoppingBag className="w-2.5 h-2.5" />
                         <span>Shop Look</span>
                       </span>
@@ -343,7 +343,7 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
                 {/* Hover Deep Overlay Details */}
                 <div className="absolute inset-0 bg-neutral-950/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-between z-20">
                   <div>
-                    <span className="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] font-extrabold text-[#FFA085] uppercase tracking-wider block mb-1">
                       {post.tag}
                     </span>
                     <h4 className="text-xs font-bold text-white font-display line-clamp-2">
@@ -371,7 +371,7 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
                           e.stopPropagation();
                           onSelectProduct(matchedProduct);
                         }}
-                        className="w-full py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                        className="w-full py-2 px-3 rounded-xl bg-[#F06543] hover:bg-[#DE5332] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
                         <span>View Piece • {formatPrice(matchedProduct.price, currentCurrency)}</span>
@@ -386,7 +386,7 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
         </div>
 
         {/* Lookbook Footer Note */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-xs text-neutral-700">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#FFF2EF]/80 border border-[#F06543]/20 text-xs text-neutral-700">
           <div className="flex items-center gap-2 text-center sm:text-left">
             <span className="text-base">✨</span>
             <span>
@@ -397,7 +397,7 @@ export const InstagramFeed: React.FC<InstagramFeedProps> = ({
             href="https://www.instagram.com/rare.bykidspro/"
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 text-amber-800 hover:text-amber-950 font-bold inline-flex items-center gap-1"
+            className="shrink-0 text-[#C23B1C] hover:text-[#9C2810] font-bold inline-flex items-center gap-1"
           >
             <span>Visit @rare.bykidspro</span>
             <ExternalLink className="w-3 h-3" />

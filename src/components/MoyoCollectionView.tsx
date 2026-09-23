@@ -30,8 +30,7 @@ export const MoyoCollectionView: React.FC<MoyoCollectionViewProps> = ({
   const moyoProducts = products.filter((p) => 
     p.category === 'moyo' ||
     p.collectionType === 'moyo' ||
-    p.collection === 'moyo' ||
-    (p.isLiveSanity && (p.category === 'moyo' || p.collectionType === 'moyo'))
+    p.collection === 'moyo'
   );
 
   return (

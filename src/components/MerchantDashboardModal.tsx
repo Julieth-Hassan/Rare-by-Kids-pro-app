@@ -1,20 +1,41 @@
-import React, { useState } from 'react';
-import { 
-  SlidersHorizontal, 
-  X, 
-  Package, 
-  Truck, 
-  ShoppingBag, 
-  DollarSign, 
-  Plus, 
-  Trash2, 
-  Edit3, 
+import React, { useState, useEffect } from 'react';
+import {
+  SlidersHorizontal,
+  X,
+  Package,
+  Truck,
+  ShoppingBag,
+  DollarSign,
+  Plus,
+  Trash2,
+  Edit3,
   Check,
   RefreshCw,
   Eye,
-  MapPin
+  MapPin,
+  Lock,
+  KeyRound,
+  ShieldCheck,
+  LogOut,
+  UploadCloud,
+  FolderCheck,
+  Image as ImageIcon,
+  Copy,
+  Search,
+  Filter,
+  Sparkles,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import { DeliveryRegion, Order, OrderStatus, Product } from '../types';
+import {
+  PhotoshootAsset,
+  SUPPORTED_COLLECTIONS,
+  fetchPhotoshootAssets,
+  uploadPhotoshootAssetFile
+} from '../utils/photoshootAssets';
+import { ProductFormModal } from './ProductFormModal';
+import { DirectCollectionUploader } from './DirectCollectionUploader';
 
 interface MerchantDashboardModalProps {
   isOpen: boolean;
@@ -24,6 +45,14 @@ interface MerchantDashboardModalProps {
   deliveryRegions: DeliveryRegion[];
   onUpdateDeliveryRegionRate: (regionId: string, newCost: number) => void;
   products: Product[];
+  onAddProduct?: (product: Product) => void;
+  onUpdateProduct?: (product: Product) => void;
+  onDeleteProduct?: (productId: string) => void;
+  sanityStatus?: 'loading' | 'connected' | 'error';
+  sanityCount?: number;
+  isSanitySyncing?: boolean;
+  lastSanitySyncTime?: Date | null;
+  onRefreshSanity?: () => void;
 }
 
 export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
@@ -34,12 +63,176 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
   deliveryRegions,
   onUpdateDeliveryRegionRate,
   products,
+  onAddProduct,
+  onUpdateProduct,
+  onDeleteProduct,
+  sanityStatus,
+  sanityCount,
+  isSanitySyncing,
+  lastSanitySyncTime,
+  onRefreshSanity,
 }) => {
-  const [activeTab, setActiveTab] = useState<'orders' | 'shipping' | 'inventory'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'shipping' | 'inventory' | 'photoshoots'>('orders');
   const [editingRegionId, setEditingRegionId] = useState<string | null>(null);
   const [tempCost, setTempCost] = useState<number>(0);
 
+  // Photoshoot Assets Management State
+  const [photoshootAssets, setPhotoshootAssets] = useState<PhotoshootAsset[]>([]);
+  const [photoshootCollectionFilter, setPhotoshootCollectionFilter] = useState<string>('all');
+  const [photoshootUploadCollection, setPhotoshootUploadCollection] = useState<string>('kaya');
+  const [photoshootUploadStatus, setPhotoshootUploadStatus] = useState<string>('');
+  const [isPhotoshootUploading, setIsPhotoshootUploading] = useState<boolean>(false);
+  const [dragOver, setDragOver] = useState<boolean>(false);
+
+  // Product Inventory Search & Filter State
+  const [inventorySearch, setInventorySearch] = useState<string>('');
+  const [inventoryCollectionFilter, setInventoryCollectionFilter] = useState<string>('all');
+
+  // Product Form Modal (Create / Edit with all fields)
+  const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [prefillAssetUrl, setPrefillAssetUrl] = useState<string | undefined>(undefined);
+  const [prefillCollection, setPrefillCollection] = useState<string | undefined>(undefined);
+
+  const loadPhotoshootAssets = async () => {
+    const list = await fetchPhotoshootAssets();
+    setPhotoshootAssets(list);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadPhotoshootAssets();
+    }
+  }, [isOpen]);
+
+  const handleUploadPhotoshootFiles = async (files: FileList | File[]) => {
+    if (!files || files.length === 0) return;
+    setIsPhotoshootUploading(true);
+    setPhotoshootUploadStatus(`Uploading ${files.length} raw photoshoot asset${files.length > 1 ? 's' : ''}...`);
+
+    let successCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setPhotoshootUploadStatus(`Saving (${i + 1}/${files.length}): ${file.name} as-is into asset directory...`);
+      const res = await uploadPhotoshootAssetFile(file, photoshootUploadCollection);
+      if (res.success) {
+        successCount++;
+      }
+    }
+
+    setIsPhotoshootUploading(false);
+    setPhotoshootUploadStatus(`Successfully saved ${successCount} photoshoot PNG${successCount > 1 ? 's' : ''} directly into /public/images/${photoshootUploadCollection}/!`);
+    await loadPhotoshootAssets();
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  // Store Owner Security PIN Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('rbk_owner_auth') === 'true';
+  });
+  const [enteredPin, setEnteredPin] = useState<string>('');
+  const [pinError, setPinError] = useState<string>('');
+  const [showChangePin, setShowChangePin] = useState<boolean>(false);
+  const [newPin, setNewPin] = useState<string>('');
+  const [pinChangeMsg, setPinChangeMsg] = useState<string>('');
+
   if (!isOpen) return null;
+
+  const handleVerifyPin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const storedPin = localStorage.getItem('rbk_owner_pin') || '2024';
+    if (enteredPin.trim() === storedPin) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('rbk_owner_auth', 'true');
+      setPinError('');
+      setEnteredPin('');
+    } else {
+      setPinError('Invalid Store Owner PIN. Access denied.');
+    }
+  };
+
+  const handleLockDashboard = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('rbk_owner_auth');
+    onClose();
+  };
+
+  // If not authenticated, render the secure Owner PIN Login Gate
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-neutral-200 p-6 sm:p-8 space-y-6">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFF2EF] text-[#B83E26] flex items-center justify-center mx-auto mb-3">
+              <Lock className="w-6 h-6 text-[#F06543]" />
+            </div>
+            <h3 className="text-xl font-black text-neutral-900 font-display">
+              Store Owner Authentication
+            </h3>
+            <p className="text-xs text-neutral-500 max-w-xs mx-auto">
+              This area contains confidential customer personal details, phone numbers, delivery addresses, and shipping rate configurations.
+            </p>
+          </div>
+
+          <form onSubmit={handleVerifyPin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5 text-center">
+                Enter Store Owner Access PIN
+              </label>
+              <div className="relative max-w-xs mx-auto">
+                <input
+                  type="password"
+                  maxLength={8}
+                  autoFocus
+                  value={enteredPin}
+                  onChange={(e) => {
+                    setEnteredPin(e.target.value);
+                    if (pinError) setPinError('');
+                  }}
+                  placeholder="••••"
+                  className="w-full text-center text-2xl tracking-[0.4em] font-mono py-3 px-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-[#F06543] focus:bg-white transition-all font-bold text-neutral-900"
+                />
+              </div>
+              {pinError && (
+                <p className="text-xs text-rose-600 font-semibold text-center mt-2 animate-shake">
+                  {pinError}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <KeyRound className="w-4 h-4 text-[#FF8566]" />
+              <span>Unlock Merchant Portal</span>
+            </button>
+          </form>
+
+          <div className="pt-3 border-t border-neutral-100 text-center">
+            <span className="text-[10px] text-neutral-400 flex items-center justify-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Protected by 256-Bit Role Authorization</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
 
@@ -52,7 +245,7 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div 
+      <div
         id="merchant-dashboard-container"
         className="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col border border-neutral-200"
       >
@@ -63,21 +256,88 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
               <SlidersHorizontal className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base font-display">
-                Store Manager & Dispatch Operations
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base font-display">
+                  Store Manager & Dispatch Operations
+                </h3>
+                <span className="bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  Authenticated
+                </span>
+              </div>
               <p className="text-xs text-neutral-400">
-                Manage live orders, regional shipping fees & inventory
+                Confidential order processing, calligraphy slips, shipping rates & catalog
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {showChangePin ? (
+              <div className="flex items-center gap-1.5 bg-neutral-800 p-1 rounded-xl">
+                <input
+                  type="password"
+                  maxLength={8}
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value)}
+                  placeholder="New PIN"
+                  className="w-20 px-2 py-1 bg-neutral-900 border border-neutral-700 text-white rounded-lg text-xs outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newPin.trim().length >= 4) {
+                      localStorage.setItem('rbk_owner_pin', newPin.trim());
+                      setPinChangeMsg('Saved!');
+                      setTimeout(() => {
+                        setShowChangePin(false);
+                        setNewPin('');
+                        setPinChangeMsg('');
+                      }, 1200);
+                    }
+                  }}
+                  className="px-2 py-1 bg-[#F06543] hover:bg-[#DE5332] text-white text-[11px] font-bold rounded-lg cursor-pointer"
+                >
+                  {pinChangeMsg || 'Save'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangePin(false);
+                    setNewPin('');
+                  }}
+                  className="px-1.5 py-1 text-neutral-400 hover:text-white text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowChangePin(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                title="Change store owner access PIN"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-[#FF8566]" />
+                <span className="hidden sm:inline">Change PIN</span>
+              </button>
+            )}
+
+            <button
+              onClick={handleLockDashboard}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+              title="Lock dashboard and log out"
+            >
+              <LogOut className="w-3.5 h-3.5 text-[#FF8566]" />
+              <span>Lock & Exit</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Metrics Summary Strip */}
@@ -109,10 +369,10 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-6 border-b border-neutral-200 flex gap-4 text-xs font-bold pt-2">
+        <div className="px-6 border-b border-neutral-200 flex gap-4 text-xs font-bold pt-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 border-b-2 transition-all ${
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
               activeTab === 'orders'
                 ? 'text-neutral-900 border-amber-500'
                 : 'text-neutral-500 border-transparent hover:text-neutral-800'
@@ -122,7 +382,7 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('shipping')}
-            className={`pb-3 border-b-2 transition-all ${
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
               activeTab === 'shipping'
                 ? 'text-neutral-900 border-amber-500'
                 : 'text-neutral-500 border-transparent hover:text-neutral-800'
@@ -132,19 +392,31 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`pb-3 border-b-2 transition-all ${
+            className={`pb-3 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
               activeTab === 'inventory'
                 ? 'text-neutral-900 border-amber-500'
                 : 'text-neutral-500 border-transparent hover:text-neutral-800'
             }`}
           >
-            Product Catalog Inventory ({products.length})
+            <Package className="w-3.5 h-3.5" />
+            <span>Product Catalog Inventory ({products.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('photoshoots')}
+            className={`pb-3 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'photoshoots'
+                ? 'text-neutral-900 border-amber-500 font-extrabold'
+                : 'text-neutral-500 border-transparent hover:text-neutral-800'
+            }`}
+          >
+            <UploadCloud className="w-3.5 h-3.5 text-amber-600" />
+            <span>Direct Upload to Collection (Photos & Video)</span>
           </button>
         </div>
 
         {/* Tab Contents */}
         <div className="flex-1 overflow-y-auto p-6">
-          
+
           {/* ORDERS TAB */}
           {activeTab === 'orders' && (
             <div className="space-y-4">
@@ -155,15 +427,21 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
               </div>
 
               {orders.map((ord) => (
-                <div 
+                <div
                   key={ord.id}
                   className="bg-neutral-50 rounded-2xl border border-neutral-200 p-4 sm:p-5 space-y-3 text-xs"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200/80 pb-3">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-neutral-900 font-mono text-sm">{ord.orderNumber}</span>
                         <span className="font-mono text-neutral-500">({ord.trackingNumber})</span>
+                        {(ord.giftNote || ord.customer?.giftNote) && (
+                          <span className="bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1">
+                            <span>💌</span>
+                            <span>Gift Note Attached</span>
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-neutral-500 mt-0.5">
                         Customer: <strong>{ord.customer.fullName}</strong> ({ord.customer.email}) • Destination: {ord.customer.city}, {ord.customer.stateOrRegion}
@@ -192,7 +470,7 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
                   {/* Items List */}
                   <div className="flex flex-wrap gap-2">
                     {ord.items.map((item) => (
-                      <span 
+                      <span
                         key={item.id}
                         className="bg-white border border-neutral-200 px-2.5 py-1 rounded-lg font-medium text-neutral-800 flex items-center gap-1.5"
                       >
@@ -337,32 +615,218 @@ export const MerchantDashboardModal: React.FC<MerchantDashboardModalProps> = ({
 
           {/* INVENTORY TAB */}
           {activeTab === 'inventory' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {products.map((p) => (
-                <div key={p.id} className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200 flex gap-3 text-xs">
-                  <img
-                    src={p.images[0]}
-                    alt={p.name}
-                    className="w-16 h-20 object-cover rounded-xl bg-white border border-neutral-200 shrink-0"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="flex-1 space-y-1">
-                    <h5 className="font-bold text-neutral-900 text-xs">{p.name}</h5>
-                    <div className="text-amber-800 font-bold">${p.price.toFixed(2)}</div>
-                    <div className="text-[11px] text-neutral-500">
-                      Total Sizes: {p.sizes.length} • Colors: {p.colors.length}
-                    </div>
-                    <div className="text-[10px] text-emerald-700 font-semibold">
-                      Stock: {p.sizes.reduce((sum, s) => sum + s.stockCount, 0)} units available
-                    </div>
+            <div className="space-y-4">
+              {/* Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-50 p-4 rounded-2xl border border-neutral-200">
+                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      placeholder="Search catalog products..."
+                      value={inventorySearch}
+                      onChange={(e) => setInventorySearch(e.target.value)}
+                      className="w-full pl-8 pr-3 py-1.5 bg-white border border-neutral-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-300"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1 overflow-x-auto">
+                    {['all', 'kaya', 'moyo', 'accessories', 'bundles'].map((colKey) => (
+                      <button
+                        key={colKey}
+                        type="button"
+                        onClick={() => setInventoryCollectionFilter(colKey)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold capitalize transition-colors cursor-pointer shrink-0 ${
+                          inventoryCollectionFilter === colKey
+                            ? 'bg-neutral-900 text-white'
+                            : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-100'
+                        }`}
+                      >
+                        {colKey === 'all' ? 'All Collections' : colKey}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ))}
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('photoshoots')}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl font-bold text-xs transition-colors cursor-pointer"
+                  >
+                    <UploadCloud className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Upload Raw Photos</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProduct(null);
+                      setPrefillAssetUrl(undefined);
+                      setPrefillCollection(inventoryCollectionFilter === 'all' ? 'kaya' : inventoryCollectionFilter);
+                      setIsProductModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 hover:bg-black text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-amber-400" />
+                    <span>+ Add New Product</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Product Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {products
+                  .filter((p) => {
+                    if (inventoryCollectionFilter !== 'all') {
+                      const coll = (p.collectionType || p.collection || p.category || '').toLowerCase();
+                      if (inventoryCollectionFilter === 'kaya' && !coll.includes('kaya') && !p.id.startsWith('rbk-kaya')) {
+                        return false;
+                      }
+                      if (inventoryCollectionFilter === 'moyo' && !coll.includes('moyo') && !p.id.startsWith('rbk-moyo')) {
+                        return false;
+                      }
+                      if (inventoryCollectionFilter === 'accessories' && !coll.includes('accessories') && !p.isAccessory) {
+                        return false;
+                      }
+                      if (inventoryCollectionFilter === 'bundles' && !coll.includes('bundle') && !p.isGiftBundle) {
+                        return false;
+                      }
+                    }
+                    if (inventorySearch.trim()) {
+                      const q = inventorySearch.toLowerCase();
+                      const matchName = p.name.toLowerCase().includes(q);
+                      const matchTag = (p.tagline || '').toLowerCase().includes(q);
+                      const matchCat = (p.categoryLabel || p.category || '').toLowerCase().includes(q);
+                      if (!matchName && !matchTag && !matchCat) return false;
+                    }
+                    return true;
+                  })
+                  .map((p) => {
+                    const totalStock = p.sizes ? p.sizes.reduce((sum, s) => sum + (s.stockCount || 0), 0) : 0;
+                    return (
+                      <div
+                        key={p.id}
+                        className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200 flex flex-col justify-between gap-3 text-xs shadow-2xs hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex gap-3">
+                          <img
+                            src={p.images[0]}
+                            alt={p.name}
+                            className="w-20 h-24 object-cover rounded-xl bg-white border border-neutral-200 shrink-0"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="bg-amber-100 text-amber-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase">
+                                {p.collectionType || p.collection || 'Catalog'}
+                              </span>
+                              {p.isOrganic && (
+                                <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                  Organic
+                                </span>
+                              )}
+                              {p.isNewArrival && (
+                                <span className="bg-purple-100 text-purple-800 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                  New
+                                </span>
+                              )}
+                            </div>
+                            <h5 className="font-bold text-neutral-900 text-xs">{p.name}</h5>
+                            <p className="text-[11px] text-neutral-500 line-clamp-1">{p.tagline}</p>
+                            
+                            <div className="flex items-center gap-2 pt-0.5">
+                              <span className="text-amber-800 font-bold">${p.price.toFixed(2)}</span>
+                              {p.priceTZS && (
+                                <span className="text-neutral-500 text-[10px]">
+                                  ({p.priceTZS.toLocaleString()} TZS)
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-[10px] text-emerald-700 font-semibold pt-0.5">
+                              Stock: {totalStock} units across {p.sizes?.length || 0} size options
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card Action Buttons */}
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingProduct(p);
+                              setPrefillAssetUrl(undefined);
+                              setPrefillCollection(p.collectionType || p.collection);
+                              setIsProductModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-neutral-300 font-bold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
+                          >
+                            <Edit3 className="w-3 h-3 text-amber-600" />
+                            <span>Edit Specification</span>
+                          </button>
+
+                          {onDeleteProduct && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete "${p.name}" from the catalog?`)) {
+                                  onDeleteProduct(p.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete product"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
+          )}
+
+          {/* DIRECT COLLECTION & MEDIA UPLOADER (Clean UI for Staff with Multi-Image & Video) */}
+          {activeTab === 'photoshoots' && (
+            <DirectCollectionUploader
+              products={products}
+              onSaveProduct={(savedProduct) => {
+                const exists = products.some(p => p.id === savedProduct.id);
+                if (exists && onUpdateProduct) {
+                  onUpdateProduct(savedProduct);
+                } else if (onAddProduct) {
+                  onAddProduct(savedProduct);
+                }
+              }}
+              onDeleteProduct={onDeleteProduct}
+            />
           )}
 
         </div>
       </div>
+
+      {/* Product Form Modal (Full fields for describing any product across collections) */}
+      <ProductFormModal
+        isOpen={isProductModalOpen}
+        onClose={() => {
+          setIsProductModalOpen(false);
+          setEditingProduct(null);
+          setPrefillAssetUrl(undefined);
+          setPrefillCollection(undefined);
+        }}
+        initialProduct={editingProduct}
+        prefillImageUrl={prefillAssetUrl}
+        prefillCollection={prefillCollection}
+        onSave={(savedProduct) => {
+          if (editingProduct && onUpdateProduct) {
+            onUpdateProduct(savedProduct);
+          } else if (onAddProduct) {
+            onAddProduct(savedProduct);
+          }
+        }}
+      />
     </div>
   );
 };

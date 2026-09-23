@@ -17,12 +17,14 @@ interface FooterProps {
   onSelectCategory: (cat: string) => void;
   onOpenTracker: () => void;
   onOpenStylist: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onSelectCategory,
   onOpenTracker,
   onOpenStylist,
+  onOpenAdmin,
 }) => {
   return (
     <footer className="bg-neutral-950 text-neutral-300 border-t border-neutral-800">
@@ -63,40 +65,51 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <div className="text-[11px] text-neutral-400 flex items-center gap-1.5 pt-1">
-              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#FF8566] shrink-0" />
               <span>Sinza Bamaga, Dar es Salaam, Tanzania</span>
             </div>
           </div>
 
-          {/* Quick Categories */}
+          {/* Collections */}
           <div className="space-y-3 text-xs">
-            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-amber-400">
+            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-[#FF8566]">
               Collections
             </h4>
             <ul className="space-y-2">
               <li>
-                <button onClick={() => onSelectCategory('sets')} className="hover:text-amber-300 transition-colors">
-                  Two-Piece Waffle Sets
+                <button
+                  id="footer-collection-moyo"
+                  onClick={() => onSelectCategory('moyo')}
+                  className="hover:text-[#FFA085] transition-colors text-left cursor-pointer"
+                >
+                  Moyo
                 </button>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('occasion')} className="hover:text-amber-300 transition-colors">
-                  Occasion & Twirl Dresses
+                <button
+                  id="footer-collection-kaya"
+                  onClick={() => onSelectCategory('kaya')}
+                  className="hover:text-[#FFA085] transition-colors text-left cursor-pointer"
+                >
+                  Kaya
                 </button>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('streetwear')} className="hover:text-amber-300 transition-colors">
-                  Urban Denim & Streetwear
+                <button
+                  id="footer-collection-gift-bundles"
+                  onClick={() => onSelectCategory('gift-bundles')}
+                  className="hover:text-[#FFA085] transition-colors text-left cursor-pointer"
+                >
+                  Gift Bundles
                 </button>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('baby')} className="hover:text-amber-300 transition-colors">
-                  Baby & Newborn Essentials
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onSelectCategory('accessories')} className="hover:text-amber-300 transition-colors">
-                  Shoes & Summer Accessories
+                <button
+                  id="footer-collection-accessories"
+                  onClick={() => onSelectCategory('accessories')}
+                  className="hover:text-[#FFA085] transition-colors text-left cursor-pointer"
+                >
+                  Accessories
                 </button>
               </li>
             </ul>
@@ -104,20 +117,21 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Shipping & Delivery Info */}
           <div className="space-y-3 text-xs">
-            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-amber-400">
+            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-[#FF8566]">
               Shipping & Regions
             </h4>
             <ul className="space-y-2 text-neutral-400">
               <li>
-                <button onClick={onOpenTracker} className="text-white hover:text-amber-300 font-semibold flex items-center gap-1">
-                  <Truck className="w-3.5 h-3.5 text-amber-400" />
+                <button onClick={onOpenTracker} className="text-white hover:text-[#FFA085] font-semibold flex items-center gap-1">
+                  <Truck className="w-3.5 h-3.5 text-[#FF8566]" />
                   <span>Track Active Shipment</span>
                 </button>
               </li>
               <li>Dar es Salaam via Bolt (Same-Day / Express)</li>
               <li>Pickup Option at the Shop (Free Store Collection)</li>
-              <li>Tanzania Upcountry & Zanzibar: 1-2 Days</li>
-              <li>East Africa Community (EAC): 2-3 Days</li>
+              <li>Tanzania Mikoani: All regions (by Bus • 1-2 Days)</li>
+              <li>Zanzibar: Unguja & Pemba (by Boat • 1-2 Days)</li>
+              <li>East Africa Community (EAC) (by Bus • 2-3 Days)</li>
               <li>UK / EU / USA / Worldwide Priority: 3-5 Days</li>
               <li>Signature Handcrafted Finishing on All Orders</li>
             </ul>
@@ -125,22 +139,21 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Customer Care & Location */}
           <div className="space-y-3 text-xs">
-            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-amber-400">
+            <h4 className="font-bold text-white uppercase tracking-wider text-[11px] text-[#FF8566]">
               HQ & Concierge
             </h4>
             <ul className="space-y-2">
               <li className="flex items-start gap-1.5 text-neutral-300">
-                <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-[#FF8566] shrink-0 mt-0.5" />
                 <span>Dar es Salaam, Tanzania (Shipping Worldwide)</span>
               </li>
               <li>
-                <button onClick={onOpenStylist} className="hover:text-amber-300 transition-colors flex items-center gap-1 text-amber-200">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                <button onClick={onOpenStylist} className="hover:text-[#FFA085] transition-colors flex items-center gap-1 text-[#FFB3A3]">
+                  <Sparkles className="w-3 h-3 text-[#FF8566]" />
                   <span>AI Kids Size & Fit Advisor</span>
                 </button>
               </li>
               <li>100% GOTS Organic Cotton</li>
-              <li>Hassle-Free Exchanges & Global Priority</li>
             </ul>
           </div>
 
@@ -148,8 +161,18 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Legal & Payment Logos */}
         <div className="pt-8 mt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-          <div>
-            © {new Date().getFullYear()} Rare by KidsPro Boutique (@rare.bykidspro) • Dar es Salaam, Tanzania.
+          <div className="flex items-center gap-3">
+            <span>© {new Date().getFullYear()} Rare by KidsPro Boutique (@rare.bykidspro) • Dar es Salaam, Tanzania.</span>
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="text-neutral-700 hover:text-neutral-400 text-[10px] transition-colors inline-flex items-center gap-1 cursor-pointer"
+                title="Store Operations & Dispatch Portal (PIN Protected)"
+              >
+                <span>•</span>
+                <span>Staff Portal</span>
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-2.5 text-[11px] flex-wrap justify-center sm:justify-end">

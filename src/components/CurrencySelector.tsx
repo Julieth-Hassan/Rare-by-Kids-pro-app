@@ -6,12 +6,18 @@ interface CurrencySelectorProps {
   currentCurrency: string;
   onCurrencyChange: (code: string) => void;
   variant?: 'compact' | 'full' | 'banner';
+  detectedCountry?: string;
+  isAutoDetected?: boolean;
+  onResetToAutoLocation?: () => void;
 }
 
 export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   currentCurrency,
   onCurrencyChange,
   variant = 'compact',
+  detectedCountry,
+  isAutoDetected = false,
+  onResetToAutoLocation,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -56,14 +62,17 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-800/90 hover:bg-neutral-700 text-amber-300 hover:text-amber-200 text-xs font-semibold transition-colors border border-amber-500/30 cursor-pointer shadow-xs"
-          title="Change currency"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-800/90 hover:bg-neutral-700 text-amber-300 hover:text-amber-200 text-xs font-semibold transition-colors border border-amber-500/40 cursor-pointer shadow-xs"
+          title="Change store currency"
         >
-          <span>{selected.flag}</span>
+          <span className="text-amber-300 font-extrabold uppercase tracking-wider text-[10px]">
+            Currency:
+          </span>
+          <span className="text-sm">{selected.flag}</span>
           <span className="font-mono font-bold">{selected.code}</span>
-          <span className="text-neutral-400">({selected.symbol.trim()})</span>
+          <span className="text-neutral-400 text-[11px]">({selected.symbol.trim()})</span>
           {selected.isHomeCurrency && (
-            <span className="text-[9px] bg-amber-500/30 text-amber-300 px-1 rounded font-bold uppercase">
+            <span className="text-[9px] bg-amber-500/30 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase">
               Shop HQ
             </span>
           )}
@@ -71,15 +80,46 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-80 bg-white text-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 z-50 p-3 text-left animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute right-0 top-full mt-2 w-84 bg-white text-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 z-50 p-3 text-left animate-in fade-in zoom-in-95 duration-150">
             {/* Header info */}
             <div className="pb-2 mb-2 border-b border-neutral-100 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-900">
-                <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                <span>Shop HQ: Tanzania 🇹🇿</span>
+              <div>
+                <div className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Currency</span>
+                </div>
+                <p className="text-[10px] text-neutral-500">
+                  Prices auto-convert to your location • HQ: Tanzania 🇹🇿
+                </p>
               </div>
-              <span className="text-[10px] text-neutral-500 font-medium">Worldwide Shipping ✈️</span>
+              <span className="text-[10px] bg-neutral-100 px-2 py-0.5 rounded-md font-semibold text-neutral-600">
+                Live Rates
+              </span>
             </div>
+
+            {/* Auto-location banner if available */}
+            {detectedCountry && (
+              <div className="mb-2.5 p-2 rounded-xl bg-amber-50/90 border border-amber-200/80 flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-1.5 text-amber-950 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>
+                    Your Location: <strong>{detectedCountry}</strong> {isAutoDetected && <span className="text-emerald-700 font-bold">(Auto-Set)</span>}
+                  </span>
+                </div>
+                {!isAutoDetected && onResetToAutoLocation && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onResetToAutoLocation();
+                      setIsOpen(false);
+                    }}
+                    className="text-[10px] font-bold text-amber-800 hover:text-amber-950 underline ml-2 cursor-pointer"
+                  >
+                    Reset Auto
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Quick Pills */}
             <div className="flex flex-wrap gap-1 mb-2">
@@ -199,11 +239,15 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         id="currency-selector-dropdown-btn"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold transition-all border border-neutral-200 cursor-pointer shadow-2xs"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold transition-all border border-neutral-300 hover:border-neutral-400 cursor-pointer shadow-2xs"
         aria-label="Select currency"
+        title="Select shop display currency"
       >
+        <span className="text-xs font-black text-neutral-900 tracking-tight">
+          Currency:
+        </span>
         <span className="text-sm">{selected.flag}</span>
-        <span className="font-bold font-mono">{selected.code}</span>
+        <span className="font-bold font-mono text-neutral-900">{selected.code}</span>
         <span className="text-neutral-500 font-normal text-[11px] hidden sm:inline">
           ({selected.symbol.trim()})
         </span>
@@ -216,23 +260,47 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-neutral-200 z-50 p-3 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 top-full mt-2 w-84 bg-white rounded-2xl shadow-2xl border border-neutral-200 z-50 p-3 animate-in fade-in zoom-in-95 duration-150">
           
           {/* Header */}
           <div className="px-1 pb-2 mb-2 flex items-center justify-between border-b border-neutral-100">
             <div>
-              <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+              <div className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-amber-600" />
-                <span>Select Currency</span>
+                <span>Currency</span>
               </div>
               <p className="text-[10px] text-neutral-500 mt-0.5">
-                Shop based in Tanzania 🇹🇿 • Shipping Worldwide
+                Prices automatically convert based on your location • HQ: Tanzania 🇹🇿
               </p>
             </div>
             <span className="text-[10px] bg-neutral-100 px-2 py-0.5 rounded-md font-semibold text-neutral-600">
-              Live Converter
+              Live Rates
             </span>
           </div>
+
+          {/* Auto-location banner */}
+          {detectedCountry && (
+            <div className="mb-2.5 p-2 rounded-xl bg-amber-50/90 border border-amber-200/80 flex items-center justify-between text-[11px]">
+              <div className="flex items-center gap-1.5 text-amber-950 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>
+                  Your Location: <strong>{detectedCountry}</strong> {isAutoDetected && <span className="text-emerald-700 font-bold">(Auto-Set)</span>}
+                </span>
+              </div>
+              {!isAutoDetected && onResetToAutoLocation && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onResetToAutoLocation();
+                    setIsOpen(false);
+                  }}
+                  className="text-[10px] font-bold text-amber-800 hover:text-amber-950 underline ml-2 cursor-pointer"
+                >
+                  Reset Auto
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Quick Shortcuts */}
           <div className="mb-2">

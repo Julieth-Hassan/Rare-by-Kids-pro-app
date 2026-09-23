@@ -55,7 +55,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       return p.category === 'toddler' || p.id === 'rbk-savanna-01' || p.id.startsWith('rbk-moyo');
     }
     if (activeCollection.id === 'col-kaya-vol-1') {
-      return p.category === 'boys' || p.id === 'rbk-kaya-01' || p.id === 'rbk-005';
+      return p.category === 'kaya' || p.collection === 'kaya' || p.collectionType === 'kaya' || p.id.startsWith('rbk-kaya') || p.category === 'boys';
     }
     if (activeCollection.id === 'col-waffle-resort') {
       return p.category === 'sets' || p.id === 'rbk-001' || p.id === 'rbk-008';
@@ -199,7 +199,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               product={product}
               currentCurrency={currentCurrency}
               onSelectProduct={onSelectProduct}
-              onQuickAdd={onQuickAdd}
+              onQuickAdd={(p, sz) => onQuickAdd(p, sz, p.colors?.[0] || { name: 'Artisan Yellow', hex: '#E5A93C' })}
               isWishlisted={wishlistIds.includes(product.id)}
               onToggleWishlist={onToggleWishlist}
             />

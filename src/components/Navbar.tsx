@@ -33,6 +33,9 @@ interface NavbarProps {
   savedWishlistCount: number;
   currentCurrency: string;
   onCurrencyChange: (code: string) => void;
+  detectedCountry?: string;
+  isAutoDetected?: boolean;
+  onResetToAutoLocation?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -49,6 +52,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   currentCurrency,
   onCurrencyChange,
+  detectedCountry,
+  isAutoDetected,
+  onResetToAutoLocation,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -149,11 +155,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onSelectView('gift-bundles')}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 isBundles
-                  ? 'bg-amber-500 text-neutral-950 font-extrabold shadow-sm'
-                  : 'text-neutral-700 hover:text-neutral-950 hover:bg-amber-50 hover:text-amber-900'
+                  ? 'bg-[#F06543] text-white font-extrabold shadow-sm'
+                  : 'text-neutral-700 hover:text-neutral-950 hover:bg-[#FFF2EF] hover:text-[#C23B1C]'
               }`}
             >
-              <Gift className="w-3.5 h-3.5 text-amber-600" />
+              <Gift className="w-3.5 h-3.5 text-[#F06543]" />
               <span>Gift Bundles</span>
             </button>
 
@@ -167,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100'
               }`}
             >
-              <Crown className="w-3.5 h-3.5 text-amber-500" />
+              <Crown className="w-3.5 h-3.5 text-[#F06543]" />
               <span>Accessories</span>
             </button>
           </nav>
@@ -186,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }
                 }}
                 placeholder="Search garments, headbands, bundles..."
-                className="w-full pl-9 pr-4 py-2 bg-neutral-100 hover:bg-neutral-50 focus:bg-white text-xs rounded-full border border-transparent focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all placeholder:text-neutral-400"
+                className="w-full pl-9 pr-4 py-2 bg-neutral-100 hover:bg-neutral-50 focus:bg-white text-xs rounded-full border border-transparent focus:border-[#F06543] focus:ring-2 focus:ring-[#FFF2EF] outline-none transition-all placeholder:text-neutral-400"
               />
               <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
               {searchQuery && (
@@ -208,6 +214,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <CurrencySelector
                 currentCurrency={currentCurrency}
                 onCurrencyChange={onCurrencyChange}
+                detectedCountry={detectedCountry}
+                isAutoDetected={isAutoDetected}
+                onResetToAutoLocation={onResetToAutoLocation}
                 variant="compact"
               />
             </div>
@@ -216,10 +225,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="header-ai-stylist-btn"
               onClick={onOpenStylist}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/80 hover:bg-amber-100 transition-colors shadow-2xs cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FFF2EF] text-[#B83E26] border border-[#F06543]/30 hover:bg-[#FFE5DF] transition-colors shadow-2xs cursor-pointer"
               title="Get personalized styling and size recommendations"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+              <Sparkles className="w-3.5 h-3.5 text-[#F06543] animate-pulse" />
               <span className="hidden xl:inline">AI</span> Stylist
             </button>
 
@@ -229,32 +238,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onOpenTracker()}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-neutral-800 transition-colors shadow-2xs cursor-pointer"
             >
-              <PackageCheck className="w-3.5 h-3.5 text-amber-400" />
+              <PackageCheck className="w-3.5 h-3.5 text-[#FF8566]" />
               <span className="hidden sm:inline">Track</span>
-            </button>
-
-            {/* Merchant Dashboard Access */}
-            <button
-              id="header-store-manager-btn"
-              onClick={onOpenAdmin}
-              className="hidden xl:inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 p-1.5 rounded-lg hover:bg-neutral-100 cursor-pointer"
-              title="Sanity Database & Merchant Portal"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
             </button>
 
             {/* Shopping Bag Button with Badge */}
             <button
               id="header-cart-drawer-toggle"
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-transform active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
+              className="relative p-2.5 rounded-full bg-[#F06543] text-white hover:bg-[#DE5332] transition-transform active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
               aria-label="View shopping bag"
             >
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
                 <span 
                   id="cart-badge-count"
-                  className="absolute -top-1 -right-1 bg-neutral-950 text-amber-300 text-[11px] font-black h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center border-2 border-white shadow-xs"
+                  className="absolute -top-1 -right-1 bg-neutral-950 text-[#FF8566] text-[11px] font-black h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center border-2 border-white shadow-xs"
                 >
                   {cartCount}
                 </span>
@@ -275,7 +274,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 if (!isHome) onSelectView('home');
               }}
               placeholder="Search clothes, headbands, gift sets..."
-              className="w-full pl-9 pr-4 py-2 bg-neutral-100 text-xs rounded-full border border-transparent focus:border-amber-400 outline-none"
+              className="w-full pl-9 pr-4 py-2 bg-neutral-100 text-xs rounded-full border border-transparent focus:border-[#F06543] outline-none"
             />
             <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
           </div>
@@ -353,7 +352,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
               }}
               className={`p-2.5 rounded-xl text-left text-xs font-bold ${
-                isBundles ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-900'
+                isBundles ? 'bg-[#F06543] text-white' : 'bg-[#FFF2EF] text-[#B83E26]'
               }`}
             >
               🎁 Gift Bundles
@@ -373,10 +372,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Currency Switcher in Mobile Drawer */}
           <div className="p-3 bg-neutral-50 rounded-2xl mb-3 flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-700">Display Currency:</span>
+            <div>
+              <span className="text-xs font-black text-neutral-900 block">Currency</span>
+              <span className="text-[10px] text-neutral-500">Auto-converts by location</span>
+            </div>
             <CurrencySelector
               currentCurrency={currentCurrency}
               onCurrencyChange={onCurrencyChange}
+              detectedCountry={detectedCountry}
+              isAutoDetected={isAutoDetected}
+              onResetToAutoLocation={onResetToAutoLocation}
               variant="compact"
             />
           </div>
@@ -387,13 +392,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onOpenStylist();
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center justify-between p-2.5 bg-amber-50 rounded-xl text-amber-950 text-xs font-bold"
+              className="flex items-center justify-between p-2.5 bg-[#FFF2EF] rounded-xl text-[#B83E26] text-xs font-bold"
             >
               <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-600" />
+                <Sparkles className="w-4 h-4 text-[#F06543]" />
                 Ask AI Kids Stylist & Size Advisor
               </span>
-              <span className="text-[10px] bg-amber-200 px-2 py-0.5 rounded text-amber-900">AI</span>
+              <span className="text-[10px] bg-[#F06543]/20 px-2 py-0.5 rounded text-[#B83E26]">AI</span>
             </button>
 
             <button
@@ -404,23 +409,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center justify-between p-2.5 bg-neutral-900 text-white rounded-xl text-xs font-bold"
             >
               <span className="flex items-center gap-2">
-                <PackageCheck className="w-4 h-4 text-amber-300" />
+                <PackageCheck className="w-4 h-4 text-[#FF8566]" />
                 Track Order & Regional Shipment
               </span>
               <span className="text-[10px] text-neutral-400">Live Status</span>
-            </button>
-
-            <button
-              onClick={() => {
-                onOpenAdmin();
-                setMobileMenuOpen(false);
-              }}
-              className="flex items-center justify-between p-2.5 bg-neutral-100 rounded-xl text-neutral-700 text-xs font-medium"
-            >
-              <span className="flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4" />
-                Sanity Database & Merchant Portal
-              </span>
             </button>
 
             <a

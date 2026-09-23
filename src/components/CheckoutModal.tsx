@@ -12,7 +12,9 @@ import {
   Copy,
   Check,
   Globe,
-  MapPin
+  MapPin,
+  Bus,
+  Ship
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CartItem, DeliveryRegion, Order, PromoCode, TrackingStep } from '../types';
@@ -56,6 +58,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [postalCode, setPostalCode] = useState('14111');
   const [deliveryNotes, setDeliveryNotes] = useState('Call on arrival, thank you.');
   const [deliverySpeed, setDeliverySpeed] = useState<'standard' | 'express'>('standard');
+
+  // Gift Card Note State
+  const bundleInCart = cartItems.find((i) => i.product.isGiftBundle || i.product.giftBoxDetails);
+  const [isGiftOrder, setIsGiftOrder] = useState(Boolean(bundleInCart));
+  const [giftNoteTo, setGiftNoteTo] = useState('Baby Liam & Parents');
+  const [giftNoteFrom, setGiftNoteFrom] = useState('Juliet Mwangi');
+  const [giftNoteMessage, setGiftNoteMessage] = useState(
+    'Congratulations on your new blessing! May your little one grow in health, love, and immense joy.'
+  );
+  const [giftBoxStyle, setGiftBoxStyle] = useState(
+    bundleInCart?.product.giftBoxDetails?.boxType || 'Royal Gold Keepsake Chest'
+  );
+  const [giftRibbonColor, setGiftRibbonColor] = useState(
+    bundleInCart?.product.giftBoxDetails?.ribbonColor || 'Champagne Gold Satin'
+  );
 
   // Payment Form: ONLY Mobile Money (Locals), Cards (International), PayPal (International)
   const [paymentMethod, setPaymentMethod] = useState<'mobile_money_tz' | 'card' | 'paypal'>('mobile_money_tz');
@@ -145,7 +162,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       {
         id: 'step-3',
         title: 'Artisanal Packaging & Quality Check',
-        description: 'Single-piece garments inspected, tagged, and boxed in signature boutique tissue wrap.',
+        description: isGiftOrder || bundleInCart
+          ? 'Single-piece garments inspected, packaged in signature keepsake gift box with personalized handwritten calligraphy card.'
+          : 'Single-piece garments inspected, tagged, and boxed in signature boutique tissue wrap.',
         location: 'Dar es Salaam Workshop',
         timestamp: 'In preparation',
         completed: false,
@@ -154,36 +173,41 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       {
         id: 'step-4',
         title: 'Handed to Courier Dispatch',
-        description: `Package assigned to ${selectedRegion.carrierName}.`,
+        description: `Package assigned to ${selectedRegion.carrierName}. Airway/Manifest generated.`,
         location: `${selectedRegion.name} Dispatch Unit`,
-        timestamp: 'Scheduled for next courier pickup',
+        timestamp: 'Scheduled for courier dispatch',
+        completed: false,
+        current: false,
+      },
+      {
+        id: 'step-5',
+        title: 'Out for Regional / Final Delivery',
+        description: `Dedicated courier assigned for delivery to ${city}, ${selectedRegion.stateOrCountry}.`,
+        location: 'In Transit — Local Delivery Zone',
+        timestamp: 'Scheduled',
+        completed: false,
+        current: false,
+      },
+      {
+        id: 'step-6',
+        title: 'Delivered & Signature Verification',
+        description: `Direct doorstep delivery and handover confirmation to ${fullName}.`,
+        location: `${streetAddress}, ${city}`,
+        timestamp: 'Pending delivery completion',
         completed: false,
         current: false,
       },
     ];
 
-    // Extract any personalized gift card note or packaging specifications
-    let extractedGiftNote: Order['giftNote'] = undefined;
-    const bundleItem = cartItems.find((i) => i.product.isGiftBundle || i.product.giftBoxDetails);
-    if (bundleItem) {
-      const desc = bundleItem.product.description || '';
-      let message = 'Wishing you and your little one immense blessings, joy, and good health!';
-      let to = fullName;
-      let from = fullName;
-      if (desc.includes('Note: "')) {
-        const parts = desc.split('Note: "');
-        if (parts[1]) {
-          const msgAndFrom = parts[1].split('" - ');
-          message = msgAndFrom[0] || message;
-          from = msgAndFrom[1]?.trim() || from;
-        }
-      }
-      extractedGiftNote = {
-        to,
-        message,
-        from,
-        boxStyle: bundleItem.product.giftBoxDetails?.boxType || 'Royal Keepsake Gift Box',
-        ribbonColor: bundleItem.product.giftBoxDetails?.ribbonColor || 'Champagne Satin',
+    // Construct personalized gift card note or packaging specifications
+    let orderGiftNote: Order['giftNote'] = undefined;
+    if (isGiftOrder || bundleInCart) {
+      orderGiftNote = {
+        to: giftNoteTo.trim() || fullName,
+        from: giftNoteFrom.trim() || fullName,
+        message: giftNoteMessage.trim() || 'Congratulations on your new blessing! May your little one grow in health, love, and immense joy.',
+        boxStyle: giftBoxStyle || 'Royal Gold Keepsake Chest',
+        ribbonColor: giftRibbonColor || 'Champagne Gold Satin',
       };
     }
 
@@ -205,9 +229,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         deliveryRegionId: selectedRegion.id,
         deliveryRegionName: selectedRegion.name,
         deliveryNotes,
-        giftNote: extractedGiftNote,
+        giftNote: orderGiftNote,
       },
-      giftNote: extractedGiftNote,
+      giftNote: orderGiftNote,
       items: [...cartItems],
       subtotal,
       deliveryCost: baseDeliveryFee,
@@ -243,7 +267,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrder),
+        body: JSON.stringify({
+          ...newOrder,
+          giftNote: orderGiftNote,
+        }),
       }).catch(() => {
         // Non-blocking background sync
       });
@@ -474,6 +501,42 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </div>
                   )}
 
+                  {(selectedRegion.id === 'reg-tz-mikoani' || selectedRegion.id === 'reg-tz-upcountry' || selectedRegion.name.toLowerCase().includes('mikoani')) && (
+                    <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl text-xs text-sky-950 flex items-start gap-2.5">
+                      <Bus className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Tanzania Mikoani — Carrier: By Bus</p>
+                        <p className="text-[11px] text-sky-800">
+                          Coverage: All Tanzania regions except Dar es Salaam (Arusha, Mwanza, Dodoma, Moshi, Mbeya, Morogoro, Tanga, etc.). Sent via reliable bus parcel service with station pick-up / delivery note.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(selectedRegion.id === 'reg-zanzibar' || selectedRegion.name.toLowerCase().includes('zanzibar')) && (
+                    <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-xl text-xs text-cyan-950 flex items-start gap-2.5">
+                      <Ship className="w-4 h-4 text-cyan-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Zanzibar — Carrier: By Boat</p>
+                        <p className="text-[11px] text-cyan-800">
+                          Coverage: Zanzibar (Unguja & Pemba Islands). Shipped by fast sea boat / ferry parcel service with collection at Malindi port or designated depot.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(selectedRegion.id === 'reg-east-africa' || selectedRegion.name.toLowerCase().includes('east africa')) && (
+                    <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-950 flex items-start gap-2.5">
+                      <Bus className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">East Africa Community (EAC) — Carrier: By Bus</p>
+                        <p className="text-[11px] text-indigo-800">
+                          Coverage: Kenya, Uganda, Rwanda, Burundi, South Sudan. Dispatched via cross-border regional coach / bus courier network.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Speed Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div 
@@ -661,6 +724,105 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       placeholder="e.g. Call when arriving at gate"
                       className="w-full text-xs p-2.5 bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
                     />
+                  </div>
+
+                  {/* Personalized Gift Card Note & Calligraphy Option */}
+                  <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={isGiftOrder}
+                          onChange={(e) => setIsGiftOrder(e.target.checked)}
+                          className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-400 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                          <span>💌</span>
+                          <span>Is this a Gift? Include Personalized Handwritten Calligraphy Card Note</span>
+                        </span>
+                      </label>
+                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                        Free
+                      </span>
+                    </div>
+
+                    {isGiftOrder && (
+                      <div className="space-y-3 pt-2 border-t border-amber-200/60 animate-in fade-in duration-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                              Recipient Name (To) *
+                            </label>
+                            <input
+                              type="text"
+                              value={giftNoteTo}
+                              onChange={(e) => setGiftNoteTo(e.target.value)}
+                              placeholder="e.g. Baby Liam & Parents"
+                              className="w-full text-xs p-2.5 bg-white border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                              Sender Name (From) *
+                            </label>
+                            <input
+                              type="text"
+                              value={giftNoteFrom}
+                              onChange={(e) => setGiftNoteFrom(e.target.value)}
+                              placeholder="e.g. Auntie Sarah & Uncle David"
+                              className="w-full text-xs p-2.5 bg-white border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                            Handwritten Message on Card *
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={giftNoteMessage}
+                            onChange={(e) => setGiftNoteMessage(e.target.value)}
+                            placeholder="Write your loving blessings or congratulations note here..."
+                            className="w-full text-xs p-2.5 bg-white border border-neutral-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-200 font-serif italic"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                          <div>
+                            <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">
+                              Gift Box Style
+                            </label>
+                            <select
+                              value={giftBoxStyle}
+                              onChange={(e) => setGiftBoxStyle(e.target.value)}
+                              className="w-full text-xs p-2 bg-white border border-neutral-200 rounded-xl outline-none font-medium text-neutral-800"
+                            >
+                              <option value="Royal Gold Keepsake Chest">✨ Royal Gold Keepsake Chest</option>
+                              <option value="Blush Rose Boutique Chest">🌸 Blush Rose Boutique Chest</option>
+                              <option value="Matte Onyx Executive Box">🖤 Matte Onyx Executive Box</option>
+                              <option value="Boutique Eco Kraft Box">🌿 Boutique Eco Kraft Box</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">
+                              Ribbon Tie Color
+                            </label>
+                            <select
+                              value={giftRibbonColor}
+                              onChange={(e) => setGiftRibbonColor(e.target.value)}
+                              className="w-full text-xs p-2 bg-white border border-neutral-200 rounded-xl outline-none font-medium text-neutral-800"
+                            >
+                              <option value="Champagne Gold Satin">Champagne Gold Satin</option>
+                              <option value="Rose Gold Shimmer">Rose Gold Shimmer</option>
+                              <option value="Midnight Navy Grosgrain">Midnight Navy Grosgrain</option>
+                              <option value="Natural Sage Cotton">Natural Sage Cotton</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -132,7 +132,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </p>
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs shadow-md transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-[#F06543] hover:bg-[#DE5332] text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
                 >
                   Start Shopping
                 </button>
@@ -253,7 +253,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <p className="text-[11px] font-bold text-neutral-900 truncate leading-tight">
                             {addon.name}
                           </p>
-                          <p className="text-[11px] font-extrabold text-amber-600 mt-0.5">
+                          <p className="text-[11px] font-extrabold text-[#C23B1C] mt-0.5">
                             {formatPrice(addon.price, currentCurrency)}
                           </p>
                         </div>
@@ -273,7 +273,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           {isAdded ? (
                             <Check className="w-3.5 h-3.5" />
                           ) : (
-                            <Plus className="w-3.5 h-3.5 text-amber-400" />
+                            <Plus className="w-3.5 h-3.5 text-[#FF8566]" />
                           )}
                         </button>
                       </div>
@@ -291,7 +291,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <label htmlFor="cart-region-select" className="font-bold text-neutral-800 flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5 text-amber-600" />
+                    <Truck className="w-3.5 h-3.5 text-[#F06543]" />
                     <span>Delivery Region:</span>
                   </label>
                   <span className="text-[11px] text-neutral-500">
@@ -302,7 +302,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   id="cart-region-select"
                   value={selectedRegionId}
                   onChange={(e) => onSelectRegionId(e.target.value)}
-                  className="w-full text-xs font-medium bg-white border border-neutral-300 rounded-xl p-2 outline-none focus:ring-2 focus:ring-amber-200"
+                  className="w-full text-xs font-medium bg-white border border-neutral-300 rounded-xl p-2 outline-none focus:ring-2 focus:ring-[#FFF2EF]"
                 >
                   {deliveryRegions.map((reg) => (
                     <option key={reg.id} value={reg.id}>
@@ -310,6 +310,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </option>
                   ))}
                 </select>
+                {selectedRegion && (
+                  <div className="text-[11px] text-neutral-500 pt-1 flex items-center justify-between">
+                    <span>Carrier: <strong className="text-neutral-800">{selectedRegion.carrierName}</strong></span>
+                    <span>{selectedRegion.estimatedDays}</span>
+                  </div>
+                )}
               </div>
 
               {/* Financial Calculation Breakdown */}
@@ -338,7 +344,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 id="cart-proceed-checkout-btn"
                 onClick={onProceedToCheckout}
-                className="w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-2xl bg-[#F06543] hover:bg-[#DE5332] text-white font-bold text-sm shadow-lg shadow-[#F06543]/25 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
               >
                 <span>Proceed to Integrated Checkout</span>
                 <ArrowRight className="w-4 h-4" />

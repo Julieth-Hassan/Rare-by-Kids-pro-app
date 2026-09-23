@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
@@ -10,11 +11,181 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "100mb" }));
+  app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Check which Kaya image assets are currently uploaded and available on disk
+  app.get("/api/kaya-assets", (req, res) => {
+    try {
+      const kayaPublicDir = path.join(process.cwd(), "public", "images", "kaya");
+      if (!fs.existsSync(kayaPublicDir)) {
+        fs.mkdirSync(kayaPublicDir, { recursive: true });
+      }
+      const files = fs.readdirSync(kayaPublicDir);
+      return res.json({ success: true, files });
+    } catch (err: any) {
+      return res.json({ success: false, files: [], error: err?.message });
+    }
+  });
+
+  // Comprehensive photoshoot assets retrieval for all collections
+  app.get("/api/photoshoot-assets", (req, res) => {
+    try {
+      const collectionQuery = typeof req.query.collection === 'string' ? req.query.collection.trim().toLowerCase() : '';
+      const baseImagesDir = path.join(process.cwd(), "public", "images");
+      if (!fs.existsSync(baseImagesDir)) {
+        fs.mkdirSync(baseImagesDir, { recursive: true });
+      }
+
+      // Ensure primary collections exist
+      ['kaya', 'moyo', 'accessories', 'bundles', 'general'].forEach((c) => {
+        const dirPath = path.join(baseImagesDir, c);
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
+      });
+
+      const allSubdirs = fs.readdirSync(baseImagesDir).filter((f) => {
+        try {
+          return fs.statSync(path.join(baseImagesDir, f)).isDirectory();
+        } catch {
+          return false;
+        }
+      });
+
+      const dirsToScan = collectionQuery
+        ? allSubdirs.filter((d) => d.toLowerCase() === collectionQuery)
+        : allSubdirs;
+
+      const assets: Array<{ filename: string; url: string; collection: string; sizeBytes: number; modifiedAt: string; isVideo?: boolean }> = [];
+
+      for (const dir of dirsToScan) {
+        const fullDir = path.join(baseImagesDir, dir);
+        if (fs.existsSync(fullDir)) {
+          const files = fs.readdirSync(fullDir);
+          for (const file of files) {
+            if (file.match(/\.(png|jpg|jpeg|webp|gif|svg|mp4|webm|mov|m4v|ogg)$/i)) {
+              try {
+                const stat = fs.statSync(path.join(fullDir, file));
+                const isVideo = /\.(mp4|webm|mov|m4v|ogg)$/i.test(file);
+                assets.push({
+                  filename: file,
+                  url: `/images/${dir}/${file}`,
+                  collection: dir,
+                  sizeBytes: stat.size,
+                  modifiedAt: stat.mtime.toISOString(),
+                  isVideo,
+                });
+              } catch (_) {}
+            }
+          }
+        }
+      }
+
+      return res.json({ success: true, assets });
+    } catch (err: any) {
+      return res.json({ success: false, assets: [], error: err?.message });
+    }
+  });
+
+  // Direct Raw Photoshoot Asset Upload for any collection (images and videos)
+  app.post("/api/upload-photoshoot-asset", (req, res) => {
+    try {
+      const { filename, base64Data, collection } = req.body;
+      if (!filename || !base64Data) {
+        return res.status(400).json({ success: false, error: "filename and base64Data are required" });
+      }
+
+      const collectionDir = (typeof collection === 'string' && collection.trim().length > 0)
+        ? collection.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-")
+        : "general";
+
+      // Clean base64 header if present (handles any image or video mime type)
+      const cleanedBase64 = base64Data.replace(/^data:[^;]+;base64,/, "");
+      const buffer = Buffer.from(cleanedBase64, "base64");
+
+      const targetDir = path.join(process.cwd(), "public", "images", collectionDir);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+
+      const safeFilename = path.basename(filename);
+      const targetPathPublic = path.join(targetDir, safeFilename);
+      fs.writeFileSync(targetPathPublic, buffer);
+
+      // Also mirror to src/assets/images if directory exists
+      try {
+        const srcAssetsDir = path.join(process.cwd(), "src", "assets", "images");
+        if (fs.existsSync(srcAssetsDir)) {
+          fs.writeFileSync(path.join(srcAssetsDir, safeFilename), buffer);
+        }
+      } catch (copyErr) {
+        console.warn("Notice: could not copy to src/assets/images:", copyErr);
+      }
+
+      const isVideo = /\.(mp4|webm|mov|m4v|ogg)$/i.test(safeFilename);
+      console.log(`Saved raw photoshoot asset as-is to [${collectionDir}]: ${safeFilename} (${buffer.length} bytes, isVideo: ${isVideo})`);
+      return res.json({
+        success: true,
+        filename: safeFilename,
+        collection: collectionDir,
+        url: `/images/${collectionDir}/${safeFilename}`,
+        sizeBytes: buffer.length,
+        isVideo,
+      });
+    } catch (err: any) {
+      console.error("Photoshoot asset upload error:", err);
+      return res.status(500).json({ success: false, error: err?.message || "Failed to write asset" });
+    }
+  });
+
+  // Direct Asset Upload Endpoint (allows user to upload their original uncompressed Kaya photoshoot PNGs)
+  app.post("/api/upload-kaya-asset", (req, res) => {
+    try {
+      const { filename, base64Data } = req.body;
+      if (!filename || !base64Data) {
+        return res.status(400).json({ success: false, error: "filename and base64Data are required" });
+      }
+
+      // Clean base64 header if present (e.g. data:image/png;base64,...)
+      const cleanedBase64 = base64Data.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(cleanedBase64, "base64");
+
+      // Save to public/images/kaya directory for zero-compilation static serving
+      const kayaPublicDir = path.join(process.cwd(), "public", "images", "kaya");
+      if (!fs.existsSync(kayaPublicDir)) {
+        fs.mkdirSync(kayaPublicDir, { recursive: true });
+      }
+      const safeFilename = path.basename(filename);
+      const targetPathPublic = path.join(kayaPublicDir, safeFilename);
+      fs.writeFileSync(targetPathPublic, buffer);
+
+      // Also save copy to src/assets/images if directory exists
+      try {
+        const srcAssetsDir = path.join(process.cwd(), "src", "assets", "images");
+        if (fs.existsSync(srcAssetsDir)) {
+          fs.writeFileSync(path.join(srcAssetsDir, safeFilename), buffer);
+        }
+      } catch (copyErr) {
+        console.warn("Notice: could not copy to src/assets/images:", copyErr);
+      }
+
+      console.log(`Saved original asset as-is: ${safeFilename} (${buffer.length} bytes)`);
+      return res.json({
+        success: true,
+        filename: safeFilename,
+        url: `/images/kaya/${safeFilename}`,
+        sizeBytes: buffer.length,
+      });
+    } catch (err: any) {
+      console.error("Asset upload error:", err);
+      return res.status(500).json({ success: false, error: err?.message || "Failed to write asset" });
+    }
   });
 
   // Sanity Live Products Proxy Endpoint (avoids browser CORS issues)
@@ -124,14 +295,23 @@ async function startServer() {
           region: order.customer?.stateOrRegion,
           deliveryNotes: order.customer?.deliveryNotes,
         },
+        giftNote: order.giftNote ? {
+          to: order.giftNote.to,
+          from: order.giftNote.from,
+          message: order.giftNote.message,
+          packagingBox: order.giftNote.boxStyle || order.giftNote.packagingBox,
+          ribbonColor: order.giftNote.ribbonColor,
+          isCalligraphyRequired: true,
+        } : null,
         giftCardNote: order.giftNote ? {
           to: order.giftNote.to,
           from: order.giftNote.from,
           message: order.giftNote.message,
-          packagingBox: order.giftNote.boxStyle,
+          packagingBox: order.giftNote.boxStyle || order.giftNote.packagingBox,
           ribbonColor: order.giftNote.ribbonColor,
           isCalligraphyRequired: true,
         } : null,
+        giftNoteMessage: order.giftNote?.message || null,
         itemsSummary: (order.items || []).map((i: any) => `${i.quantity}x ${i.product?.name} (${i.selectedSize || 'Standard'})`),
         totalAmount: order.totalAmount,
         currency: order.currency || "TZS",

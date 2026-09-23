@@ -16,8 +16,8 @@ export const SUPPORTED_CURRENCIES: CurrencyOption[] = [
   // --- East African Currencies (Shop Location & Region) ---
   {
     code: 'TZS',
-    name: 'Tanzanian Shilling',
-    symbol: 'TZS ',
+    name: 'Tanzanian Shilling (TShs)',
+    symbol: 'TShs',
     rate: 2600.0,
     flag: '🇹🇿',
     country: 'Tanzania (Store HQ)',

@@ -1,11 +1,27 @@
 @import "tailwindcss";
 
+:root {
+  --brand-coral: #F06543; /* Signature Warm Terracotta Coral for Kidswear */
+  --brand-coral-hover: #DE5332;
+  --brand-coral-light: #FF8566;
+  --brand-coral-soft: #FFF2EF;
+  --brand-coral-dark: #B83E26;
+}
+
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Open Sans', 'wfutura', 'Futura', 'Futura PT', 'Century Gothic', 'Jost', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    letter-spacing: -0.01em;
   }
-  h1, h2, h3, .font-display {
-    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'wfutura', 'Futura', 'Futura PT', 'Century Gothic', 'Jost', sans-serif;
+    letter-spacing: -0.015em;
+  }
+  .font-futura {
+    font-family: 'wfutura', 'Futura', 'Futura PT', 'Century Gothic', 'Jost', sans-serif;
+  }
+  .font-body {
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   }
   .font-serif-luxury {
     font-family: 'Playfair Display', Georgia, serif;
@@ -35,4 +51,68 @@
 
 .animate-pulse-subtle {
   animation: pulse-subtle 2.5s infinite ease-in-out;
+}
+
+/* CookUnity-Style Running Infinite Marquee Animations */
+@keyframes marquee-up {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marquee-down {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-up {
+  animation: marquee-up 26s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-down {
+  animation: marquee-down 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-left {
+  animation: marquee-left 22s linear infinite;
+  will-change: transform;
+}
+
+/* Pause animation on hover or when paused state is toggled */
+.pause-on-hover:hover .animate-marquee-up,
+.pause-on-hover:hover .animate-marquee-down,
+.pause-on-hover:hover .animate-marquee-left,
+.is-paused .animate-marquee-up,
+.is-paused .animate-marquee-down,
+.is-paused .animate-marquee-left {
+  animation-play-state: paused !important;
+}
+
+/* Seamless gradient edge fade masks */
+.mask-marquee-vertical {
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, transparent 100%);
+}
+
+.mask-marquee-horizontal {
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
 }

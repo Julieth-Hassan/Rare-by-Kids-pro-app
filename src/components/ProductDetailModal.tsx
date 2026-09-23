@@ -59,11 +59,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onSelectProduct,
   wishlistIds = [],
 }) => {
+  const isKayaProduct = product.collectionType === 'kaya' || product.category === 'kaya' || product.collection === 'kaya' || product.id.startsWith('rbk-kaya');
+
   const images = product.clothingImages && product.clothingImages.length > 0
     ? product.clothingImages
     : product.images && product.images.length > 0
       ? product.images
-      : ['https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80'];
+      : [isKayaProduct ? '/images/kaya/Kaya_model.png' : 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80'];
 
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [viewingVideo, setViewingVideo] = useState<boolean>(false);
@@ -201,6 +203,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       alt={`${product.name} - View ${selectedImage + 1}`}
                       className="w-full h-full object-cover object-center"
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        if (isKayaProduct) {
+                          e.currentTarget.src = images[0] || '/images/kaya/Kaya_model.png';
+                        } else {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80';
+                        }
+                      }}
                     />
 
                     {/* Left/Right image switcher */}
@@ -252,13 +261,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 {/* Badges on detail photo */}
                 <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
                   {product.isInstagramBestseller && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-neutral-900/90 text-amber-300 backdrop-blur-md shadow-md">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-neutral-900/90 text-[#FFA085] backdrop-blur-md shadow-md">
                       <Instagram className="w-3.5 h-3.5 text-pink-400" />
                       <span>Instagram Viral Bestseller</span>
                     </span>
                   )}
                   {product.isGiftBundle && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-neutral-950 shadow-md">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-[#F06543] text-white shadow-md">
                       <Gift className="w-3.5 h-3.5" />
                       <span>Gift Bundle</span>
                     </span>
@@ -277,7 +286,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     }}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
                       !viewingVideo && selectedImage === idx
-                        ? 'border-amber-500 ring-2 ring-amber-200 shadow-sm'
+                        ? 'border-[#F06543] ring-2 ring-[#FF8566]/30 shadow-sm'
                         : 'border-neutral-200 opacity-70 hover:opacity-100'
                     }`}
                   >
@@ -286,6 +295,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       alt={`${product.name} angle ${idx + 1}`}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        if (isKayaProduct) {
+                          e.currentTarget.src = '/images/kaya/Kaya_model.png';
+                        }
+                      }}
                     />
                   </button>
                 ))}
@@ -296,11 +310,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     onClick={() => setViewingVideo(true)}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 flex flex-col items-center justify-center gap-1 shrink-0 transition-all ${
                       viewingVideo
-                        ? 'border-indigo-500 ring-2 ring-indigo-200 bg-indigo-950 text-white'
-                        : 'border-neutral-200 bg-neutral-900 text-amber-300 hover:opacity-100 opacity-80'
+                        ? 'border-[#F06543] ring-2 ring-[#FF8566]/40 bg-[#FFF2EF] text-[#B83E26]'
+                        : 'border-neutral-200 bg-neutral-900 text-[#FFA085] hover:opacity-100 opacity-80'
                     }`}
                   >
-                    <Play className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Play className="w-5 h-5 fill-[#FF8566] text-[#FF8566]" />
                     <span className="text-[10px] font-bold">Watch Video</span>
                   </button>
                 )}
@@ -494,7 +508,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <button
                     id="modal-add-to-cart-btn"
                     onClick={handleAddToCart}
-                    className="flex-1 py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+                    className="flex-1 py-3.5 px-6 rounded-2xl bg-[#F06543] hover:bg-[#DE5332] text-white font-bold text-sm shadow-lg shadow-[#F06543]/25 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Add to Bag • {formatPrice(product.price * quantity, currentCurrency)}</span>
@@ -575,8 +589,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <span className="font-bold text-neutral-800">
                       Shipping Rate: {formatPrice(selectedRegion.cost, currentCurrency)}
                     </span>
-                    <p className="text-[11px] text-neutral-500">
-                      Est: {selectedRegion.estimatedDays} via {selectedRegion.carrierName}
+                    <p className="text-[11px] text-neutral-600">
+                      Est: {selectedRegion.estimatedDays} • Carrier: <strong className="text-neutral-800">{selectedRegion.carrierName}</strong>
+                    </p>
+                    <p className="text-[10px] text-neutral-400 mt-0.5 line-clamp-1">
+                      Coverage: {selectedRegion.stateOrCountry}
                     </p>
                   </div>
                 </div>

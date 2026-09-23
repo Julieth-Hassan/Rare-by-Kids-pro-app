@@ -17,6 +17,7 @@ import { AiStylistModal } from './components/AiStylistModal';
 import { MerchantDashboardModal } from './components/MerchantDashboardModal';
 import { WhatsAppFloatingButton } from './components/WhatsAppFloatingButton';
 import { Footer } from './components/Footer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { 
   INITIAL_PRODUCTS, 
   INITIAL_REVIEWS, 
@@ -86,7 +87,29 @@ export default function App() {
   // State: Products & Reviews
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('rbk_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    if (!saved) return INITIAL_PRODUCTS;
+    try {
+      const parsed: Product[] = JSON.parse(saved);
+      // Ensure newly added catalog items (like the authentic Kaya collection sets) are seamlessly merged
+      const existingIds = new Set(parsed.map(p => p.id));
+      const missingInitial = INITIAL_PRODUCTS.filter(p => !existingIds.has(p.id));
+      // Also update any existing placeholder products that have been refreshed with official photography
+      const updated = parsed.map(p => {
+        const fresh = INITIAL_PRODUCTS.find(ip => ip.id === p.id);
+        if (fresh && (p.id.startsWith('rbk-kaya') || p.category === 'kaya' || p.id.startsWith('rbk-bundle') || p.category === 'gift-bundles' || p.category === 'bundles' || p.isGiftBundle)) {
+          return { ...fresh, ...p, images: fresh.images, clothingImages: fresh.clothingImages, name: fresh.name };
+        }
+        return p;
+      });
+      if (missingInitial.length > 0) {
+        const merged = [...updated, ...missingInitial];
+        localStorage.setItem('rbk_products', JSON.stringify(merged));
+        return merged;
+      }
+      return updated;
+    } catch {
+      return INITIAL_PRODUCTS;
+    }
   });
 
   // State: Live Sanity Database Connection
@@ -141,7 +164,38 @@ export default function App() {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.some(r => r.id === 'reg-dar-bolt' || r.id === 'reg-dar-pickup')) {
-        return parsed;
+        const hasZanzibar = parsed.some((r: any) => r.id === 'reg-zanzibar' || (r.name && r.name.toLowerCase().includes('zanzibar')));
+        const hasMikoani = parsed.some((r: any) => r.id === 'reg-tz-mikoani' || (r.name && r.name.toLowerCase().includes('mikoani')));
+        if (!hasZanzibar || !hasMikoani) {
+          return INITIAL_DELIVERY_REGIONS;
+        }
+        return parsed.map((r: any) => {
+          if (r.id === 'reg-tz-upcountry' || r.id === 'reg-tz-mikoani' || (r.name && r.name.toLowerCase().includes('mikoani'))) {
+            return {
+              ...r,
+              id: 'reg-tz-mikoani',
+              name: 'Tanzania Mikoani',
+              carrierName: 'Bus',
+              stateOrCountry: 'All Tanzania regions except Dar es Salaam (Arusha, Mwanza, Dodoma, Moshi, Mbeya, Morogoro, Tanga, etc.)'
+            };
+          }
+          if (r.id === 'reg-east-africa') {
+            return {
+              ...r,
+              name: 'East Africa Community (EAC)',
+              carrierName: 'Bus'
+            };
+          }
+          if (r.id === 'reg-zanzibar') {
+            return {
+              ...r,
+              name: 'Zanzibar',
+              carrierName: 'Boat',
+              stateOrCountry: 'Zanzibar (Unguja & Pemba Islands)'
+            };
+          }
+          return r;
+        });
       }
       return INITIAL_DELIVERY_REGIONS;
     } catch {
@@ -150,8 +204,38 @@ export default function App() {
   });
 
   const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('rbk_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    try {
+      const saved = localStorage.getItem('rbk_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((ord: any, idx: number) => {
+            const fallback = INITIAL_ORDERS[idx % INITIAL_ORDERS.length] || INITIAL_ORDERS[0];
+            return {
+              ...fallback,
+              ...ord,
+              courierInfo: {
+                ...fallback.courierInfo,
+                ...(ord.courierInfo || {}),
+              },
+              customer: {
+                ...fallback.customer,
+                ...(ord.customer || {}),
+              },
+              trackingHistory: Array.isArray(ord.trackingHistory) && ord.trackingHistory.length > 0
+                ? ord.trackingHistory
+                : fallback.trackingHistory,
+              items: Array.isArray(ord.items) && ord.items.length > 0
+                ? ord.items
+                : fallback.items,
+            };
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return INITIAL_ORDERS;
   });
 
   // State: Cart & Promo
@@ -213,6 +297,43 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [addedToast]);
+
+  // Product Catalog CRUD Handlers (Staff Portal)
+  const handleAddProduct = (newProd: Product) => {
+    setProducts((prev) => {
+      const updated = [newProd, ...prev];
+      try {
+        localStorage.setItem('rbk_products', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to save products to localStorage', e);
+      }
+      return updated;
+    });
+  };
+
+  const handleUpdateProduct = (updatedProd: Product) => {
+    setProducts((prev) => {
+      const updated = prev.map((p) => (p.id === updatedProd.id ? updatedProd : p));
+      try {
+        localStorage.setItem('rbk_products', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to save products to localStorage', e);
+      }
+      return updated;
+    });
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    setProducts((prev) => {
+      const updated = prev.filter((p) => p.id !== productId);
+      try {
+        localStorage.setItem('rbk_products', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to save products to localStorage', e);
+      }
+      return updated;
+    });
+  };
 
   // State: Wishlist
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
@@ -394,7 +515,10 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-neutral-50 selection:bg-amber-100 selection:text-amber-900">
       
       {/* 1. Top Announcement Bar */}
-      <TopBanner />
+      <TopBanner
+        currentCurrency={currentCurrency}
+        onCurrencyChange={setCurrentCurrency}
+      />
 
       {/* 2. Main Navigation Bar */}
       <Navbar
@@ -520,15 +644,28 @@ export default function App() {
       {/* Footer */}
       <Footer
         onSelectCategory={(cat) => {
-          if (cat === 'moyo' || cat === 'kaya' || cat === 'gift-bundles' || cat === 'accessories') {
+          if (cat === 'accessories') {
+            handleNavigateView('accessories');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else if (cat === 'moyo' || cat === 'kaya' || cat === 'gift-bundles') {
             handleNavigateView(cat as AppView);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
             handleNavigateView('home');
             setActiveCategory(cat);
+            setTimeout(() => {
+              const catalogEl = document.getElementById('catalog-section');
+              if (catalogEl) {
+                catalogEl.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }, 60);
           }
         }}
         onOpenTracker={() => setIsTrackerOpen(true)}
         onOpenStylist={() => setIsStylistOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Floating WhatsApp Action Button */}
@@ -700,14 +837,16 @@ export default function App() {
       />
 
       {/* MODAL 4: Live Order Tracking & Dispatch Telemetry */}
-      <OrderTracker
-        isOpen={isTrackerOpen}
-        onClose={() => setIsTrackerOpen(false)}
-        orders={orders}
-        initialTrackingCode={activeTrackingCode}
-        onUpdateOrderStatus={handleUpdateOrderStatus}
-        currentCurrency={currentCurrency}
-      />
+      <ErrorBoundary fallbackTitle="Shipment Tracking Notice">
+        <OrderTracker
+          isOpen={isTrackerOpen}
+          onClose={() => setIsTrackerOpen(false)}
+          orders={orders}
+          initialTrackingCode={activeTrackingCode}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
+          currentCurrency={currentCurrency}
+        />
+      </ErrorBoundary>
 
       {/* MODAL 5: AI Kids Stylist & Size Advisor */}
       <AiStylistModal
@@ -729,6 +868,9 @@ export default function App() {
         deliveryRegions={deliveryRegions}
         onUpdateDeliveryRegionRate={handleUpdateDeliveryRegionRate}
         products={products}
+        onAddProduct={handleAddProduct}
+        onUpdateProduct={handleUpdateProduct}
+        onDeleteProduct={handleDeleteProduct}
         sanityStatus={sanityStatus}
         sanityCount={sanityCount}
         isSanitySyncing={isSanitySyncing}

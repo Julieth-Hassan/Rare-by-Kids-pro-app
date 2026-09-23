@@ -10,6 +10,41 @@ import girlsHairAccessories3 from '../assets/images/girls_hair_accessories_3.jpg
 import girlsHairAccessories4 from '../assets/images/girls_hair_accessories_4.jpg';
 import girlsHairAccessories5 from '../assets/images/girls_hair_accessories_5.jpg';
 import girlsHairAccessories6 from '../assets/images/girls_hair_accessories_6.jpg';
+import giftBundleMainImg from '../assets/images/Gift Bundle.jpg';
+import giftBundlesCollectionImg from '../assets/images/Gift Bundles.jpg';
+import giftBundle1Img from '../assets/images/Gift Bundle 1.jpg';
+import giftBundle2Img from '../assets/images/Gift Bundle 2.jpg';
+
+// Gift Bundle authentic photoshoot asset file paths
+export const GIFT_BUNDLE_IMAGE_PATHS = {
+  bundleMain: giftBundleMainImg,
+  bundleCollection: giftBundlesCollectionImg,
+  bundle1: giftBundle1Img,
+  bundle2: giftBundle2Img,
+  staticBundleMain: '/images/bundles/Gift Bundle.jpg',
+  staticBundleCollection: '/images/bundles/Gift Bundles.jpg',
+  staticBundle1: '/images/bundles/Gift Bundle 1.jpg',
+  staticBundle2: '/images/bundles/Gift Bundle 2.jpg',
+};
+
+// Authentic Kaya photoshoot asset file paths as uploaded by the user
+export const KAYA_IMAGE_PATHS = {
+  // Set 1: African Kid Cocoa & Pebble Set
+  set1Model: '/images/kaya/Kaya_model.png',
+  set1Flatlay: '/images/kaya/Kaya_flatlay.png',
+  // Set 2: African Kid Ivory & Kijani Foliage Set
+  set2Model: '/images/kaya/Kaya_model 2.png',
+  set2Flatlay: '/images/kaya/Kaya_Flatlay 2.png',
+  // Set 3: Dady's Pride Sunshine Ocher Set
+  set3Model: '/images/kaya/Kaya_model 3.png',
+  set3Flatlay: '/images/kaya/Kaya_flatlay 3.png',
+  // Set 4: Mama's World Olive Abstract Set
+  set4Model: '/images/kaya/Kay_model 4.png',
+  set4Flatlay: '/images/kaya/Kaya_flatlay 4.png',
+  // Set 5: Mama's World Monochrome Chevron Set
+  set5Model: '/images/kaya/Kaya_model 5.png',
+  set5Flatlay: '/images/kaya/Kaya_flatlay 5.png',
+};
 
 export const INITIAL_COLLECTIONS: BrandCollection[] = [
   {
@@ -43,23 +78,30 @@ export const INITIAL_COLLECTIONS: BrandCollection[] = [
       { name: 'Royal Indigo Batik', hex: '#21336E' },
       { name: 'Warm Biscuit', hex: '#D6C7B2' }
     ],
-    featuredProductIds: ['rbk-moyo-kijani', 'rbk-kaya-01']
+    featuredProductIds: ['rbk-moyo-kijani', 'rbk-kaya-african-kid-brown']
   },
   {
     id: 'col-kaya-vol-1',
-    title: 'Kaya Collection Vol. 01 — Boy Heritage',
-    subtitle: "Dady's Pride soft ribbed tees & artisanal geometric chevron batik shorts",
-    description: "Tailored modern streetwear meets African batik craft for boys. Features breathable organic cotton tees with high-density typography and drawstring batik shorts.",
-    bannerImage: kijaniMoyoModelImg,
-    moodTag: 'Boys Heritage',
-    itemCount: 3,
+    title: 'Kaya Collection Vol. 01 — Boys Heritage & Sibling Sets',
+    subtitle: "African Kid, Dady's Pride & Mama's World cotton tees & artisanal batik shorts",
+    description: "Modern African boutique streetwear crafted for boys and sibling twinning. Features 100% breathable combed organic cotton tees with signature bold lettering, styled with handcrafted artisan African batik drawstring lounge shorts.",
+    bannerImage: KAYA_IMAGE_PATHS.set1Model,
+    moodTag: 'Boys & Heritage',
+    itemCount: 5,
     season: 'Kaya Vol. 01',
     colorPalette: [
-      { name: 'Cream Latte', hex: '#F5F0E6' },
-      { name: 'Charcoal Batik', hex: '#2C2E33' },
-      { name: 'Ebony Night', hex: '#1A1A1A' }
+      { name: 'Cocoa Brown', hex: '#4A2E1B' },
+      { name: 'Olive Green', hex: '#556B2F' },
+      { name: 'Sunshine Ocher', hex: '#DAA520' },
+      { name: 'Charcoal Chevron', hex: '#2C2C2C' }
     ],
-    featuredProductIds: ['rbk-kaya-01', 'rbk-005', 'rbk-007']
+    featuredProductIds: [
+      'rbk-kaya-african-kid-brown',
+      'rbk-kaya-african-kid-green',
+      'rbk-kaya-dadys-pride-yellow',
+      'rbk-kaya-mamas-world-olive',
+      'rbk-kaya-mamas-world-black'
+    ]
   },
   {
     id: 'col-waffle-resort',
@@ -76,6 +118,23 @@ export const INITIAL_COLLECTIONS: BrandCollection[] = [
       { name: 'Terracotta', hex: '#C67D5A' }
     ],
     featuredProductIds: ['rbk-001', 'rbk-008', 'rbk-bundle-04']
+  },
+  {
+    id: 'col-gift-bundles',
+    title: 'Curated Gift Bundles & Keepsake Hampers',
+    subtitle: 'Pre-matched outfits, artisanal accessories, and luxury keepsake chest packaging',
+    description: 'Celebrate baby showers, milestones, and birthdays with our pre-styled clothing bundles. Each outfit is nestled in scented tissue wrap and packaged in our signature magnetic keepsake chest with satin ribbon.',
+    bannerImage: giftBundlesCollectionImg,
+    moodTag: 'Luxury Keepsake',
+    itemCount: 4,
+    season: 'Celebrations & Gifting',
+    colorPalette: [
+      { name: 'Royal Gold Foil', hex: '#D4AF37' },
+      { name: 'Blush Rose Satin', hex: '#F4C2C2' },
+      { name: 'Matte Onyx', hex: '#1C1C1C' },
+      { name: 'Natural Cotton Ivory', hex: '#FAF6EE' }
+    ],
+    featuredProductIds: ['rbk-bundle-01', 'rbk-bundle-02', 'rbk-bundle-03', 'rbk-bundle-04']
   }
 ];
 
@@ -103,28 +162,40 @@ export const INITIAL_DELIVERY_REGIONS: DeliveryRegion[] = [
     expressAvailable: false,
   },
   {
-    id: 'reg-tz-upcountry',
-    name: 'Tanzania Upcountry & Zanzibar Mainland',
-    zone: 'Zone 2 - Domestic Tanzania',
-    stateOrCountry: 'Arusha, Mwanza, Dodoma, Zanzibar, Moshi, Mbeya, Morogoro, Tanga',
+    id: 'reg-tz-mikoani',
+    name: 'Tanzania Mikoani',
+    zone: 'Zone 2 - Domestic Tanzania (Mikoani)',
+    stateOrCountry: 'All Tanzania regions except Dar es Salaam (Arusha, Mwanza, Dodoma, Moshi, Mbeya, Morogoro, Tanga, etc.)',
     cost: 6.00, // ~15,000 TZS
     estimatedDays: '1-2 Business Days',
-    carrierName: 'BM / Shabiby / Air Tanzania Cargo',
+    carrierName: 'Bus',
     expressAvailable: true,
     expressCost: 10.00,
-    expressEstimatedDays: 'Next Day Morning Flight Express',
+    expressEstimatedDays: 'Next-Day Express Bus Parcel',
+  },
+  {
+    id: 'reg-zanzibar',
+    name: 'Zanzibar',
+    zone: 'Zone 2 - Zanzibar (Unguja & Pemba)',
+    stateOrCountry: 'Zanzibar (Unguja & Pemba Islands)',
+    cost: 6.00, // ~15,000 TZS
+    estimatedDays: '1-2 Days',
+    carrierName: 'Boat',
+    expressAvailable: true,
+    expressCost: 9.00,
+    expressEstimatedDays: 'Same-Day / Next-Day Fast Boat & Ferry Parcel',
   },
   {
     id: 'reg-east-africa',
-    name: 'East Africa Community (EAC Regional Priority)',
+    name: 'East Africa Community (EAC)',
     zone: 'Zone 3 - East Africa (Kenya, Uganda, Rwanda, Burundi)',
     stateOrCountry: 'Kenya (Nairobi/Mombasa), Uganda (Kampala), Rwanda (Kigali), Burundi, South Sudan',
     cost: 13.50, // ~35,000 TZS / 1,750 KSh
     estimatedDays: '2-3 Business Days',
-    carrierName: 'DHL Express Regional / Cross-Border Courier',
+    carrierName: 'Bus',
     expressAvailable: true,
     expressCost: 20.00,
-    expressEstimatedDays: '1-2 Days Priority Air Express',
+    expressEstimatedDays: '1-2 Days Priority Cross-Border Bus',
   },
   {
     id: 'reg-rest-africa',
@@ -313,36 +384,287 @@ export const INITIAL_PRODUCTS: Product[] = [
     featured: true,
   },
   {
-    id: 'rbk-kaya-01',
-    name: "Dady's Pride Set — Kaya Collection Vol. 01",
-    tagline: "Organic cotton graphic tee & artisanal geometric chevron batik shorts",
-    description: "The flagship boys set from Kaya Collection Vol. 01 by Rare by KidsPro. Combines a silky-soft off-white ribbed organic cotton tee featuring high-density typography 'DADY'S PRIDE' with artisanal charcoal and black geometric chevron batik lounge shorts.",
-    category: 'boys',
+    id: 'rbk-kaya-african-kid-brown',
+    name: 'African Kid Cocoa & Pebble Batik Set 🤎',
+    tagline: 'Chocolate brown organic graphic tee & artisan pebble batik shorts',
+    description: "The distinguished centerpiece of Kaya Collection Vol. 01 by Rare by KidsPro. Pairs a silky-soft 100% combed organic cotton cocoa brown crewneck tee stamped with bold ivory 'AFRICAN KID' typography with handcrafted African batik lounge shorts in earthy espresso pebble spot and botanical branch motifs. Crafted with an elastic comfort gathered waistband and adjustable drawstring.",
+    category: 'kaya',
     categoryLabel: 'Kaya Collection Vol. 01',
-    gender: 'boy',
-    price: 21.00,
-    originalPrice: 26.00,
-    rating: 4.9,
-    reviewCount: 28,
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'unisex',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 5.0,
+    reviewCount: 44,
     images: [
-      kijaniMoyoModelImg,
-      kijaniMoyoFlatlayImg,
-      sunsetMoyoFlatlayImg
+      KAYA_IMAGE_PATHS.set1Model,
+      KAYA_IMAGE_PATHS.set1Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set1Model,
+      KAYA_IMAGE_PATHS.set1Flatlay,
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
     isOrganic: true,
     isNewArrival: true,
     sizes: [
-      { size: '1-2Y', inStock: true, stockCount: 10 },
-      { size: '2-3Y', inStock: true, stockCount: 18 },
-      { size: '4-5Y', inStock: true, stockCount: 15 },
-      { size: '6-7Y', inStock: true, stockCount: 12 },
+      { size: '0-3 Months', inStock: true, stockCount: 12 },
+      { size: '3-6 Months', inStock: true, stockCount: 15 },
+      { size: '6-12 Months', inStock: true, stockCount: 18 },
+      { size: '1-2 Years', inStock: true, stockCount: 24 },
+      { size: '2-3 Years', inStock: true, stockCount: 28 },
+      { size: '3-4 Years', inStock: true, stockCount: 20 },
+      { size: '5-6 Years', inStock: true, stockCount: 16 },
+      { size: '7-8 Years', inStock: true, stockCount: 14 },
+      { size: '9-10 Years', inStock: true, stockCount: 10 },
     ],
     colors: [
+      { name: 'Cocoa Brown & Espresso Pebble Batik', hex: '#4A2E1B' },
+      { name: 'Ivory & Cocoa Branch Batik', hex: '#D6C7B2' },
+    ],
+    materials: ['100% Combed Organic Cotton Tee', 'Hand-Crafted African Artisan Batik Shorts', 'Elastic Drawstring Waistband'],
+    careInstructions: ['Machine wash inside out cold (30°C)', 'Do not iron directly on print', 'Hang dry in shade'],
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: 'rbk-kaya-african-kid-green',
+    name: 'African Kid Ivory & Kijani Foliage Set 🌿',
+    tagline: 'Ivory organic cotton tee with olive green botanical branch batik shorts',
+    description: "A celebration of heritage and youthful elegance. Features an off-white ivory organic cotton tee with deep olive 'AFRICAN KID' high-density print, paired with artisanal olive green hand-dyed African batik shorts patterned with botanical twig and branch motifs. Designed with deep side pockets and soft gathered waistband.",
+    category: 'kaya',
+    categoryLabel: 'Kaya Collection Vol. 01',
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'unisex',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 5.0,
+    reviewCount: 42,
+    images: [
+      KAYA_IMAGE_PATHS.set2Model,
+      KAYA_IMAGE_PATHS.set2Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set2Model,
+      KAYA_IMAGE_PATHS.set2Flatlay,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    isInstagramBestseller: true,
+    isOrganic: true,
+    isNewArrival: true,
+    sizes: [
+      { size: '0-3 Months', inStock: true, stockCount: 10 },
+      { size: '3-6 Months', inStock: true, stockCount: 14 },
+      { size: '6-12 Months', inStock: true, stockCount: 16 },
+      { size: '1-2 Years', inStock: true, stockCount: 22 },
+      { size: '2-3 Years', inStock: true, stockCount: 26 },
+      { size: '3-4 Years', inStock: true, stockCount: 18 },
+      { size: '5-6 Years', inStock: true, stockCount: 14 },
+      { size: '7-8 Years', inStock: true, stockCount: 12 },
+      { size: '9-10 Years', inStock: true, stockCount: 8 },
+    ],
+    colors: [
+      { name: 'Ivory & Olive Botanical Batik', hex: '#556B2F' },
+      { name: 'Off-White & Charcoal Branch', hex: '#2F3E22' },
+    ],
+    materials: ['100% Breathable Organic Cotton', 'Artisanal Botanical African Batik Cotton', 'Comfort Elastic Drawstring Waist'],
+    careInstructions: ['Machine wash inside out cold', 'Do not bleach', 'Warm iron on reverse'],
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: 'rbk-kaya-dadys-pride-yellow',
+    name: "Dady's Pride Sunshine Ocher Set ☀️💛",
+    tagline: 'Ivory graphic tee with vibrant mustard yellow brushstroke batik shorts',
+    description: "The flagship piece that captured hearts across social media. Features an ivory combed organic cotton tee with warm mustard yellow 'DADY\\'S PRIDE' typography, paired with radiant mustard yellow and ivory brushstroke pebble African batik shorts. Built for all-day comfort with a relaxed tailored silhouette.",
+    category: 'kaya',
+    categoryLabel: 'Kaya Collection Vol. 01',
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'boy',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 5.0,
+    reviewCount: 51,
+    images: [
+      KAYA_IMAGE_PATHS.set3Model,
+      KAYA_IMAGE_PATHS.set3Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set3Model,
+      KAYA_IMAGE_PATHS.set3Flatlay,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    isInstagramBestseller: true,
+    isOrganic: true,
+    isNewArrival: true,
+    sizes: [
+      { size: '0-3 Months', inStock: true, stockCount: 12 },
+      { size: '3-6 Months', inStock: true, stockCount: 15 },
+      { size: '6-12 Months', inStock: true, stockCount: 18 },
+      { size: '1-2 Years', inStock: true, stockCount: 25 },
+      { size: '2-3 Years', inStock: true, stockCount: 30 },
+      { size: '3-4 Years', inStock: true, stockCount: 22 },
+      { size: '5-6 Years', inStock: true, stockCount: 18 },
+      { size: '7-8 Years', inStock: true, stockCount: 14 },
+      { size: '9-10 Years', inStock: true, stockCount: 10 },
+    ],
+    colors: [
+      { name: 'Ivory & Mustard Ocher Batik', hex: '#DAA520' },
+      { name: 'Sunbeam Gold & Pebble Print', hex: '#E5A93C' },
+    ],
+    materials: ['100% Organic Combed Ribbed Cotton', 'Artisanal Brushstroke Batik Shorts', 'Flexible Drawstring Comfort Waist'],
+    careInstructions: ['Machine wash inside out cold', 'Do not tumble dry', 'Warm iron'],
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: 'rbk-kaya-mamas-world-olive',
+    name: "Mama's World Olive Abstract Set 🍃",
+    tagline: 'Olive green crewneck tee with coordinated artisan batik shorts',
+    description: "Expressing love and artisan heritage. Combines a rich olive green crewneck tee featuring clean white 'MAMA\\'S WORLD' typography with matching olive and white abstract hand-stamped African batik shorts. Ideal for brother-sister twinning, family photoshoots, and weekend adventures.",
+    category: 'kaya',
+    categoryLabel: 'Kaya Collection Vol. 01',
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'unisex',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 4.9,
+    reviewCount: 37,
+    images: [
+      KAYA_IMAGE_PATHS.set4Model,
+      KAYA_IMAGE_PATHS.set4Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set4Model,
+      KAYA_IMAGE_PATHS.set4Flatlay,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    isInstagramBestseller: true,
+    isOrganic: true,
+    isNewArrival: true,
+    sizes: [
+      { size: '0-3 Months', inStock: true, stockCount: 10 },
+      { size: '3-6 Months', inStock: true, stockCount: 12 },
+      { size: '6-12 Months', inStock: true, stockCount: 16 },
+      { size: '1-2 Years', inStock: true, stockCount: 20 },
+      { size: '2-3 Years', inStock: true, stockCount: 25 },
+      { size: '3-4 Years', inStock: true, stockCount: 18 },
+      { size: '5-6 Years', inStock: true, stockCount: 14 },
+      { size: '7-8 Years', inStock: true, stockCount: 10 },
+      { size: '9-10 Years', inStock: true, stockCount: 8 },
+    ],
+    colors: [
+      { name: 'Olive Green & Abstract Batik', hex: '#4B5320' },
+      { name: 'Sage & Monochrome Batik', hex: '#5A6E48' },
+    ],
+    materials: ['100% Combed Cotton Tee', 'Hand-Crafted African Artisan Abstract Batik Shorts', 'Elastic Waist with Drawstring'],
+    careInstructions: ['Machine wash cold gentle', 'Hang dry in shade', 'Warm iron on reverse'],
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: 'rbk-kaya-mamas-world-black',
+    name: "Mama's World Monochrome Chevron Set 🖤",
+    tagline: 'Ivory graphic tee with black & charcoal geometric chevron batik shorts',
+    description: "Refined monochrome African street style for modern kids. Features an ultra-soft ivory tee with bold black 'MAMA\\'S WORLD' lettering, styled with charcoal and jet black geometric chevron dash batik shorts. An effortless balance of modern casual and timeless artisan craftsmanship.",
+    category: 'kaya',
+    categoryLabel: 'Kaya Collection Vol. 01',
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'unisex',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 5.0,
+    reviewCount: 46,
+    images: [
+      KAYA_IMAGE_PATHS.set5Model,
+      KAYA_IMAGE_PATHS.set5Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set5Model,
+      KAYA_IMAGE_PATHS.set5Flatlay,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    isInstagramBestseller: true,
+    isOrganic: true,
+    isNewArrival: true,
+    sizes: [
+      { size: '0-3 Months', inStock: true, stockCount: 12 },
+      { size: '3-6 Months', inStock: true, stockCount: 14 },
+      { size: '6-12 Months', inStock: true, stockCount: 18 },
+      { size: '1-2 Years', inStock: true, stockCount: 22 },
+      { size: '2-3 Years', inStock: true, stockCount: 26 },
+      { size: '3-4 Years', inStock: true, stockCount: 20 },
+      { size: '5-6 Years', inStock: true, stockCount: 15 },
+      { size: '7-8 Years', inStock: true, stockCount: 12 },
+      { size: '9-10 Years', inStock: true, stockCount: 8 },
+    ],
+    colors: [
+      { name: 'Ivory & Charcoal Chevron Batik', hex: '#2C2C2C' },
+      { name: 'Monochrome Dash & Ebony', hex: '#1C1C1C' },
+    ],
+    materials: ['100% Breathable Combed Cotton Tee', 'Geometric Chevron Dash African Batik Shorts', 'Elastic Drawstring Waist'],
+    careInstructions: ['Gentle wash 30°C', 'Wash dark colors separately', 'Warm iron'],
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: 'rbk-kaya-01',
+    name: "Dady's Pride Set — Kaya Collection Vol. 01",
+    tagline: "Organic cotton graphic tee & artisanal geometric chevron batik shorts",
+    description: "The flagship boys set from Kaya Collection Vol. 01 by Rare by KidsPro. Combines a silky-soft off-white ribbed organic cotton tee featuring high-density typography 'DADY\\'S PRIDE' with artisanal charcoal and black geometric chevron batik lounge shorts.",
+    category: 'kaya',
+    categoryLabel: 'Kaya Collection Vol. 01',
+    collection: 'kaya',
+    collectionType: 'kaya',
+    gender: 'boy',
+    price: 19.00,
+    priceTZS: 50000,
+    originalPrice: 25.00,
+    originalPriceTZS: 65000,
+    rating: 5.0,
+    reviewCount: 51,
+    images: [
+      KAYA_IMAGE_PATHS.set3Model,
+      KAYA_IMAGE_PATHS.set3Flatlay,
+    ],
+    clothingImages: [
+      KAYA_IMAGE_PATHS.set3Model,
+      KAYA_IMAGE_PATHS.set3Flatlay,
+    ],
+    instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
+    isInstagramBestseller: true,
+    isOrganic: true,
+    isNewArrival: true,
+    sizes: [
+      { size: '0-3 Months', inStock: true, stockCount: 10 },
+      { size: '3-6 Months', inStock: true, stockCount: 14 },
+      { size: '6-12 Months', inStock: true, stockCount: 16 },
+      { size: '1-2 Years', inStock: true, stockCount: 22 },
+      { size: '2-3 Years', inStock: true, stockCount: 28 },
+      { size: '3-4 Years', inStock: true, stockCount: 20 },
+      { size: '5-6 Years', inStock: true, stockCount: 15 },
+      { size: '7-8 Years', inStock: true, stockCount: 12 },
+      { size: '9-10 Years', inStock: true, stockCount: 8 },
+    ],
+    colors: [
+      { name: 'Ivory & Mustard Ocher Batik', hex: '#DAA520' },
       { name: 'Cream Latte & Charcoal Batik', hex: '#2C2E33' },
-      { name: 'Desert Sand & Ebony', hex: '#C2B280' },
-      { name: 'Olive Green Batik', hex: '#5A6E48' }
     ],
     materials: ['100% Organic Ribbed Cotton Tee', 'Hand-Crafted African Geometric Batik Shorts', 'Elastic Drawstring Waist'],
     careInstructions: ['Machine wash inside out cold', 'Do not iron directly on print', 'Tumble dry low'],
@@ -818,9 +1140,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 44,
     images: [
-      girlsHairAccessories3,
-      girlsHairAccessories1,
-      girlsHairAccessories4
+      giftBundleMainImg,
+      giftBundlesCollectionImg,
+      giftBundle1Img,
+      giftBundle2Img
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -871,9 +1194,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 5.0,
     reviewCount: 39,
     images: [
-      rubyMoyoModelImg,
-      girlsHairAccessories6,
-      sunsetMoyoFlatlayImg
+      giftBundle1Img,
+      giftBundleMainImg,
+      giftBundlesCollectionImg,
+      giftBundle2Img
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -924,9 +1248,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 28,
     images: [
-      sunsetMoyoModelImg,
-      girlsHairAccessories5,
-      kijaniMoyoModelImg
+      giftBundle2Img,
+      giftBundlesCollectionImg,
+      giftBundleMainImg,
+      giftBundle1Img
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isInstagramBestseller: true,
@@ -977,9 +1302,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 31,
     images: [
-      sunsetMoyoModelImg,
-      girlsHairAccessories3,
-      girlsHairAccessories4
+      giftBundlesCollectionImg,
+      giftBundle2Img,
+      giftBundle1Img,
+      giftBundleMainImg
     ],
     instagramPostUrl: 'https://www.instagram.com/rare.bykidspro/',
     isOrganic: true,
@@ -1217,6 +1543,223 @@ export const INITIAL_ORDERS: Order[] = [
         timestamp: 'Estimated: Today before 4:30 PM',
         completed: false,
         current: false
+      }
+    ]
+  },
+  {
+    id: 'ord-24108',
+    orderNumber: 'RBK-24108',
+    trackingNumber: 'TRK-RBK-241088',
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
+    customer: {
+      fullName: 'Farida Mwinyi',
+      email: 'farida.mwinyi@example.com',
+      phone: '+255 765 241 088',
+      instagramHandle: '@farida_m',
+      streetAddress: 'Plot 42 Haile Selassie Road, Masaki Peninsula',
+      apartment: 'Villa 3, Coral Beach Court',
+      city: 'Dar es Salaam',
+      stateOrRegion: 'Dar es Salaam Region, Tanzania',
+      postalCode: '14111',
+      deliveryRegionId: 'reg-dar-bolt',
+      deliveryRegionName: 'Dar es Salaam Direct Dispatch (Same-Day Express)',
+      deliveryNotes: 'Please call Farida upon reaching Coral Beach gate. Security has gate pass.',
+      giftNote: {
+        to: 'Baby Layla',
+        from: 'Auntie Farida & Family',
+        message: 'Welcome to this beautiful world, sweet Layla! May your life be filled with boundless laughter, grace, and pure wonder.',
+        boxStyle: 'Royal Gold Keepsake Chest',
+        ribbonColor: 'Champagne Gold Satin',
+      }
+    },
+    giftNote: {
+      to: 'Baby Layla',
+      from: 'Auntie Farida & Family',
+      message: 'Welcome to this beautiful world, sweet Layla! May your life be filled with boundless laughter, grace, and pure wonder.',
+      boxStyle: 'Royal Gold Keepsake Chest',
+      ribbonColor: 'Champagne Gold Satin',
+    },
+    items: [
+      {
+        id: 'cart-init-3',
+        product: INITIAL_PRODUCTS[2] || INITIAL_PRODUCTS[0],
+        selectedSize: '2-3Y (92-98cm)',
+        selectedColor: (INITIAL_PRODUCTS[2] || INITIAL_PRODUCTS[0]).colors[0],
+        quantity: 1
+      },
+      {
+        id: 'cart-init-4',
+        product: INITIAL_PRODUCTS[4] || INITIAL_PRODUCTS[1],
+        selectedSize: '2-3Y (92-98cm)',
+        selectedColor: (INITIAL_PRODUCTS[4] || INITIAL_PRODUCTS[1]).colors[0],
+        quantity: 1
+      }
+    ],
+    subtotal: 104.00,
+    deliveryCost: 5.00,
+    deliverySpeed: 'express',
+    discountAmount: 10.40,
+    promoCodeApplied: 'RAREWELCOME10',
+    totalAmount: 98.60,
+    currency: 'USD',
+    paymentMethod: 'mobile_money_tz',
+    paymentStatus: 'paid',
+    orderStatus: 'in_transit',
+    estimatedDeliveryDate: 'Today between 2:00 PM – 4:00 PM',
+    courierInfo: {
+      name: 'Dar es Salaam Priority Fleet',
+      riderName: 'Juma Selemani (Motorbike Unit #07)',
+      riderPhone: '+255 714 882 109',
+      vehicleType: 'Express Courier Bike (Equipped with Garment Carrier)',
+      supportWhatsApp: 'https://wa.me/255765000000'
+    },
+    trackingHistory: [
+      {
+        id: 'tr-tz-1',
+        title: 'Order Placed & Confirmed',
+        description: 'Order RBK-24108 placed online via M-Pesa Lipa Namba.',
+        location: 'Rare by KidsPro Workshop (Dar es Salaam)',
+        timestamp: 'Today at 08:30 AM',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-tz-2',
+        title: 'Payment Verified via Vodacom M-Pesa',
+        description: 'M-Pesa reference VOD-TZ-98421 confirmed automatically.',
+        location: 'Vodacom Payment Gateway',
+        timestamp: 'Today at 08:31 AM',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-tz-3',
+        title: 'Artisanal Box Pack & Gift Calligraphy',
+        description: 'Personalized calligraphy card penned and enclosed in Royal Gold Keepsake Chest.',
+        location: 'Masaki Atelier & Packaging Studio',
+        timestamp: 'Today at 09:45 AM',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-tz-4',
+        title: 'Handed to Juma Selemani (Courier #07)',
+        description: 'Parcel collected from atelier; transit route initiated via Ali Hassan Mwinyi Rd.',
+        location: 'Dar es Salaam Central Dispatch Hub',
+        timestamp: 'Today at 11:15 AM',
+        completed: true,
+        current: true
+      },
+      {
+        id: 'tr-tz-5',
+        title: 'Out for Final Delivery to Masaki Peninsula',
+        description: 'Courier en route to Haile Selassie Road.',
+        location: 'Masaki / Oysterbay Zone',
+        timestamp: 'Estimated: Today at 2:30 PM',
+        completed: false,
+        current: false
+      },
+      {
+        id: 'tr-tz-6',
+        title: 'Package Handover to Farida',
+        description: 'Direct doorstep handover with signed receipt.',
+        location: 'Coral Beach Court Gate',
+        timestamp: 'Scheduled Today',
+        completed: false,
+        current: false
+      }
+    ]
+  },
+  {
+    id: 'ord-95320',
+    orderNumber: 'RBK-95320',
+    trackingNumber: 'TRK-RBK-953201',
+    createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // 3 days ago
+    customer: {
+      fullName: 'Zawadi Mwangi',
+      email: 'zawadi.m@example.com',
+      phone: '+254 722 390 112',
+      instagramHandle: '@zawadi_style',
+      streetAddress: 'Riverside Drive, Westlands',
+      apartment: 'Apt 12, Riverstone Terraces',
+      city: 'Nairobi',
+      stateOrRegion: 'Nairobi County, Kenya',
+      postalCode: '00100',
+      deliveryRegionId: 'reg-east-africa',
+      deliveryRegionName: 'East Africa Regional Express (Kenya / Uganda / Rwanda)',
+      deliveryNotes: 'Delivered successfully at main reception.'
+    },
+    items: [
+      {
+        id: 'cart-init-5',
+        product: INITIAL_PRODUCTS[3] || INITIAL_PRODUCTS[0],
+        selectedSize: '4-5Y (104-110cm)',
+        selectedColor: (INITIAL_PRODUCTS[3] || INITIAL_PRODUCTS[0]).colors[0],
+        quantity: 1
+      }
+    ],
+    subtotal: 58.00,
+    deliveryCost: 12.00,
+    deliverySpeed: 'express',
+    discountAmount: 0,
+    totalAmount: 70.00,
+    currency: 'USD',
+    paymentMethod: 'card',
+    paymentStatus: 'paid',
+    orderStatus: 'delivered',
+    estimatedDeliveryDate: 'Delivered on Schedule',
+    courierInfo: {
+      name: 'DHL East Africa Regional Express',
+      riderName: 'Samuel Ochieng',
+      riderPhone: '+254 700 891 223',
+      vehicleType: 'DHL Express Dispatch Van',
+      supportWhatsApp: 'https://wa.me/254700891223'
+    },
+    trackingHistory: [
+      {
+        id: 'tr-ke-1',
+        title: 'Order Placed & Export Documented',
+        description: 'International regional order logged from Dar es Salaam atelier.',
+        location: 'Dar es Salaam Workshop',
+        timestamp: '3 days ago',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-ke-2',
+        title: 'Payment Cleared & Manifest Created',
+        description: 'Regional cross-border customs airway bill prepared.',
+        location: 'Julius Nyerere Int. Airport (DAR)',
+        timestamp: '3 days ago',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-ke-3',
+        title: 'Airfreight In Transit to Nairobi',
+        description: 'Flight arrived at Jomo Kenyatta Int. Airport (NBO). Cleared EAC priority lane.',
+        location: 'JKIA Cargo Terminal, Nairobi',
+        timestamp: '2 days ago',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-ke-4',
+        title: 'Dispatched from Westlands Service Point',
+        description: 'Loaded onto Courier Samuel Ochieng van.',
+        location: 'Westlands Hub, Nairobi',
+        timestamp: 'Yesterday at 09:00 AM',
+        completed: true,
+        current: false
+      },
+      {
+        id: 'tr-ke-5',
+        title: 'Delivered & Signature Obtained',
+        description: 'Handed to Zawadi Mwangi at Riverstone Terraces reception. Photo proof confirmed.',
+        location: 'Riverside Drive, Nairobi',
+        timestamp: 'Yesterday at 11:42 AM',
+        completed: true,
+        current: true
       }
     ]
   }

@@ -7,7 +7,6 @@ import {
   Check, 
   Instagram, 
   X,
-  ArrowUpDown,
   Search,
   RefreshCw,
   Database,
@@ -235,7 +234,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     let result = [...activeProducts];
 
     if (activeCategory !== 'all') {
-      result = result.filter((p) => p.category === activeCategory);
+      result = result.filter((p) => {
+        if (p.category === activeCategory) return true;
+        if (activeCategory === 'boys' && (p.category === 'kaya' || p.collection === 'kaya' || p.collectionType === 'kaya' || p.gender === 'boy')) return true;
+        if (activeCategory === 'sets' && (p.category === 'kaya' || p.collection === 'kaya' || p.collectionType === 'kaya' || p.category === 'moyo')) return true;
+        return false;
+      });
     }
 
     if (searchQuery.trim()) {
@@ -245,6 +249,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           p.name.toLowerCase().includes(q) ||
           p.tagline.toLowerCase().includes(q) ||
           p.categoryLabel.toLowerCase().includes(q) ||
+          (p.collection && p.collection.toLowerCase().includes(q)) ||
           p.materials.some((m) => m.toLowerCase().includes(q)) ||
           p.sizes.some((s) => s.size.toLowerCase().includes(q))
       );
@@ -426,7 +431,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-neutral-200">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider mb-1.5">
-            <span className="text-amber-700">Storefront Catalog</span>
+            <span className="text-[#C23B1C]">Storefront Catalog</span>
             <span className="text-neutral-300">•</span>
             <span className="text-neutral-600">{filteredProducts.length} Pieces</span>
             
@@ -460,13 +465,15 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             {activeCategory === 'all'
               ? 'All Kids Outfits & Handcrafted Pieces'
               : activeCategory === 'sets'
-              ? 'Resort & Two-Piece Sets'
+              ? 'Two-Piece Waffle Sets'
               : activeCategory === 'occasion'
-              ? 'Luxury Party & Birthday Twirl Wear'
+              ? 'Occasion & Twirl Dresses'
               : activeCategory === 'streetwear'
-              ? 'Urban Streetwear & Denim'
+              ? 'Urban Denim & Streetwear'
               : activeCategory === 'baby'
               ? 'Baby & Newborn Essentials'
+              : activeCategory === 'accessories'
+              ? 'Shoes & Summer Accessories'
               : activeCategory === 'girls'
               ? 'Girls Dresses & Playwear'
               : activeCategory === 'boys'
@@ -481,72 +488,21 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           )}
         </div>
 
-        {/* Filter / Sort Quick Bar */}
-        <div className="flex items-center flex-wrap gap-2.5">
-          {/* Mobile Filter Button */}
+        {/* Mobile Filter Button */}
+        <div className="md:hidden flex items-center">
           <button
             id="mobile-filter-toggle-btn"
             onClick={() => setShowFiltersMobile(!showFiltersMobile)}
-            className="md:hidden inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 text-neutral-800 rounded-xl text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 text-neutral-800 rounded-xl text-xs font-semibold"
           >
             <Filter className="w-3.5 h-3.5" />
             <span>Filters</span>
             {activeFilterCount > 0 && (
-              <span className="bg-amber-500 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-bold">
+              <span className="bg-[#F06543] text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-bold">
                 {activeFilterCount}
               </span>
             )}
           </button>
-
-          {/* Quick Gender Pill Filters */}
-          <div className="hidden sm:flex items-center bg-neutral-100 p-1 rounded-xl text-xs font-medium">
-            <button
-              onClick={() => setSelectedGender('all')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                selectedGender === 'all'
-                  ? 'bg-white text-neutral-900 shadow-xs font-bold'
-                  : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedGender('girl')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                selectedGender === 'girl'
-                  ? 'bg-pink-500 text-white shadow-xs font-bold'
-                  : 'text-neutral-600 hover:text-pink-600'
-              }`}
-            >
-              Girls
-            </button>
-            <button
-              onClick={() => setSelectedGender('boy')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                selectedGender === 'boy'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'text-neutral-600 hover:text-blue-600'
-              }`}
-            >
-              Boys
-            </button>
-          </div>
-
-          {/* Sort Dropdown */}
-          <div className="relative inline-flex items-center">
-            <select
-              id="product-sort-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-white border border-neutral-300 hover:border-neutral-400 text-neutral-800 text-xs font-semibold rounded-xl px-3 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-200"
-            >
-              <option value="featured">Featured & Curated</option>
-              <option value="rating">Highest Rated</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-            <ArrowUpDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 pointer-events-none" />
-          </div>
         </div>
       </div>
 

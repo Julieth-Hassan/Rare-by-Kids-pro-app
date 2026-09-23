@@ -26,12 +26,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const isKayaProduct = product.collectionType === 'kaya' || product.category === 'kaya' || product.collection === 'kaya' || product.id.startsWith('rbk-kaya');
+
   // Use clothingImages array first, with images array as fallback
   const images = (product.clothingImages && product.clothingImages.length > 0)
     ? product.clothingImages
     : (product.images && product.images.length > 0
         ? product.images
-        : ['https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80']);
+        : [isKayaProduct ? '/images/kaya/Kaya_model.png' : 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80']);
 
   const hasMultipleImages = images.length > 1;
   const productVideoUrl = product.productVideoUrl || product.videoFileUrl || product.videoUrl;
@@ -96,6 +98,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           }`}
           referrerPolicy="no-referrer"
           loading="lazy"
+          onError={(e) => {
+            if (isKayaProduct) {
+              e.currentTarget.src = images[0] || '/images/kaya/Kaya_model.png';
+            } else {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=1000&q=80';
+            }
+          }}
         />
 
         {/* Clean HTML5 Video on hover */}
@@ -269,7 +278,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div>
           {/* Collection / Category Header */}
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C23B1C]">
               {product.categoryLabel || 'Luxury Kidswear'}
             </span>
             {hasMultipleImages && (
@@ -280,7 +289,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Product Name */}
-          <h3 className="font-bold text-neutral-900 text-sm sm:text-base leading-snug group-hover:text-amber-800 transition-colors line-clamp-2">
+          <h3 className="font-bold text-neutral-900 text-sm sm:text-base leading-snug group-hover:text-[#F06543] transition-colors line-clamp-2">
             {product.name}
           </h3>
 

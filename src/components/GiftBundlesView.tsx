@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { formatPrice } from '../data/currencies';
+import giftBundlesCollectionImg from '../assets/images/Gift Bundles.jpg';
+import giftBundleMainImg from '../assets/images/Gift Bundle.jpg';
 
 interface GiftBundlesViewProps {
   products: Product[];
@@ -42,8 +44,7 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
     (p) =>
       (p.category === 'moyo' || p.category === 'kaya' || p.category === 'girls' || p.category === 'boys' || p.category === 'toddler') &&
       !p.isGiftBundle &&
-      !p.isAccessory &&
-      p.category !== 'accessories'
+      !p.isAccessory
   );
   const accessoriesList = products.filter(
     (p) => p.isAccessory || p.category === 'accessories' || p.collectionType === 'accessories'
@@ -162,33 +163,55 @@ export const GiftBundlesView: React.FC<GiftBundlesViewProps> = ({
       
       {/* 1. Header & Hero Presentation */}
       <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-neutral-900 via-neutral-900 to-amber-950 p-8 sm:p-12 text-white border border-neutral-800 shadow-2xl">
-        <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
-            <Gift className="w-4 h-4 text-amber-400" />
-            <span>Luxury Packaging & Presentation</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
+              <Gift className="w-4 h-4 text-amber-400" />
+              <span>Luxury Packaging & Presentation</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-black font-display tracking-tight leading-tight">
+              Curated Gift Bundles & Luxury Keepsake Hampers
+            </h1>
+
+            <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-light">
+              Celebrate baby showers, milestones, and birthdays with our pre-styled clothing bundles. Every outfit is carefully folded in scented tissue wrap and packed inside an embossed magnetic keepsake box with French satin ribbon.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-amber-200">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Check className="w-4 h-4 text-amber-400" />
+                Pre-matched Outfits & Headbands
+              </span>
+              <span className="flex items-center gap-1.5 font-medium">
+                <Check className="w-4 h-4 text-amber-400" />
+                Complimentary Gold-Foil Gift Card
+              </span>
+              <span className="flex items-center gap-1.5 font-medium">
+                <Check className="w-4 h-4 text-amber-400" />
+                Up to 25% Bundle Savings
+              </span>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black font-display tracking-tight leading-tight">
-            Curated Gift Bundles & Luxury Keepsake Hampers
-          </h1>
-
-          <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-light">
-            Celebrate baby showers, milestones, and birthdays with our pre-styled clothing bundles. Every outfit is carefully folded in scented tissue wrap and packed inside an embossed magnetic keepsake box with French satin ribbon.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-amber-200">
-            <span className="flex items-center gap-1.5 font-medium">
-              <Check className="w-4 h-4 text-amber-400" />
-              Pre-matched Outfits & Headbands
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <Check className="w-4 h-4 text-amber-400" />
-              Complimentary Gold-Foil Gift Card
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <Check className="w-4 h-4 text-amber-400" />
-              Up to 25% Bundle Savings
-            </span>
+          <div className="lg:col-span-5 relative">
+            <div className="relative mx-auto max-w-sm rounded-2xl overflow-hidden border border-amber-500/30 shadow-2xl group">
+              <img
+                src={giftBundlesCollectionImg}
+                alt="Rare by KidsPro Curated Gift Bundles"
+                className="w-full h-64 sm:h-72 object-cover group-hover:scale-105 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs">
+                <span className="px-2.5 py-1 rounded-full bg-amber-500 text-neutral-950 font-bold uppercase tracking-wider text-[10px]">
+                  Gift Bundles Collection
+                </span>
+                <span className="text-neutral-300 text-[11px] font-medium backdrop-blur-sm bg-black/40 px-2 py-0.5 rounded-md">
+                  Rare by KidsPro Boutique
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
